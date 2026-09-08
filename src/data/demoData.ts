@@ -5,11 +5,11 @@ import {
   COMPLETION_TYPES,
   COURSE_TYPE_BY_KEY,
   HAFTARTEN,
+  TERMINATION_REASON_BY_KEY,
 } from './catalog';
 import { JVAS } from './jvas';
 import type { JvaOperationalRecord } from '../utils/aggregations';
-
-const REPORTING_PERIODS = ['2025-Q2', '2025-Q3', '2025-Q4', '2026-Q1'] as const;
+import { DEMO_HISTORY_QUARTERS, getYearFromPeriod, REPORTING_PERIODS } from '../utils/periods';
 
 function seededRandom(seed: number) {
   let s = seed;
@@ -51,6 +51,29 @@ function pickTermination(rand: () => number, isFormal: boolean): string {
   return pool[Math.floor(rand() * pool.length)].key;
 }
 
+const DISCIPLINE_FREE_TEXTS = [
+  'Beleidigung des Lehrpersonals',
+  'Tätlicher Angriff',
+  'Wiederholte Unterrichtsstörung',
+  'Sachbeschädigung im Unterrichtsraum',
+];
+const OTHER_FREE_TEXTS = [
+  'Vollzugsplanänderung',
+  'Sicherheitslage der Anstalt',
+  'Anordnung der Anstaltsleitung',
+];
+
+function pickTerminationFreeText(reasonKey: string, rand: () => number): string | null {
+  const reason = TERMINATION_REASON_BY_KEY[reasonKey];
+  if (reasonKey === 'VB-01' && rand() < 0.8) {
+    return DISCIPLINE_FREE_TEXTS[Math.floor(rand() * DISCIPLINE_FREE_TEXTS.length)] ?? null;
+  }
+  if ((reason?.requiresFreeTextInBasis || reasonKey === 'VB-08') && rand() < 0.55) {
+    return OTHER_FREE_TEXTS[Math.floor(rand() * OTHER_FREE_TEXTS.length)] ?? null;
+  }
+  return null;
+}
+
 function pickHaftart(rand: () => number): string {
   const weights = [0.18, 0.42, 0.12, 0.15, 0.13];
   const r = rand();
@@ -65,6 +88,17 @@ function pickHaftart(rand: () => number): string {
 function pickKursleitung(rand: () => number): Kursleitung {
   return rand() < 0.68 ? 'intern' : 'extern';
 }
+
+const GENDER_KEYS = ['männlich', 'weiblich'] as const;
+const AGE_GROUP_KEYS = ['Erwachsenenvollzug', 'Jugendvollzug'] as const;
+const GENDER_SHARE: Record<(typeof GENDER_KEYS)[number], number> = {
+  männlich: 0.72,
+  weiblich: 0.28,
+};
+const AGE_SHARE: Record<(typeof AGE_GROUP_KEYS)[number], number> = {
+  Erwachsenenvollzug: 0.84,
+  Jugendvollzug: 0.16,
+};
 
 function daysInMonth(year: number, month: number): number {
   return new Date(year, month, 0).getDate();
@@ -127,13 +161,16 @@ function buildDemoSchoolRooms(): SchoolRoom[] {
     for (let i = 0; i < total; i++) {
       const prefix = ROOM_PREFIXES[i % ROOM_PREFIXES.length];
       const suffix = ROOM_SUFFIXES[Math.floor(i / ROOM_PREFIXES.length) % ROOM_SUFFIXES.length];
+      const roomCount = rand() > 0.82 ? 2 : 1;
       roomCounter += 1;
       rooms.push({
         id: `${jva.id}-room-${roomCounter}`,
         jvaId: jva.id,
         designation: `${prefix} ${suffix}`,
+        roomCount,
         squareMeters: 24 + Math.floor(rand() * 56),
         isElis: elisIndices.has(i),
+        schoolSeats: roomCount * (6 + Math.floor(rand() * 10)),
       });
     }
   }
@@ -146,8 +183,10 @@ export const demoSchoolRooms = buildDemoSchoolRooms();
 function schoolRoomCountsForJva(jvaId: string): { schulraeume: number; elisSchulraeume: number } {
   const jvaRooms = demoSchoolRooms.filter((room) => room.jvaId === jvaId);
   return {
-    schulraeume: jvaRooms.length,
-    elisSchulraeume: jvaRooms.filter((room) => room.isElis).length,
+    schulraeume: jvaRooms.reduce((sum, room) => sum + room.roomCount, 0),
+    elisSchulraeume: jvaRooms
+      .filter((room) => room.isElis)
+      .reduce((sum, room) => sum + room.roomCount, 0),
   };
 }
 
@@ -159,6 +198,7 @@ export const demoOperational: JvaOperationalRecord[] = JVAS.flatMap((jva, ji) =>
     const growth = 1 + pi * 0.02;
     const inmates = Math.round(baseInmates * growth);
     const employed = Math.round(inmates * (0.48 + rand() * 0.18));
+    const belegbareHaftplaetze = Math.round(inmates / (0.78 + rand() * 0.17));
     const paedStellen = 4 + Math.floor(rand() * 8);
     const { schulraeume, elisSchulraeume } = schoolRoomCountsForJva(jva.id);
     return {
@@ -166,6 +206,7 @@ export const demoOperational: JvaOperationalRecord[] = JVAS.flatMap((jva, ji) =>
       reportingPeriod,
       totalInmates: inmates,
       employedTotal: employed,
+      belegbareHaftplaetze,
       paedStellen,
       paedBesetzt: Math.max(1, paedStellen - Math.floor(rand() * 2)),
       paedExtern: Math.floor(rand() * 3),
@@ -183,48 +224,69 @@ const records: EducationMeasureRecord[] = [];
 
 for (const [ji, jva] of JVAS.entries()) {
   const rand = seededRandom(hashJva(jva.id) + 42);
+  const offeredCourseIndexes = courseTypes
+    .map((ct, ci) => (jvaOffersCourse(ji, ci, rand) ? ci : -1))
+    .filter((ci) => ci >= 0);
 
-  for (const [pi, reportingPeriod] of REPORTING_PERIODS.entries()) {
-    for (const [ci, ct] of courseTypes.entries()) {
-      if (!jvaOffersCourse(ji, ci, rand)) continue;
+  for (const [pi, reportingPeriod] of DEMO_HISTORY_QUARTERS.entries()) {
+    const year = getYearFromPeriod(reportingPeriod);
+    const historyFactor = 0.52 + ((year - 2015) / 11) * 0.48;
+    const quarterWave = 0.94 + (pi % 4) * 0.02;
 
+    for (const ci of offeredCourseIndexes) {
+      const ct = courseTypes[ci];
       const target = catalogTargetPlaces(ct.key);
-      const periodFactor = 0.92 + pi * 0.03;
       const occupancy = 0.42 + rand() * 0.48;
-      const participants = Math.max(0, Math.round(target * occupancy * periodFactor));
+      const baseParticipants = Math.max(0, Math.round(target * occupancy * historyFactor * quarterWave));
+      const haftform = rand() > 0.38 ? 'geschlossen' : 'offen';
+      const haftart = pickHaftart(rand);
+      const kursleitung = pickKursleitung(rand);
+      const massnahmenbeginn = pickMassnahmenbeginn(rand, reportingPeriod);
+      const terminationReasonKey = pickTermination(rand, ct.hasFormalCompletion);
+      const completionType = completionTypeForCourse(ct.key, rand);
 
-      const targetAchievements = !ct.hasFormalCompletion
-        ? Math.round(participants * (0.35 + rand() * 0.35))
-        : null;
-      const terminations = Math.round(participants * (0.04 + rand() * 0.12));
-      const vorzeitigeBeendigungen =
-        terminations > 0 ? Math.min(terminations, Math.max(0, Math.round(terminations * (0.2 + rand() * 0.55)))) : 0;
-      const regulaereBeendigungen = terminations - vorzeitigeBeendigungen;
+      for (const altersgruppe of AGE_GROUP_KEYS) {
+        for (const geschlecht of GENDER_KEYS) {
+          const share = AGE_SHARE[altersgruppe] * GENDER_SHARE[geschlecht];
+          const participants = Math.max(0, Math.round(baseParticipants * share));
+          const sliceTarget = Math.max(1, Math.round(target * share));
+          const targetAchievements = !ct.hasFormalCompletion
+            ? Math.round(participants * (0.35 + rand() * 0.35))
+            : null;
+          const terminations = Math.round(participants * (0.04 + rand() * 0.12));
+          const vorzeitigeBeendigungen =
+            terminations > 0
+              ? Math.min(terminations, Math.max(0, Math.round(terminations * (0.2 + rand() * 0.55))))
+              : 0;
+          const regulaereBeendigungen = terminations - vorzeitigeBeendigungen;
 
-      records.push({
-        id: `${jva.id}-${ct.key}-${reportingPeriod}`,
-        reportingPeriod,
-        jvaId: jva.id,
-        courseCategoryKey: ct.categoryKey,
-        courseTypeKey: ct.key,
-        geschlecht: rand() > 0.45 ? 'männlich' : 'weiblich',
-        haftform: rand() > 0.38 ? 'geschlossen' : 'offen',
-        altersgruppe: rand() > 0.22 ? 'Erwachsenenvollzug' : 'Jugendvollzug',
-        haftart: pickHaftart(rand),
-        participants,
-        targetPlaces: target,
-        completions: ct.hasFormalCompletion
-          ? Math.round(participants * (0.12 + rand() * 0.22))
-          : null,
-        targetAchievements,
-        terminations,
-        regulaereBeendigungen,
-        vorzeitigeBeendigungen,
-        terminationReasonKey: pickTermination(rand, ct.hasFormalCompletion),
-        completionType: completionTypeForCourse(ct.key, rand),
-        kursleitung: pickKursleitung(rand),
-        massnahmenbeginn: pickMassnahmenbeginn(rand, reportingPeriod),
-      });
+          records.push({
+            id: `${jva.id}-${ct.key}-${reportingPeriod}-${geschlecht}-${altersgruppe}`,
+            reportingPeriod,
+            jvaId: jva.id,
+            courseCategoryKey: ct.categoryKey,
+            courseTypeKey: ct.key,
+            geschlecht,
+            haftform,
+            altersgruppe,
+            haftart,
+            participants,
+            targetPlaces: sliceTarget,
+            completions: ct.hasFormalCompletion
+              ? Math.round(participants * (0.12 + rand() * 0.22))
+              : null,
+            targetAchievements,
+            terminations,
+            regulaereBeendigungen,
+            vorzeitigeBeendigungen,
+            terminationReasonKey,
+            terminationFreeText: pickTerminationFreeText(terminationReasonKey, rand),
+            completionType,
+            kursleitung,
+            massnahmenbeginn,
+          });
+        }
+      }
     }
   }
 }

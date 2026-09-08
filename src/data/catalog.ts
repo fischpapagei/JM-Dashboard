@@ -1,12 +1,12 @@
-import type { CourseCategory, CourseType, TerminationReason } from '../types/domain';
+import type { CourseCategory, CourseType, TerminationLevel1, TerminationReason } from '../types/domain';
 
 /** Katalog aus BASIS-Excel (Stand 03.06.2026). */
 export const COURSE_CATEGORIES: CourseCategory[] = [
   { key: 'SF', label: 'Sprachliche Förderung' },
   { key: 'VM', label: 'Vorqualifizierende Maßnahmen' },
   { key: 'SA', label: 'Schulabschlussbezogene Maßnahmen' },
+  { key: 'AB', label: 'Ausbildung(svorbereitung)' },
   { key: 'ST', label: 'Studium' },
-  { key: 'AB', label: 'Ausbildungsvorbereitung' },
   { key: 'SO', label: 'Sonstige' },
 ];
 
@@ -200,26 +200,33 @@ export const TERMINATION_REASONS: TerminationReason[] = [
     label: 'Zielerreichung ohne Regelabschluss',
     classification: 'neutral',
     applicableCategories: 'SF, VM',
+    filterDescription:
+      'Eine nicht-schulabschlussbezogene Maßnahme wird mit einer Leistungsverbesserung (Eingangs- zu Ausgangstestung) planmäßig abgeschlossen.',
   },
   {
     key: 'RB-02',
     level1: 'reguläre Beendigung',
-    label: 'Erfolgreicher Regelabschluss',
+    label: 'Erfolgreicher Abschluss',
     classification: 'neutral',
     requiresCompletionType: true,
     applicableCategories: 'SA, ST, AB',
+    filterDescription: 'Eine schulabschlussbezogene Maßnahme wird mit einem Abschluss beendet.',
   },
   {
     key: 'RB-03',
     level1: 'reguläre Beendigung',
-    label: 'Beendigung ohne Abschluss (nicht bestanden)',
+    label: 'Beendigung ohne Abschluss/Zielerreichung',
     classification: 'neutral',
     applicableCategories: 'alle',
+    filterDescription: [
+      'Bei nicht schulabschlussbezogenen Maßnahmen: Es ist keine Verbesserung der Leistung (Eingangs- zu Ausgangstestung) feststellbar.',
+      'Bei schulabschlussbezogenen Maßnahmen: Es wurde kein Abschluss erreicht.',
+    ],
   },
   {
     key: 'VB-01',
     level1: 'vorzeitige Beendigung',
-    label: 'Disziplinarische Gründe',
+    label: 'Disziplinarische Gründe (z. B. Fehlverhalten)',
     classification: 'verschuldet',
     requiresFreeTextInBasis: true,
     applicableCategories: 'alle',
@@ -234,14 +241,15 @@ export const TERMINATION_REASONS: TerminationReason[] = [
   {
     key: 'VB-03',
     level1: 'vorzeitige Beendigung',
-    label: 'Unzureichende Fähigkeiten / gesundheitliche Einschränkung / Arbeitsunfähigkeit',
+    label:
+      'Unzureichende Fähigkeiten und Fertigkeiten oder gesundheitliche Einschränkungen bzw. Arbeitsunfähigkeit',
     classification: 'unverschuldet',
     applicableCategories: 'alle',
   },
   {
     key: 'VB-04',
     level1: 'vorzeitige Beendigung',
-    label: 'Angeordnete Sicherungsmaßnahmen',
+    label: 'Angeordnete Sicherungsmaßnahmen (z. B. Suizidalität), Tätertrennung o. ä.',
     classification: 'unverschuldet',
     applicableCategories: 'alle',
   },
@@ -264,6 +272,13 @@ export const TERMINATION_REASONS: TerminationReason[] = [
     level1: 'vorzeitige Beendigung',
     label: '(Versuchte) Entweichung oder Nichtrückkehr',
     classification: 'verschuldet',
+    applicableCategories: 'alle',
+  },
+  {
+    key: 'VB-08',
+    level1: 'vorzeitige Beendigung',
+    label: 'Sonstige sicherheits- oder vollstreckungsrelevante Gründe',
+    classification: 'offen',
     applicableCategories: 'alle',
   },
 ];
@@ -297,6 +312,19 @@ export const COURSE_TYPE_BY_KEY = Object.fromEntries(
 export const TERMINATION_REASON_BY_KEY = Object.fromEntries(
   TERMINATION_REASONS.map((reason) => [reason.key, reason]),
 ) as Record<string, TerminationReason>;
+
+export const TERMINATION_LEVEL_OPTIONS: { value: TerminationLevel1; label: string }[] = [
+  { value: 'vorzeitige Beendigung', label: 'Vorzeitige Beendigung' },
+  { value: 'reguläre Beendigung', label: 'Reguläre Beendigung' },
+];
+
+export function getTerminationLevelLabel(level: TerminationLevel1): string {
+  return TERMINATION_LEVEL_OPTIONS.find((option) => option.value === level)?.label ?? level;
+}
+
+export function getTerminationReasonsByLevel(level: TerminationLevel1): TerminationReason[] {
+  return TERMINATION_REASONS.filter((reason) => reason.level1 === level);
+}
 
 export const courseCategories = COURSE_CATEGORIES;
 export const courseTypes = COURSE_TYPES;

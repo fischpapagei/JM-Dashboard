@@ -39,12 +39,16 @@ export const EMPTY_CHART_JVA_COMPARISON: { jvaId: string; utilization: number | 
 
 export const emptyNrwKpis = {
   beschaeftigungsquote: null as number | null,
+  bruttobelegung: null as number | null,
   schulischeBildung: null as number | null,
   auslastung: null as number | null,
   teilnehmende: null as number | null,
   sollPlaetze: null as number | null,
   freiePlaetze: null as number | null,
+  regulaereBeendigungen: null as number | null,
   vorzeitigeBeendigungen: null as number | null,
+  anteilRegulaereBeendigung: null as number | null,
+  anteilVorzeitigeBeendigung: null as number | null,
   abbruchquote: null as number | null,
   abschluesse: null as number | null,
   zielerreichungen: null as number | null,

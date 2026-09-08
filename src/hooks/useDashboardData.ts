@@ -12,7 +12,9 @@ import {
   buildJvaOperationalRows,
   buildJvaSchoolRoomSummaries,
   buildJvaTableRows,
+  buildRegulaereTerminationBreakdown,
   buildTerminationChart,
+  buildSchoolCompletionsDetail,
   buildUtilizationTrend,
   computeAverageKpisAcrossJvas,
   computeKpis,
@@ -38,6 +40,8 @@ export function useDashboardData(
         nrwAverageKpis: EMPTY_KPIS,
         categoryChart: [] as CategoryChartDatum[],
         terminationChart: [] as { name: string; value: number }[],
+        regulaereTerminationBreakdown: [] as ReturnType<typeof buildRegulaereTerminationBreakdown>,
+        schoolCompletionsDetail: [] as ReturnType<typeof buildSchoolCompletionsDetail>,
         jvaComparisonChart: [] as { name: string; value: number }[],
         utilizationTrend: [] as { name: string; value: number; key: string }[],
         trendRecords: [] as typeof demoRecords,
@@ -62,7 +66,7 @@ export function useDashboardData(
     );
     const nrwKpis = computeKpis(demoRecords, demoOperational, {
       ...filters,
-      jvaId: null,
+      jvaIds: [],
       organizationLevel: 'nrw',
     });
     const nrwAverageKpis = computeAverageKpisAcrossJvas(demoRecords, demoOperational, filters);
@@ -79,8 +83,10 @@ export function useDashboardData(
       nrwAverageKpis,
       categoryChart: buildCategoryChart(scopedRecords),
       terminationChart: buildTerminationChart(scopedRecords),
+      regulaereTerminationBreakdown: buildRegulaereTerminationBreakdown(scopedRecords),
+      schoolCompletionsDetail: buildSchoolCompletionsDetail(scopedRecords),
       jvaComparisonChart: buildJvaComparisonChart(
-        applyDashboardScope(demoRecords, { ...filters, jvaId: null }),
+        applyDashboardScope(demoRecords, { ...filters, jvaIds: [] }),
       ),
       utilizationTrend: buildUtilizationTrend(demoRecords, filters, forcedJvaId, 'month'),
       trendRecords: demoRecords,

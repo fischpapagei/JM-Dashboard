@@ -1,6 +1,11 @@
 import type { LucideIcon } from "lucide-react";
 import { Briefcase, GraduationCap, Hammer, Percent } from "lucide-react";
-import type { DashboardAreaKey, NavView } from "../types/domain";
+import type {
+  DashboardAreaFreiePlaetzeKey,
+  DashboardAreaHubKey,
+  DashboardAreaKey,
+  NavView,
+} from "../types/domain";
 
 export interface DashboardArea {
   key: DashboardAreaKey;
@@ -45,15 +50,73 @@ export const DASHBOARD_AREAS: DashboardArea[] = [
   },
 ];
 
-export function isDashboardNav(nav: NavView): nav is DashboardAreaKey {
-  return nav !== 'jva' && nav !== 'schulische-bildung-hub';
+export const DASHBOARD_AREA_KEYS = DASHBOARD_AREAS.map((area) => area.key);
+
+export const AREAS_WITH_FREIE_PLAETZE = [
+  "schulische-bildung",
+  "berufliche-bildung",
+] as const satisfies readonly DashboardAreaKey[];
+
+export type AreaWithFreiePlaetze = (typeof AREAS_WITH_FREIE_PLAETZE)[number];
+
+export const AREA_COURSE_CATEGORY_KEYS: Record<AreaWithFreiePlaetze, string[]> = {
+  "schulische-bildung": ["SF", "VM", "SA", "ST", "SO"],
+  "berufliche-bildung": ["AB"],
+};
+
+export function getHubKey(area: DashboardAreaKey): DashboardAreaHubKey {
+  return `${area}-hub`;
 }
 
-export function isSchulischeBildungSection(
+export function getFreiePlaetzeKey(area: AreaWithFreiePlaetze): DashboardAreaFreiePlaetzeKey {
+  return `${area}-freie-plaetze`;
+}
+
+export function isDashboardNav(nav: NavView): nav is DashboardAreaKey {
+  return (DASHBOARD_AREA_KEYS as string[]).includes(nav);
+}
+
+export function isDashboardHub(nav: NavView): nav is DashboardAreaHubKey {
+  return nav.endsWith("-hub");
+}
+
+export function isFreiePlaetzeNav(nav: NavView): nav is DashboardAreaFreiePlaetzeKey {
+  return nav.endsWith("-freie-plaetze");
+}
+
+export function getAreaFromHub(nav: DashboardAreaHubKey): DashboardAreaKey {
+  return nav.slice(0, -4) as DashboardAreaKey;
+}
+
+export function getAreaFromFreiePlaetze(nav: DashboardAreaFreiePlaetzeKey): DashboardAreaKey {
+  return nav.replace("-freie-plaetze", "") as DashboardAreaKey;
+}
+
+export function areaHasFreiePlaetze(areaKey: DashboardAreaKey): areaKey is AreaWithFreiePlaetze {
+  return (AREAS_WITH_FREIE_PLAETZE as readonly string[]).includes(areaKey);
+}
+
+export function getActiveAreaKey(
   nav: NavView,
   jvaAreaContext: DashboardAreaKey | null,
+): DashboardAreaKey | null {
+  if (isDashboardNav(nav)) return nav;
+  if (isDashboardHub(nav)) return getAreaFromHub(nav);
+  if (isFreiePlaetzeNav(nav)) return getAreaFromFreiePlaetze(nav);
+  if (nav === "jva" && jvaAreaContext) return jvaAreaContext;
+  return null;
+}
+
+export function isDashboardAreaSection(
+  nav: NavView,
+  areaKey: DashboardAreaKey,
+  jvaAreaContext: DashboardAreaKey | null,
 ): boolean {
-  return nav === 'schulische-bildung-hub' || nav === 'schulische-bildung' || (nav === 'jva' && jvaAreaContext === 'schulische-bildung');
+  if (nav === getHubKey(areaKey)) return true;
+  if (nav === areaKey) return true;
+  if (areaHasFreiePlaetze(areaKey) && nav === getFreiePlaetzeKey(areaKey)) return true;
+  if (nav === "jva" && jvaAreaContext === areaKey) return true;
+  return false;
 }
 
 export function getDashboardArea(nav: DashboardAreaKey): DashboardArea {

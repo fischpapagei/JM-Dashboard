@@ -21,8 +21,8 @@ export function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-[#1a3352] p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center text-white">
-          <h1 className="text-2xl font-semibold">Kennzahlensystem</h1>
-          <p className="text-white/80">Schulische Bildung NRW</p>
+          <h1 className="text-2xl font-semibold">Bildung & Beschäftigung</h1>
+          <p className="text-white/80">Justiz NRW</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4 rounded-xl bg-white p-6 shadow-lg">
           <div>

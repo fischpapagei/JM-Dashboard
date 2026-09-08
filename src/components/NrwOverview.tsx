@@ -1,127 +1,347 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
+import { BarChart3 } from "lucide-react";
+import type { LandesweitReportVariant } from "../types/app";
+import { LANDESWEIT_REPORT_VARIANT_LABELS } from "../types/app";
+import { formatBerichtszeitpunktLabel, getEntwicklungZeitraumLabel, type EntwicklungZeitraum } from "../utils/periods";
 import type { DashboardAreaKey, DashboardFilters } from "../types/domain";
 import { useDashboardData } from "../hooks/useDashboardData";
+import { generateKurzberichtPdf } from "../utils/generateKurzberichtPdf";
 import { CategoryBarChart } from "./CategoryBarChart";
 import { ChartShell } from "./ChartShell";
 import { FilterBar } from "./FilterBar";
+import { KurzberichtButton } from "./KurzberichtButton";
 import { KpiCard } from "./KpiCard";
 import { OperationalSummaryPanels } from "./OperationalSummaryPanels";
 import { PeriodContextHeading } from "./PeriodContextHeading";
 import { TerminationBarChart } from "./TerminationBarChart";
 import { UtilizationTrendChart } from "./UtilizationTrendChart";
-import { FreePlacesGroupedDetailModal } from "./FreePlacesGroupedDetailModal";
+import { PaedPersonalDetailModal } from "./PaedPersonalDetailModal";
+import { SchoolCompletionsDetailModal } from "./SchoolCompletionsDetailModal";
 import { SchoolRoomsDetailModal } from "./SchoolRoomsDetailModal";
+
+import { NrwJahresberichtView } from "./NrwJahresberichtView";
 
 interface NrwOverviewProps {
   filters: DashboardFilters;
   onFiltersChange: (f: DashboardFilters) => void;
   demoMode: boolean;
   onNavigateDashboard?: (dashboard: DashboardAreaKey) => void;
+  reportVariant?: LandesweitReportVariant;
+  entwicklungZeitraum?: EntwicklungZeitraum;
+  berichtszeitpunkt?: string;
 }
 
-export function NrwOverview({ filters, onFiltersChange, demoMode, onNavigateDashboard }: NrwOverviewProps) {
+export function NrwOverview({
+  filters,
+  onFiltersChange,
+  demoMode,
+  onNavigateDashboard,
+  reportVariant = "entwicklung",
+  entwicklungZeitraum,
+  berichtszeitpunkt,
+}: NrwOverviewProps) {
+  const exportRef = useRef<HTMLDivElement>(null);
+  const [pdfExportMode, setPdfExportMode] = useState(false);
+
   const data = useDashboardData(filters, demoMode);
-  const { kpis, previousKpis, previousPeriodLabel, categoryChart, terminationChart, utilizationTrend, trendRecords, freeCapacityRows, schoolRoomSummaries, hasData } = data;
+  const {
+    kpis,
+    previousKpis,
+    previousPeriodLabel,
+    categoryChart,
+    terminationChart,
+    utilizationTrend,
+    trendRecords,
+    schoolRoomSummaries,
+    schoolCompletionsDetail,
+    jvaOperationalRows,
+    jvaTableRows,
+    hasData,
+  } = data;
+
+  const isJahresbericht = reportVariant === "jahresbericht";
 
   const demoBadge = demoMode ? "Demo-Daten" : undefined;
   const emptyChartMsg = "Keine Daten für aktuelle Filterauswahl. Werte kommen später aus BASIS.";
-  const [freePlacesOpen, setFreePlacesOpen] = useState(false);
   const [schoolRoomsOpen, setSchoolRoomsOpen] = useState(false);
-  const freePlacesClick = demoMode ? () => setFreePlacesOpen(true) : undefined;
+  const [completionsOpen, setCompletionsOpen] = useState(false);
+  const [personalOpen, setPersonalOpen] = useState(false);
   const schoolRoomsClick = demoMode ? () => setSchoolRoomsOpen(true) : undefined;
+  const completionsClick = demoMode ? () => setCompletionsOpen(true) : undefined;
+  const personalClick = demoMode ? () => setPersonalOpen(true) : undefined;
 
-  const modalRows = useMemo(() => freeCapacityRows, [freeCapacityRows]);
   const schoolRoomModalRows = useMemo(() => schoolRoomSummaries, [schoolRoomSummaries]);
+  const pdfBlockClass = pdfExportMode
+    ? "rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm"
+    : "";
+
+  const handleKurzbericht = useCallback(async () => {
+    const scrollY = window.scrollY;
+
+    flushSync(() => {
+      setPdfExportMode(true);
+    });
+
+    exportRef.current?.scrollIntoView({ block: "start" });
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    });
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
+    try {
+      if (!exportRef.current) {
+        throw new Error("Export-Bereich nicht gefunden.");
+      }
+      await generateKurzberichtPdf({ root: exportRef.current });
+    } finally {
+      flushSync(() => {
+        setPdfExportMode(false);
+      });
+      window.scrollTo(0, scrollY);
+    }
+  }, []);
 
   return (
     <>
+      <div className="flex justify-end">
+        <KurzberichtButton onGenerate={handleKurzbericht} />
+      </div>
+
       <FilterBar filters={filters} onChange={onFiltersChange} role="ministry" />
 
-      <PeriodContextHeading filters={filters} />
-
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
-        <KpiCard
-          title="Freie Plätze"
-          value={kpis.freiePlaetze}
-          previousValue={previousKpis.freiePlaetze}
-          previousPeriodLabel={previousPeriodLabel}
-          badge={demoBadge}
-          showNotLoadedBadge={!demoMode}
-          onClick={freePlacesClick}
-        />
-        <KpiCard
-          title="Teilnehmende / Soll-Plätze"
-          value={kpis.teilnehmende}
-          suffixValue={kpis.sollPlaetze}
-          previousValue={previousKpis.teilnehmende}
-          previousSuffixValue={previousKpis.sollPlaetze}
-          previousPeriodLabel={previousPeriodLabel}
-          badge={demoBadge}
-          showNotLoadedBadge={!demoMode}
-        />
-        <KpiCard
-          title="Beschäftigungsquote gesamt"
-          value={kpis.beschaeftigungsquote}
-          isPercent
-          previousValue={previousKpis.beschaeftigungsquote}
-          previousPeriodLabel={previousPeriodLabel}
-          badge={demoBadge}
-          showNotLoadedBadge={!demoMode}
-          onClick={onNavigateDashboard ? () => onNavigateDashboard("beschaeftigungsquote") : undefined}
-        />
-        <KpiCard title="Beschäftigungsquote schulische Bildung" value={kpis.schulischeBildung} isPercent previousValue={previousKpis.schulischeBildung} previousPeriodLabel={previousPeriodLabel} badge={demoBadge} showNotLoadedBadge={!demoMode} />
-        <KpiCard title="Auslastungsquote schulische Maßnahmen" value={kpis.auslastung} isPercent previousValue={previousKpis.auslastung} previousPeriodLabel={previousPeriodLabel} badge={demoBadge} showNotLoadedBadge={!demoMode} />
-        <KpiCard title="Erreichte Schulabschlüsse" value={kpis.abschluesse} previousValue={previousKpis.abschluesse} previousPeriodLabel={previousPeriodLabel} badge={demoBadge} showNotLoadedBadge={!demoMode} />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <ChartShell
-          title="Kursangebote nach Überkategorie"
-          subtitle="Teilnehmende nach BASIS-Kurskatalog"
-          hasData={categoryChart.length > 0}
-          emptyDescription={hasData ? undefined : emptyChartMsg}
-          expandable
-          expandedChart={(height) => <CategoryBarChart data={categoryChart} height={height} />}
-        />
-
-        <ChartShell
-          title="Entwicklung Auslastungsquote"
-          subtitle="Zeitverlauf nach gewählter Granularität"
-          hasData={utilizationTrend.some((d) => d.value > 0)}
-          emptyDescription={hasData ? undefined : emptyChartMsg}
-          expandable
-          interactiveChart
-          expandedChart={(height) => (
-            <UtilizationTrendChart
-              records={trendRecords}
-              filters={filters}
-              height={height}
-            />
+      {!isJahresbericht && (
+        <div className="rounded-lg border border-[#2d5a8e]/20 bg-[#2d5a8e]/5 px-4 py-3 text-sm text-[#1a3352]">
+          <span className="font-medium">Berichtsausgabe:</span>{" "}
+          {LANDESWEIT_REPORT_VARIANT_LABELS[reportVariant]}
+          {entwicklungZeitraum && (
+            <>
+              {" "}
+              · <span className="font-medium">Berichtszeitraum:</span>{" "}
+              {getEntwicklungZeitraumLabel(entwicklungZeitraum)}
+              {berichtszeitpunkt && (
+                <>
+                  {" "}
+                  · <span className="font-medium">Berichtszeitpunkt:</span>{" "}
+                  {formatBerichtszeitpunktLabel(entwicklungZeitraum, berichtszeitpunkt)}
+                </>
+              )}
+            </>
           )}
-        />
+        </div>
+      )}
 
-        <ChartShell
-          title="Beendigungsgründe"
-          subtitle="Auswertung nach BASIS-Beendigungsgrund"
-          hasData={terminationChart.length > 0}
-          emptyDescription={hasData ? undefined : emptyChartMsg}
-          expandable
-          expandedChart={(height) => <TerminationBarChart data={terminationChart} height={height} />}
-        />
+      <div ref={exportRef} data-kurzbericht-root className="space-y-6">
+        <div data-pdf-block>
+          <PeriodContextHeading filters={filters} />
+        </div>
+
+        {isJahresbericht ? (
+          <section className="space-y-4 rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+            <div data-pdf-block className={pdfBlockClass}>
+              <div className="flex items-center gap-2 text-[#1a3352]">
+                <BarChart3 className="h-5 w-5" aria-hidden />
+                <h2 className="text-sm font-semibold">Jahresbericht — tabellarische Auswertung</h2>
+              </div>
+              <div className="mt-4">
+                <NrwJahresberichtView kpis={kpis} jvaRows={jvaTableRows} demoMode={demoMode} />
+              </div>
+            </div>
+          </section>
+        ) : (
+        <section className="space-y-4 rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+          <div data-pdf-block className={pdfBlockClass}>
+            <div className="flex items-center gap-2 text-[#1a3352]">
+              <BarChart3 className="h-5 w-5" aria-hidden />
+              <h2 className="text-sm font-semibold">Ausgewertete Daten</h2>
+            </div>
+
+            <div className="mt-4 space-y-3">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-3">
+              <KpiCard
+                surface="inset"
+                exportMode={pdfExportMode}
+                title="Teilnehmende / Soll-Plätze"
+                value={kpis.teilnehmende}
+                suffixValue={kpis.sollPlaetze}
+                previousValue={previousKpis.teilnehmende}
+                previousSuffixValue={previousKpis.sollPlaetze}
+                previousPeriodLabel={previousPeriodLabel}
+                badge={demoBadge}
+                showNotLoadedBadge={!demoMode}
+              />
+              <KpiCard
+                surface="inset"
+                accent="purple"
+                exportMode={pdfExportMode}
+                title="Beschäftigungsquote gesamt"
+                value={kpis.beschaeftigungsquote}
+                isPercent
+                previousValue={previousKpis.beschaeftigungsquote}
+                previousPeriodLabel={previousPeriodLabel}
+                secondaryMetric={{
+                  label: "Auslastungsquote der tatsächlich belegbaren Haftplätze (Bruttobelegung)",
+                  value: kpis.bruttobelegung,
+                  isPercent: true,
+                  previousValue: previousKpis.bruttobelegung,
+                }}
+                badge={demoBadge}
+                showNotLoadedBadge={!demoMode}
+                onClick={onNavigateDashboard ? () => onNavigateDashboard("beschaeftigungsquote") : undefined}
+              />
+              <KpiCard
+                surface="inset"
+                exportMode={pdfExportMode}
+                title="Beschäftigungsquote schulische Bildung"
+                value={kpis.schulischeBildung}
+                isPercent
+                previousValue={previousKpis.schulischeBildung}
+                previousPeriodLabel={previousPeriodLabel}
+                badge={demoBadge}
+                showNotLoadedBadge={!demoMode}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-3">
+              <KpiCard
+                surface="inset"
+                exportMode={pdfExportMode}
+                title="Auslastungsquote schulische Maßnahmen"
+                value={kpis.auslastung}
+                isPercent
+                previousValue={previousKpis.auslastung}
+                previousPeriodLabel={previousPeriodLabel}
+                badge={demoBadge}
+                showNotLoadedBadge={!demoMode}
+              />
+              <KpiCard
+                surface="inset"
+                exportMode={pdfExportMode}
+                title="Erreichte Schulabschlüsse"
+                value={kpis.abschluesse}
+                previousValue={previousKpis.abschluesse}
+                previousPeriodLabel={previousPeriodLabel}
+                badge={demoBadge}
+                showNotLoadedBadge={!demoMode}
+                onClick={completionsClick}
+              />
+              <KpiCard
+                surface="inset"
+                exportMode={pdfExportMode}
+                title="Beendigungen nach Art"
+                valueLabel="Vorzeitige Beendigung"
+                value={kpis.anteilVorzeitigeBeendigung}
+                isPercent
+                previousValue={previousKpis.anteilVorzeitigeBeendigung}
+                previousPeriodLabel={previousPeriodLabel}
+                secondaryMetric={{
+                  label: "Reguläre Beendigung",
+                  value: kpis.anteilRegulaereBeendigung,
+                  isPercent: true,
+                  previousValue: previousKpis.anteilRegulaereBeendigung,
+                }}
+                badge={demoBadge}
+                showNotLoadedBadge={!demoMode}
+              />
+            </div>
+          </div>
+          </div>
+
+          <div className="space-y-4 border-t border-slate-100 pt-4">
+            <div className={pdfExportMode ? "space-y-4" : "grid grid-cols-1 gap-4 lg:grid-cols-2"}>
+              <div {...(pdfExportMode ? { "data-pdf-block": true } : {})} className={pdfBlockClass}>
+                <ChartShell
+                  surface="inset"
+                  pdfExportMode={pdfExportMode}
+                  title="Kursangebote nach Hauptkategorie"
+                  subtitle="Teilnehmende nach BASIS-Kurskatalog"
+                  hasData={categoryChart.length > 0}
+                  emptyDescription={hasData ? undefined : emptyChartMsg}
+                  expandable
+                  expandedHeight={pdfExportMode ? 420 : 420}
+                  expandedChart={(height) => (
+                    <CategoryBarChart data={categoryChart} height={height} pdfExportMode={pdfExportMode} />
+                  )}
+                />
+              </div>
+
+              <div {...(pdfExportMode ? { "data-pdf-block": true } : {})} className={pdfBlockClass}>
+                <ChartShell
+                  surface="inset"
+                  pdfExportMode={pdfExportMode}
+                  title="Entwicklung Auslastungsquote der schulischen Maßnahme(n)"
+                  infoDescription="Die Auslastungsquote = besetzte Plätze durch Soll-Plätze"
+                  subtitle="Zeitverlauf nach gewählter Granularität"
+                  hasData={utilizationTrend.some((d) => d.value > 0)}
+                  emptyDescription={hasData ? undefined : emptyChartMsg}
+                  expandable
+                  interactiveChart
+                  expandedHeight={pdfExportMode ? 380 : 280}
+                  expandedChart={(height) => (
+                    <UtilizationTrendChart
+                      records={trendRecords}
+                      filters={filters}
+                      height={height}
+                      hideControls={pdfExportMode || Boolean(entwicklungZeitraum)}
+                      entwicklungZeitraum={entwicklungZeitraum}
+                      berichtszeitpunkt={berichtszeitpunkt}
+                      pdfExportMode={pdfExportMode}
+                    />
+                  )}
+                />
+              </div>
+            </div>
+
+            <div {...(pdfExportMode ? { "data-pdf-block": true } : {})} className={pdfBlockClass}>
+              <ChartShell
+                surface="inset"
+                pdfExportMode={pdfExportMode}
+                title="Beendigungsgründe"
+                subtitle="Auswertung nach BASIS-Beendigungsgrund"
+                hasData={terminationChart.length > 0}
+                emptyDescription={hasData ? undefined : emptyChartMsg}
+                expandable
+                interactiveChart
+                previewHeight={340}
+                expandedHeight={520}
+                expandedChart={(height) => (
+                  <TerminationBarChart data={terminationChart} height={height} pdfExportMode={pdfExportMode} />
+                )}
+              />
+            </div>
+          </div>
+
+          {!pdfExportMode && (
+            <div className="border-t border-slate-100 pt-4">
+              <OperationalSummaryPanels
+                kpis={kpis}
+                demoMode={demoMode}
+                scopeLabel="Landesweit summiert · alle JVAen"
+                onPersonalClick={personalClick}
+                onSchulraeumeClick={schoolRoomsClick}
+              />
+            </div>
+          )}
+        </section>
+        )}
       </div>
 
-      <OperationalSummaryPanels
-        kpis={kpis}
-        demoMode={demoMode}
-        scopeLabel="Landesweit summiert · alle JVAen"
-        onSchulraeumeClick={schoolRoomsClick}
+      <PaedPersonalDetailModal
+        open={personalOpen}
+        title="Personal (pädagogischer Dienst) — Detailansicht"
+        rows={jvaOperationalRows}
+        totalStellen={kpis.paedStellen}
+        totalBesetzt={kpis.paedBesetzt}
+        totalExtern={kpis.paedExtern}
+        onClose={() => setPersonalOpen(false)}
       />
 
-      <FreePlacesGroupedDetailModal
-        open={freePlacesOpen}
-        title="Freie Plätze — Detailansicht (Kursart & JVA)"
-        rows={modalRows}
-        onClose={() => setFreePlacesOpen(false)}
+      <SchoolCompletionsDetailModal
+        open={completionsOpen}
+        title="Erreichte Schulabschlüsse — Detailansicht"
+        rows={schoolCompletionsDetail}
+        total={kpis.abschluesse}
+        onClose={() => setCompletionsOpen(false)}
       />
 
       <SchoolRoomsDetailModal

@@ -13,7 +13,13 @@ import {
 import type { DashboardFilters, EducationMeasureRecord } from "../types/domain";
 import { buildUtilizationTrend } from "../utils/aggregations";
 import { linearRegressionTrend } from "../utils/calculations";
-import { TREND_GRANULARITY_LABELS, type TrendGranularity } from "../utils/periods";
+import {
+  getEntwicklungZeitraumGranularity,
+  getTrendTimelineForEntwicklungZeitraum,
+  TREND_GRANULARITY_LABELS,
+  type EntwicklungZeitraum,
+  type TrendGranularity,
+} from "../utils/periods";
 
 const GRANULARITIES: TrendGranularity[] = ["week", "month", "quarter", "year"];
 
@@ -21,19 +27,21 @@ function renderValueLabel(
   props: LabelProps,
   compact: boolean,
   granularity: TrendGranularity,
+  showAllValueLabels: boolean,
 ) {
   const { x, y, value, index = 0 } = props;
   if (value == null || x == null || y == null) return null;
-  if (granularity === "week" && compact && index % 4 !== 0) return null;
+  if (!showAllValueLabels && granularity === "week" && compact && index % 4 !== 0) return null;
 
   const numericValue = typeof value === "number" ? value : Number(value);
+  const fontSize = showAllValueLabels ? 11 : compact ? 8 : 10;
   return (
     <text
       x={Number(x)}
-      y={Number(y) - 8}
+      y={Number(y) - 10}
       textAnchor="middle"
       fill="#1a3352"
-      fontSize={compact ? 8 : 10}
+      fontSize={fontSize}
       fontWeight={600}
     >
       {numericValue.toFixed(1)} %
@@ -52,6 +60,10 @@ interface UtilizationTrendChartProps {
   forcedJvaId?: string;
   height: number;
   defaultGranularity?: TrendGranularity;
+  entwicklungZeitraum?: EntwicklungZeitraum;
+  berichtszeitpunkt?: string;
+  hideControls?: boolean;
+  pdfExportMode?: boolean;
 }
 
 export function UtilizationTrendChart({
@@ -60,31 +72,54 @@ export function UtilizationTrendChart({
   forcedJvaId,
   height,
   defaultGranularity = "month",
+  entwicklungZeitraum,
+  berichtszeitpunkt,
+  hideControls = false,
+  pdfExportMode = false,
 }: UtilizationTrendChartProps) {
-  const [granularity, setGranularity] = useState<TrendGranularity>(defaultGranularity);
+  const lockedGranularity = entwicklungZeitraum
+    ? getEntwicklungZeitraumGranularity(entwicklungZeitraum)
+    : null;
+  const [granularity, setGranularity] = useState<TrendGranularity>(
+    lockedGranularity ?? defaultGranularity,
+  );
   const [showTrendLine, setShowTrendLine] = useState(true);
 
+  const effectiveGranularity = lockedGranularity ?? granularity;
+
   const data = useMemo(() => {
-    const base = buildUtilizationTrend(records, filters, forcedJvaId, granularity);
+    const timeline = entwicklungZeitraum
+      ? getTrendTimelineForEntwicklungZeitraum(entwicklungZeitraum, berichtszeitpunkt)
+      : undefined;
+    const base = buildUtilizationTrend(
+      records,
+      filters,
+      forcedJvaId,
+      effectiveGranularity,
+      timeline,
+    );
     const trend = linearRegressionTrend(base.map((point) => point.value));
     return base.map((point, index) => ({
       ...point,
       trend: trend[index],
     }));
-  }, [records, filters, forcedJvaId, granularity]);
+  }, [records, filters, forcedJvaId, effectiveGranularity, entwicklungZeitraum, berichtszeitpunkt]);
 
-  const compact = height <= 250;
+  const compact = !pdfExportMode && height <= 250;
   const expanded = !compact;
-  const tickAngle = granularity === "week" ? -55 : granularity === "month" && compact ? -40 : 0;
-  const bottomMargin = granularity === "week" ? (compact ? 36 : 48) : compact ? 20 : 24;
-  const topMargin = compact ? 20 : 24;
-  const tickFontSize = compact ? 8 : 10;
-  const tickInterval = granularity === "week" ? (compact ? 7 : 3) : 0;
+  const controlsHeight = hideControls ? 0 : compact ? 36 : 40;
+  const showAllValueLabels = pdfExportMode;
+  const tickAngle = pdfExportMode ? 0 : effectiveGranularity === "week" ? -55 : effectiveGranularity === "month" && compact ? -40 : 0;
+  const bottomMargin = pdfExportMode ? 32 : effectiveGranularity === "week" ? (compact ? 36 : 48) : compact ? 20 : 24;
+  const topMargin = pdfExportMode ? 36 : compact ? 20 : 24;
+  const tickFontSize = pdfExportMode ? 11 : compact ? 8 : 10;
+  const tickInterval = pdfExportMode ? 0 : effectiveGranularity === "week" ? (compact ? 7 : 3) : 0;
   const leftMargin = expanded ? 28 : 18;
   const maxY = yAxisMax(data);
 
   return (
     <div className="flex h-full flex-col gap-3">
+      {!hideControls && !entwicklungZeitraum && (
       <div
         className="flex flex-wrap items-center gap-1 pointer-events-auto"
         onClick={(e) => e.stopPropagation()}
@@ -122,9 +157,10 @@ export function UtilizationTrendChart({
           Trendlinie
         </button>
       </div>
+      )}
 
       <div className="min-h-0 flex-1 pointer-events-none">
-        <ResponsiveContainer width="100%" height={height - (compact ? 36 : 40)}>
+        <ResponsiveContainer width="100%" height={height - controlsHeight}>
           <LineChart data={data} margin={{ top: topMargin, right: 12, left: leftMargin, bottom: bottomMargin }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis
@@ -155,10 +191,15 @@ export function UtilizationTrendChart({
               dataKey="value"
               name="value"
               stroke="#1a3352"
-              strokeWidth={compact ? 2 : 2.5}
-              dot={granularity === "week" && compact ? false : { r: compact ? 3 : 4 }}
+              strokeWidth={pdfExportMode ? 2.5 : compact ? 2 : 2.5}
+              isAnimationActive={!pdfExportMode}
+              dot={
+                showAllValueLabels || !(effectiveGranularity === "week" && compact)
+                  ? { r: pdfExportMode ? 5 : compact ? 3 : 4, fill: "#1a3352", strokeWidth: 0 }
+                  : false
+              }
               activeDot={{ r: 5 }}
-              label={(props) => renderValueLabel(props, compact, granularity)}
+              label={(props) => renderValueLabel(props, compact, effectiveGranularity, showAllValueLabels)}
             />
             {showTrendLine && (
               <Line
@@ -166,7 +207,8 @@ export function UtilizationTrendChart({
                 dataKey="trend"
                 name="trend"
                 stroke="#dc2626"
-                strokeWidth={compact ? 1.5 : 2}
+                strokeWidth={pdfExportMode ? 2 : compact ? 1.5 : 2}
+                isAnimationActive={!pdfExportMode}
                 dot={false}
                 strokeDasharray="6 4"
                 activeDot={{ r: 4, fill: "#dc2626" }}

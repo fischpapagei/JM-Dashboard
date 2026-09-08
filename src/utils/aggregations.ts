@@ -2,6 +2,7 @@ import {
   courseCategories,
   courseTypes,
   terminationReasons,
+  COMPLETION_TYPES,
   COURSE_TYPE_BY_KEY,
   TERMINATION_REASON_BY_KEY,
   getHaftartLabel,
@@ -14,6 +15,7 @@ import type {
   JvaTableRow,
   Kursleitung,
   Massnahmenbeginn,
+  SchoolCompletionTypeRow,
   SchoolRoom,
 } from '../types/domain';
 import { JVAS, getJvaById } from '../data/jvas';
@@ -21,9 +23,14 @@ import {
   calculateFreePlaces,
   calculateTerminationRate,
   calculateUtilization,
+  calculateUtilizationLastMonth,
   sumNullable,
 } from './calculations';
-import { filterEducationRecords } from './filters';
+import { filterEducationRecords, getActiveFilterJvaIds } from './filters';
+import {
+  formatZielgruppeAltersgruppe,
+  formatZielgruppeGeschlecht,
+} from './format';
 import {
   getPreviousPeriodLabel,
   getPreviousPeriodsForComparison,
@@ -31,16 +38,21 @@ import {
   LATEST_PERIOD,
   resolveToDataPeriods,
   type TrendGranularity,
+  type TrendTimelineSlot,
 } from './periods';
 
 export interface SchulischeBildungKpis {
   beschaeftigungsquote: number | null;
+  bruttobelegung: number | null;
   schulischeBildung: number | null;
   auslastung: number | null;
   teilnehmende: number | null;
   sollPlaetze: number | null;
   freiePlaetze: number | null;
+  regulaereBeendigungen: number | null;
   vorzeitigeBeendigungen: number | null;
+  anteilRegulaereBeendigung: number | null;
+  anteilVorzeitigeBeendigung: number | null;
   abbruchquote: number | null;
   abschluesse: number | null;
   zielerreichungen: number | null;
@@ -60,6 +72,7 @@ export interface JvaOperationalRecord {
   reportingPeriod: string;
   totalInmates: number;
   employedTotal: number;
+  belegbareHaftplaetze: number;
   paedStellen: number;
   paedBesetzt: number;
   paedExtern: number;
@@ -75,20 +88,34 @@ function round1(value: number): number {
   return Math.round(value * 10) / 10;
 }
 
+function computeTerminationShares(
+  regulaereBeendigungen: number | null,
+  vorzeitigeBeendigungen: number | null,
+): {
+  anteilRegulaereBeendigung: number | null;
+  anteilVorzeitigeBeendigung: number | null;
+} {
+  if (regulaereBeendigungen == null || vorzeitigeBeendigungen == null) {
+    return { anteilRegulaereBeendigung: null, anteilVorzeitigeBeendigung: null };
+  }
+  const total = regulaereBeendigungen + vorzeitigeBeendigungen;
+  if (total <= 0) {
+    return { anteilRegulaereBeendigung: null, anteilVorzeitigeBeendigung: null };
+  }
+  return {
+    anteilVorzeitigeBeendigung: round1((vorzeitigeBeendigungen / total) * 100),
+    anteilRegulaereBeendigung: round1((regulaereBeendigungen / total) * 100),
+  };
+}
+
 export function applyDashboardScope(
   records: EducationMeasureRecord[],
   filters: DashboardFilters,
   forcedJvaId?: string,
 ): EducationMeasureRecord[] {
-  const scopedFilters: DashboardFilters = {
-    ...filters,
-    jvaId: forcedJvaId ?? filters.jvaId,
-    organizationLevel: forcedJvaId ? 'jva' : filters.organizationLevel,
-  };
+  let filtered = filterEducationRecords(records, filters, forcedJvaId);
 
-  let filtered = filterEducationRecords(records, scopedFilters);
-
-  const dataPeriods = resolveToDataPeriods(scopedFilters.reportingPeriod);
+  const dataPeriods = resolveToDataPeriods(filters.reportingPeriod);
   filtered = filtered.filter((r) => dataPeriods.includes(r.reportingPeriod));
 
   return filtered;
@@ -99,10 +126,10 @@ function filterOperational(
   filters: DashboardFilters,
   forcedJvaId?: string,
 ): JvaOperationalRecord[] {
-  const jvaId = forcedJvaId ?? filters.jvaId;
+  const activeJvaIds = getActiveFilterJvaIds(filters, forcedJvaId);
   let rows = operational;
-  if (jvaId) {
-    rows = rows.filter((r) => r.jvaId === jvaId);
+  if (activeJvaIds) {
+    rows = rows.filter((r) => activeJvaIds.includes(r.jvaId));
   }
   const dataPeriods = resolveToDataPeriods(filters.reportingPeriod);
   rows = rows.filter((r) => dataPeriods.includes(r.reportingPeriod));
@@ -113,12 +140,16 @@ function averageKpis(kpisList: SchulischeBildungKpis[]): SchulischeBildungKpis {
   if (kpisList.length === 0) {
     return {
       beschaeftigungsquote: null,
+      bruttobelegung: null,
       schulischeBildung: null,
       auslastung: null,
       teilnehmende: null,
       sollPlaetze: null,
       freiePlaetze: null,
+      regulaereBeendigungen: null,
       vorzeitigeBeendigungen: null,
+      anteilRegulaereBeendigung: null,
+      anteilVorzeitigeBeendigung: null,
       abbruchquote: null,
       abschluesse: null,
       zielerreichungen: null,
@@ -141,12 +172,16 @@ function averageKpis(kpisList: SchulischeBildungKpis[]): SchulischeBildungKpis {
 
   return {
     beschaeftigungsquote: avg(kpisList.map((k) => k.beschaeftigungsquote)),
+    bruttobelegung: avg(kpisList.map((k) => k.bruttobelegung)),
     schulischeBildung: avg(kpisList.map((k) => k.schulischeBildung)),
     auslastung: avg(kpisList.map((k) => k.auslastung)),
     teilnehmende: avg(kpisList.map((k) => k.teilnehmende)),
     sollPlaetze: avg(kpisList.map((k) => k.sollPlaetze)),
     freiePlaetze: avg(kpisList.map((k) => k.freiePlaetze)),
+    regulaereBeendigungen: avg(kpisList.map((k) => k.regulaereBeendigungen)),
     vorzeitigeBeendigungen: avg(kpisList.map((k) => k.vorzeitigeBeendigungen)),
+    anteilRegulaereBeendigung: avg(kpisList.map((k) => k.anteilRegulaereBeendigung)),
+    anteilVorzeitigeBeendigung: avg(kpisList.map((k) => k.anteilVorzeitigeBeendigung)),
     abbruchquote: avg(kpisList.map((k) => k.abbruchquote)),
     abschluesse: avg(kpisList.map((k) => k.abschluesse)),
     zielerreichungen: avg(kpisList.map((k) => k.zielerreichungen)),
@@ -176,6 +211,8 @@ function mergeMultiPeriodKpis(kpisList: SchulischeBildungKpis[]): SchulischeBild
   const abschluesse = sum(kpisList.map((k) => k.abschluesse));
   const zielerreichungen = sum(kpisList.map((k) => k.zielerreichungen));
   const vorzeitigeBeendigungen = sum(kpisList.map((k) => k.vorzeitigeBeendigungen));
+  const regulaereBeendigungen = sum(kpisList.map((k) => k.regulaereBeendigungen));
+  const terminationShares = computeTerminationShares(regulaereBeendigungen, vorzeitigeBeendigungen);
   const paedStellen = sum(kpisList.map((k) => k.paedStellen));
   const paedBesetzt = sum(kpisList.map((k) => k.paedBesetzt));
   const paedExtern = sum(kpisList.map((k) => k.paedExtern));
@@ -196,12 +233,16 @@ function mergeMultiPeriodKpis(kpisList: SchulischeBildungKpis[]): SchulischeBild
 
   return {
     beschaeftigungsquote: avg(kpisList.map((k) => k.beschaeftigungsquote)),
+    bruttobelegung: avg(kpisList.map((k) => k.bruttobelegung)),
     schulischeBildung: avg(kpisList.map((k) => k.schulischeBildung)),
     auslastung: auslastungRaw != null ? round1(auslastungRaw) : null,
     teilnehmende,
     sollPlaetze,
     freiePlaetze: calculateFreePlaces(sollPlaetze, teilnehmende),
+    regulaereBeendigungen,
     vorzeitigeBeendigungen,
+    anteilRegulaereBeendigung: terminationShares.anteilRegulaereBeendigung,
+    anteilVorzeitigeBeendigung: terminationShares.anteilVorzeitigeBeendigung,
     abbruchquote: abbruchquoteRaw != null ? round1(abbruchquoteRaw) : null,
     abschluesse,
     zielerreichungen,
@@ -274,10 +315,13 @@ export function computeKpis(
   const sollPlaetze = sumNullable(filtered.map((r) => r.targetPlaces));
   const abschluesse = sumNullable(filtered.map((r) => r.completions));
   const zielerreichungen = sumNullable(filtered.map((r) => r.targetAchievements));
-  const vorzeitigeBeendigungen = sumNullable(filtered.map((r) => r.terminations));
+  const regulaereBeendigungen = sumNullable(filtered.map((r) => r.regulaereBeendigungen));
+  const vorzeitigeBeendigungen = sumNullable(filtered.map((r) => r.vorzeitigeBeendigungen));
+  const terminationShares = computeTerminationShares(regulaereBeendigungen, vorzeitigeBeendigungen);
 
   const totalInmates = sumNullable(opFiltered.map((r) => r.totalInmates));
   const employedTotal = sumNullable(opFiltered.map((r) => r.employedTotal));
+  const belegbareHaftplaetze = sumNullable(opFiltered.map((r) => r.belegbareHaftplaetze));
 
   const schulischeBildung =
     teilnehmende != null && totalInmates != null && totalInmates > 0
@@ -287,6 +331,11 @@ export function computeKpis(
   const beschaeftigungsquote =
     employedTotal != null && totalInmates != null && totalInmates > 0
       ? round1((employedTotal / totalInmates) * 100)
+      : null;
+
+  const bruttobelegung =
+    totalInmates != null && belegbareHaftplaetze != null && belegbareHaftplaetze > 0
+      ? round1((totalInmates / belegbareHaftplaetze) * 100)
       : null;
 
   const auslastungRaw = calculateUtilization(teilnehmende, sollPlaetze);
@@ -306,12 +355,16 @@ export function computeKpis(
 
   return {
     beschaeftigungsquote,
+    bruttobelegung,
     schulischeBildung,
     auslastung,
     teilnehmende,
     sollPlaetze,
     freiePlaetze: calculateFreePlaces(sollPlaetze, teilnehmende),
+    regulaereBeendigungen,
     vorzeitigeBeendigungen,
+    anteilRegulaereBeendigung: terminationShares.anteilRegulaereBeendigung,
+    anteilVorzeitigeBeendigung: terminationShares.anteilVorzeitigeBeendigung,
     abbruchquote,
     abschluesse,
     zielerreichungen,
@@ -337,7 +390,7 @@ export function computeAverageKpisAcrossJvas(
     computeKpis(
       records,
       operational,
-      { ...filters, organizationLevel: 'jva', jvaId: jva.id },
+      { ...filters, organizationLevel: 'jva', jvaIds: [jva.id] },
       jva.id,
     ),
   );
@@ -363,8 +416,7 @@ export function buildCategoryChart(records: EducationMeasureRecord[]): CategoryC
         offers: catRecords.length,
       };
     })
-    .filter((d) => d.value > 0 || d.offers > 0)
-    .sort((a, b) => b.value - a.value);
+    .filter((d) => d.value > 0 || d.offers > 0);
 }
 
 export function buildTerminationChart(records: EducationMeasureRecord[]) {
@@ -374,8 +426,74 @@ export function buildTerminationChart(records: EducationMeasureRecord[]) {
       value: records.filter((r) => r.terminationReasonKey === reason.key).length,
       key: reason.key,
     }))
-    .filter((d) => d.value > 0)
-    .sort((a, b) => b.value - a.value);
+    .filter((d) => d.value > 0);
+}
+
+export interface RegulaereTerminationReasonRow {
+  key: string;
+  label: string;
+  count: number;
+}
+
+export function buildRegulaereTerminationBreakdown(
+  records: EducationMeasureRecord[],
+): RegulaereTerminationReasonRow[] {
+  return terminationReasons
+    .filter((reason) => reason.level1 === 'reguläre Beendigung')
+    .map((reason) => ({
+      key: reason.key,
+      label: reason.label,
+      count: records.filter((record) => record.terminationReasonKey === reason.key).length,
+    }));
+}
+
+const COMPLETION_TYPE_LABELS = new Map(COMPLETION_TYPES.map((item) => [item.key, item.label]));
+
+function completionTypeLabel(key: string): string {
+  return COMPLETION_TYPE_LABELS.get(key) ?? key;
+}
+
+export function buildSchoolCompletionsDetail(
+  records: EducationMeasureRecord[],
+): SchoolCompletionTypeRow[] {
+  const withCompletions = records.filter((record) => (record.completions ?? 0) > 0);
+  const byType = new Map<string, EducationMeasureRecord[]>();
+
+  for (const record of withCompletions) {
+    const key = record.completionType ?? '__unknown__';
+    const bucket = byType.get(key);
+    if (bucket) bucket.push(record);
+    else byType.set(key, [record]);
+  }
+
+  return [...byType.entries()]
+    .map(([completionTypeKey, typeRecords]) => {
+      const jvaTotals = new Map<string, number>();
+
+      for (const record of typeRecords) {
+        jvaTotals.set(record.jvaId, (jvaTotals.get(record.jvaId) ?? 0) + (record.completions ?? 0));
+      }
+
+      const jvaBreakdown = [...jvaTotals.entries()]
+        .map(([jvaId, count]) => ({
+          jvaId,
+          jvaName: getJvaById(jvaId)?.name ?? jvaId,
+          count,
+        }))
+        .sort((a, b) => a.jvaName.localeCompare(b.jvaName, 'de-DE'));
+
+      return {
+        completionTypeKey,
+        completionTypeLabel:
+          completionTypeKey === '__unknown__' ? 'Ohne Angabe' : completionTypeLabel(completionTypeKey),
+        total: sumNullable(typeRecords.map((record) => record.completions)) ?? 0,
+        jvaBreakdown,
+      };
+    })
+    .sort(
+      (a, b) =>
+        b.total - a.total || a.completionTypeLabel.localeCompare(b.completionTypeLabel, 'de-DE'),
+    );
 }
 
 export function buildJvaComparisonChart(records: EducationMeasureRecord[]) {
@@ -394,10 +512,12 @@ export function buildUtilizationTrend(
   filters: DashboardFilters,
   forcedJvaId?: string,
   granularity: TrendGranularity = 'month',
+  timeline?: TrendTimelineSlot[],
 ): { name: string; value: number; key: string }[] {
   const scopedFilters = { ...filters, reportingPeriod: null };
   const monthFactors = [0.96, 1.0, 1.04];
   const weekFactors = [0.92, 0.97, 1.0, 1.05];
+  const slots = timeline ?? getTrendTimeline(granularity);
 
   function utilizationForQuarters(quarterKeys: string[]): number | null {
     const scoped = quarterKeys.flatMap((period) =>
@@ -409,7 +529,7 @@ export function buildUtilizationTrend(
     return util != null ? round1(util) : null;
   }
 
-  return getTrendTimeline(granularity).map((slot) => {
+  return slots.map((slot) => {
     const baseUtil = utilizationForQuarters(slot.quarterKeys);
     if (baseUtil == null) {
       return { name: slot.label, value: 0, key: slot.key };
@@ -456,7 +576,7 @@ export function buildJvaOperationalRows(
     byJva.set(row.jvaId, list);
   }
 
-  const jvaIds = filters.jvaId ? [filters.jvaId] : JVAS.map((j) => j.id);
+  const jvaIds = getActiveFilterJvaIds(filters) ?? JVAS.map((j) => j.id);
 
   return jvaIds
     .map((jvaId) => {
@@ -485,7 +605,7 @@ export function buildJvaSchoolRoomSummaries(
   filters: DashboardFilters,
   forcedJvaId?: string,
 ): JvaSchoolRoomSummary[] {
-  const jvaIds = forcedJvaId ? [forcedJvaId] : filters.jvaId ? [filters.jvaId] : JVAS.map((j) => j.id);
+  const jvaIds = forcedJvaId ? [forcedJvaId] : getActiveFilterJvaIds(filters) ?? JVAS.map((j) => j.id);
 
   return jvaIds
     .map((jvaId) => {
@@ -499,8 +619,10 @@ export function buildJvaSchoolRoomSummaries(
       return {
         jvaId,
         jvaName: getJvaById(jvaId)?.name ?? jvaId,
-        schulraeume: jvaRooms.length,
-        elisSchulraeume: jvaRooms.filter((room) => room.isElis).length,
+        schulraeume: jvaRooms.reduce((sum, room) => sum + room.roomCount, 0),
+        elisSchulraeume: jvaRooms
+          .filter((room) => room.isElis)
+          .reduce((sum, room) => sum + room.roomCount, 0),
         rooms: jvaRooms,
       };
     })
@@ -513,7 +635,7 @@ export function buildJvaTableRows(
   filters: DashboardFilters,
 ): JvaTableRow[] {
   const scoped = applyDashboardScope(records, filters);
-  const jvaIds = filters.jvaId ? [filters.jvaId] : JVAS.map((j) => j.id);
+  const jvaIds = getActiveFilterJvaIds(filters) ?? JVAS.map((j) => j.id);
 
   const rows: JvaTableRow[] = [];
 
@@ -576,11 +698,12 @@ export interface JvaCourseRow {
   courseCategory: string;
   courseTypeKey: string;
   courseType: string;
+  zielgruppeGeschlecht: string;
+  zielgruppeAltersgruppe: string;
   participants: number | null;
   targetPlaces: number | null;
   utilization: number | null;
-  regulaereBeendigungen: number | null;
-  vorzeitigeBeendigungen: number | null;
+  utilizationLastMonth: number | null;
   freePlaces: number | null;
   duration: string | null;
   minimumPlaces: number | null;
@@ -604,11 +727,16 @@ export function buildJvaCourseRows(
       courseCategory: cat?.label ?? r.courseCategoryKey,
       courseTypeKey: r.courseTypeKey,
       courseType: ct?.label ?? r.courseTypeKey,
+      zielgruppeGeschlecht: formatZielgruppeGeschlecht(r.geschlecht),
+      zielgruppeAltersgruppe: formatZielgruppeAltersgruppe(r.altersgruppe),
       participants: r.participants ?? null,
       targetPlaces: r.targetPlaces ?? null,
       utilization: util != null ? round1(util) : null,
-      regulaereBeendigungen: r.regulaereBeendigungen ?? null,
-      vorzeitigeBeendigungen: r.vorzeitigeBeendigungen ?? null,
+      utilizationLastMonth: calculateUtilizationLastMonth(
+        r.participants,
+        r.targetPlaces,
+        r.reportingPeriod,
+      ),
       freePlaces: calculateFreePlaces(r.targetPlaces, r.participants),
       duration: ct?.duration ?? null,
       minimumPlaces: ct?.minimumPlacesAdults ?? null,

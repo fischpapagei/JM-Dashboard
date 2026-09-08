@@ -1,3 +1,9 @@
+import {
+  getLastMonthKeyOfQuarter,
+  getMonthVariationIndex,
+  MONTH_UTILIZATION_FACTORS,
+} from './periods';
+
 export function calculateUtilization(
   participants?: number | null,
   targetPlaces?: number | null,
@@ -12,6 +18,19 @@ export function calculateUtilization(
     return null;
   }
   return (participants / targetPlaces) * 100;
+}
+
+export function calculateUtilizationLastMonth(
+  participants?: number | null,
+  targetPlaces?: number | null,
+  reportingPeriod?: string | null,
+): number | null {
+  const baseUtil = calculateUtilization(participants, targetPlaces);
+  if (baseUtil == null || !reportingPeriod) return null;
+
+  const monthKey = getLastMonthKeyOfQuarter(reportingPeriod);
+  const factor = MONTH_UTILIZATION_FACTORS[getMonthVariationIndex(monthKey)] ?? 1;
+  return Math.round(Math.min(100, Math.max(0, baseUtil * factor)) * 10) / 10;
 }
 
 export function calculateFreePlaces(

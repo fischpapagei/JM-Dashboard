@@ -20,6 +20,7 @@ export interface CourseUtilizationChartDatum {
 interface CourseUtilizationBarChartProps {
   data: CourseUtilizationChartDatum[];
   height: number;
+  pdfExportMode?: boolean;
 }
 
 interface AxisTickProps {
@@ -103,8 +104,12 @@ function renderBarPercentLabel(props: LabelProps, compact: boolean) {
   );
 }
 
-export function CourseUtilizationBarChart({ data, height }: CourseUtilizationBarChartProps) {
-  const expanded = height > 250;
+export function CourseUtilizationBarChart({
+  data,
+  height,
+  pdfExportMode = false,
+}: CourseUtilizationBarChartProps) {
+  const expanded = pdfExportMode || height > 250;
   const compact = !expanded;
 
   const sorted = useMemo(
@@ -124,7 +129,14 @@ export function CourseUtilizationBarChart({ data, height }: CourseUtilizationBar
   const bottomMargin = expanded ? 28 : 22;
 
   return (
-    <div className="h-full w-full overflow-y-auto overflow-x-hidden" style={{ maxHeight: height }}>
+    <div
+      className={
+        pdfExportMode
+          ? "h-full w-full overflow-visible"
+          : "h-full w-full overflow-y-auto overflow-x-hidden"
+      }
+      style={pdfExportMode ? undefined : { maxHeight: height }}
+    >
       <ResponsiveContainer width="100%" height={contentHeight}>
         <BarChart
           data={sorted}

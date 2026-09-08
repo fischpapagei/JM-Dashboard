@@ -42,6 +42,7 @@ export interface TerminationReason {
   requiresCompletionType?: boolean;
   requiresFreeTextInBasis?: boolean;
   applicableCategories?: string;
+  filterDescription?: string | string[];
 }
 
 export type Kursleitung = 'intern' | 'extern';
@@ -68,6 +69,8 @@ export interface EducationMeasureRecord {
   regulaereBeendigungen?: number | null;
   vorzeitigeBeendigungen?: number | null;
   terminationReasonKey?: string | null;
+  /** Freitext aus BASIS, z. B. bei disziplinarischen oder sonstigen Gründen. */
+  terminationFreeText?: string | null;
   completionType?: string | null;
   kursleitung?: Kursleitung | null;
   massnahmenbeginn?: Massnahmenbeginn | null;
@@ -79,13 +82,14 @@ export interface DashboardFilters {
   timeGranularity: TimeGranularity | null;
   reportingPeriod: string | null;
   organizationLevel: 'nrw' | 'jva';
-  jvaId: string | null;
+  jvaIds: string[];
   geschlecht: 'alle' | 'männlich' | 'weiblich';
   haftform: 'alle' | 'offen' | 'geschlossen';
   altersgruppe: 'alle' | 'Erwachsenenvollzug' | 'Jugendvollzug';
   haftart: HaftartFilter;
   courseCategoryKey: string | null;
   courseTypeKey: string | null;
+  terminationLevel1: TerminationLevel1 | null;
   terminationReasonKey: string | null;
   completionType: string | null;
 }
@@ -108,7 +112,17 @@ export type DashboardAreaKey =
   | 'arbeit-arbeitstherapie'
   | 'beschaeftigungsquote';
 
-export type NavView = DashboardAreaKey | 'jva' | 'schulische-bildung-hub';
+export type DashboardAreaHubKey = `${DashboardAreaKey}-hub`;
+
+export type DashboardAreaFreiePlaetzeKey =
+  | 'schulische-bildung-freie-plaetze'
+  | 'berufliche-bildung-freie-plaetze';
+
+export type NavView =
+  | DashboardAreaKey
+  | DashboardAreaHubKey
+  | DashboardAreaFreiePlaetzeKey
+  | 'jva';
 
 
 export interface JvaTableRow {
@@ -143,8 +157,10 @@ export interface SchoolRoom {
   id: string;
   jvaId: string;
   designation: string;
+  roomCount: number;
   squareMeters: number;
   isElis: boolean;
+  schoolSeats: number;
 }
 
 export interface JvaSchoolRoomSummary {
@@ -155,17 +171,31 @@ export interface JvaSchoolRoomSummary {
   rooms: SchoolRoom[];
 }
 
+export interface SchoolCompletionJvaRow {
+  jvaId: string;
+  jvaName: string;
+  count: number;
+}
+
+export interface SchoolCompletionTypeRow {
+  completionTypeKey: string;
+  completionTypeLabel: string;
+  total: number;
+  jvaBreakdown: SchoolCompletionJvaRow[];
+}
+
 export const defaultFilters: DashboardFilters = {
   timeGranularity: null,
   reportingPeriod: null,
   organizationLevel: 'nrw',
-  jvaId: null,
+  jvaIds: [],
   geschlecht: 'alle',
   haftform: 'alle',
   altersgruppe: 'alle',
   haftart: 'alle',
   courseCategoryKey: null,
   courseTypeKey: null,
+  terminationLevel1: null,
   terminationReasonKey: null,
   completionType: null,
 };

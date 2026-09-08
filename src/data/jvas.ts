@@ -93,6 +93,13 @@ export const JVAS: Jva[] = [
     altersgruppe: 'beides',
   },
   {
+    id: 'jvk-froendenberg',
+    name: 'JVK (Justizvollzugskrankenhaus NRW in Fröndenberg)',
+    geschlecht: 'gemischt',
+    haftform: 'beides',
+    altersgruppe: 'beides',
+  },
+  {
     id: 'jva-geldern',
     name: "JVA Geldern",
     geschlecht: 'gemischt',
@@ -178,7 +185,7 @@ export const JVAS: Jva[] = [
   },
   {
     id: 'jva-muenster-mit-paedagogischem-zentrum-und-zweiganstalt-coesfeld',
-    name: "JVA Münster – mit Pädagogischem Zentrum und Zweiganstalt Coesfeld",
+    name: "JVA Münster",
     geschlecht: 'gemischt',
     haftform: 'beides',
     altersgruppe: 'beides',

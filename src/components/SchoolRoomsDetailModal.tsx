@@ -1,7 +1,6 @@
 import { ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import type { JvaSchoolRoomSummary } from "../types/domain";
-import { Badge } from "./Badge";
+import type { JvaSchoolRoomSummary, SchoolRoom } from "../types/domain";
 import { EmptyState } from "./EmptyState";
 import { formatNumber } from "../utils/format";
 
@@ -14,8 +13,27 @@ interface SchoolRoomsDetailModalProps {
   onClose: () => void;
 }
 
+interface JvaRoomTotals {
+  roomCount: number;
+  squareMeters: number;
+  elisRoomCount: number;
+  schoolSeats: number;
+}
+
 function jvaKey(jvaId: string) {
   return `jva:${jvaId}`;
+}
+
+function computeRoomTotals(rooms: SchoolRoom[]): JvaRoomTotals {
+  return rooms.reduce(
+    (totals, room) => ({
+      roomCount: totals.roomCount + room.roomCount,
+      squareMeters: totals.squareMeters + room.squareMeters * room.roomCount,
+      elisRoomCount: totals.elisRoomCount + (room.isElis ? room.roomCount : 0),
+      schoolSeats: totals.schoolSeats + room.schoolSeats,
+    }),
+    { roomCount: 0, squareMeters: 0, elisRoomCount: 0, schoolSeats: 0 },
+  );
 }
 
 export function SchoolRoomsDetailModal({
@@ -61,9 +79,9 @@ export function SchoolRoomsDetailModal({
 
   return (
     <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-slate-900/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-slate-900/40" onClick={onClose} aria-hidden />
 
-      <div className="relative mx-auto mt-16 w-full max-w-4xl rounded-xl border border-slate-200/80 bg-white shadow-xl">
+      <div className="relative mx-auto mt-16 w-full max-w-5xl rounded-xl border border-slate-200/80 bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
           <div>
             <h3 className="text-base font-semibold text-[#1a3352]">{title}</h3>
@@ -88,6 +106,8 @@ export function SchoolRoomsDetailModal({
             <div className="space-y-2">
               {summaries.map((summary) => {
                 const isOpen = expanded.has(jvaKey(summary.jvaId));
+                const jvaTotals = computeRoomTotals(summary.rooms);
+
                 return (
                   <section
                     key={summary.jvaId}
@@ -118,33 +138,42 @@ export function SchoolRoomsDetailModal({
                     </button>
 
                     {isOpen && (
-                      <div className="border-t border-slate-100 bg-slate-50/50 px-4 py-3">
-                        <table className="w-full text-sm">
+                      <div className="overflow-x-auto border-t border-slate-100 bg-slate-50/50 px-4 py-3">
+                        <table className="min-w-full text-sm">
                           <thead>
                             <tr className="border-b border-slate-200 text-left text-xs text-slate-500">
-                              <th className="py-2 pr-3">Bezeichnung</th>
-                              <th className="py-2 pr-3 text-right">Fläche (m²)</th>
-                              <th className="py-2 text-right">Kennzeichnung</th>
+                              <th className="py-2 pr-3 font-medium">JVA</th>
+                              <th className="py-2 pr-3 font-medium">Raumbezeichnung</th>
+                              <th className="py-2 pr-3 text-right font-medium">Anzahl Räume</th>
+                              <th className="py-2 pr-3 text-right font-medium">Größe in qm</th>
+                              <th className="py-2 pr-3 text-center font-medium">eLis?</th>
+                              <th className="py-2 text-right font-medium">Anzahl Schulplätze für Gefangene</th>
                             </tr>
                           </thead>
                           <tbody>
                             {summary.rooms.map((room) => (
-                              <tr key={room.id} className="border-b border-slate-100 last:border-0">
-                                <td className="py-2 pr-3 font-medium text-slate-700">{room.designation}</td>
+                              <tr key={room.id} className="border-b border-slate-100">
+                                <td className="py-2 pr-3 text-slate-700">{summary.jvaName}</td>
+                                <td className="py-2 pr-3 font-medium text-slate-800">{room.designation}</td>
+                                <td className="py-2 pr-3 text-right text-slate-700">{formatNumber(room.roomCount)}</td>
                                 <td className="py-2 pr-3 text-right text-slate-700">
                                   {formatNumber(room.squareMeters)}
                                 </td>
-                                <td className="py-2 text-right">
-                                  {room.isElis ? (
-                                    <Badge variant="basis" className="bg-emerald-100 text-emerald-900 border-emerald-200">
-                                      eLis
-                                    </Badge>
-                                  ) : (
-                                    <span className="text-xs text-slate-400">—</span>
-                                  )}
+                                <td className="py-2 pr-3 text-center text-slate-700">
+                                  {room.isElis ? "Ja" : "Nein"}
                                 </td>
+                                <td className="py-2 text-right text-slate-700">{formatNumber(room.schoolSeats)}</td>
                               </tr>
                             ))}
+                            <tr className="border-t-2 border-slate-300 bg-slate-100/80 font-semibold text-[#1a3352]">
+                              <td className="py-2.5 pr-3" colSpan={2}>
+                                Summe {summary.jvaName}
+                              </td>
+                              <td className="py-2.5 pr-3 text-right">{formatNumber(jvaTotals.roomCount)}</td>
+                              <td className="py-2.5 pr-3 text-right">{formatNumber(jvaTotals.squareMeters)}</td>
+                              <td className="py-2.5 pr-3 text-center">{formatNumber(jvaTotals.elisRoomCount)}</td>
+                              <td className="py-2.5 text-right">{formatNumber(jvaTotals.schoolSeats)}</td>
+                            </tr>
                           </tbody>
                         </table>
                       </div>

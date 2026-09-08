@@ -6,14 +6,18 @@
 
 ## UI-Struktur
 - **Auth:** `ministerium`/`jm2026` (Landesübersicht), `jva-<slug>`/`jva2026` (nur eigene JVA)
-- **Shell:** SidebarLayout, Layout, ProtectedApp (Nav, Demo-Modus, Filter-State)
-- **Sidebar (Ministerium):** vier NRW-Dashboards + JVA-Stammdatenblatt — Konfiguration in `data/dashboardAreas.ts`:
-  1. **Schulische Bildung** (aufklappbar): Hub-Übersicht → „NRW gesamt“ oder „JVA-Stammdatenblatt · Schulische Bildung“
-  2. Berufliche Bildung
-  3. Arbeit und Arbeitstherapie
-  4. Beschäftigungsquote
-  (NRW-Dashboards 2–4 + separates JVA-Stammdatenblatt unverändert)
-- **Ansichten:** NrwOverview, JvaDetail — beide nutzen `hooks/useDashboardData.ts`
+- **Top-Level:** Login → **LandingPage** → Kennzahlensystem, **Berichte** oder Web-Erfassung (`App.tsx`, `types/app.ts`)
+- **Kennzahlensystem:** ProtectedApp + SidebarLayout (Auswertung)
+- **Tabellen in Berichten:** Spaltenbreite nach Inhalt (`table-auto`); Kennzahlen bleiben in der Zelle, breite Tabellen horizontal scrollbar
+- **Sidebar (Ministerium):** vier aufklappbare Bereiche in `data/dashboardAreas.ts`:
+  1. **Schulische Bildung:** Hub → „NRW gesamt“, „Landesweit freie Plätze“, „JVA-Stammdatenblatt“
+  2. **Berufliche Bildung:** Hub → „NRW gesamt“, „Landesweit freie Plätze“, „JVA-Stammdatenblatt“
+  3. **Arbeit und Arbeitstherapie:** Hub → „NRW gesamt“, „JVA-Stammdatenblatt“
+  4. **Beschäftigungsquote:** Hub → „NRW gesamt“, „JVA-Stammdatenblatt“
+- **Landesweit freie Plätze:** `LandesweitFreiePlaetze` — KPI + Tabelle; **Excel-Export** (Pivot: JVA × Haupt-/Maßnahmenkategorie, inkl. Filterübersicht) via `ExcelExportButton` + `utils/exportFreiePlaetzeExcel.ts`
+- **Web-Erfassung:** WeberfassungApp — zwei Überkategorien in `data/weberfassungNav.ts`:
+  - **Strukturdaten:** Schulische Bildung, Berufliche Bildung, Betriebe, eLis
+  - **Haushalt:** Anmeldungen Arbeit und berufliche Bildung, Anmeldungen schulische Bildung, Prüfung FB Pädagogik, Prüfung ZBI
 
 ## Filter & Kennzahlen (funktional im Demo-Modus)
 - **FilterBar** (`components/FilterBar.tsx`) — drei Ebenen, immer sichtbar:
@@ -31,9 +35,85 @@
 ## Demo-Datensatz (`data/demoData.ts`)
 - **35 JVAs** — jede mit Operationaldaten (Insassen, Beschäftigung, Personal, eLis)
 - **Alle Kurstypen** aus BASIS-Katalog; je JVA realistische Teilmenge (größere Anstalten mehr Angebote)
-- **4 Quartale** pro Maßnahme für Verlaufsdiagramm
-- Beendigungsgründe RB-01–VB-07, Abschlussarten nach Kurskategorie
+- **Dashboard-Zeiträume:** 2025-Q2 … 2026-Q1 (`REPORTING_PERIODS`)
+- **Maßnahmen-Historie:** Quartale 2015-Q1 … 2026-Q2, Records je Geschlecht (`männlich`/`weiblich`) und Altersgruppe (`Erwachsenenvollzug`/`Jugendvollzug`); Jugendliche mit kleineren Teilnehmerzahlen
+- Beendigungsgründe RB-01–VB-08, Abschlussarten nach Kurskategorie; Demo-Freitexte bei VB-01 und VB-08
 - **Kursangebot JVA:** Spalten Kursleitung (intern/extern) und Maßnahmenbeginn (fortlaufend / Stichtag mit Datum(en))
+
+## Bericht 3a — Schulteilnehmende (landesweit)
+- Kachel in `BerichteApp` (`reports.ts` Key `schulteilnehmende-landesweit`, nur Ministerium)
+- Eigene Vorschau `SchulteilnehmendeLandesweitView` + PDF, **ohne** Kennzahlen-Dashboard
+- Stichtag: nur abgeschlossene Perioden; Default `2026-Q2`; Jahresdaten letztes abgeschlossenes Jahr (`2025` vs `2024`)
+- Pro Altersgruppe: 3 Summen-Charts (5Q / 13M / 11J) + 10 Kategorie-Charts (SF inkl. SO, VM, SA, ST, AB × Geschlecht) + Quartals-/Jahrestabellen
+- Logik in `utils/schulteilnehmende.ts`
+
+## Bericht 3b — Schulteilnehmende einer JVA
+- Kachel `schulteilnehmende-jva`: Ministerium (beliebige JVA) und Anstaltsrolle (nur eigene JVA)
+- Gleiche Grafiken/Tabellen wie 3a, aber nur Kurse/Kategorien/Altersgruppen, die in der Anstalt vorkommen
+- Landesweiter Vergleich als **NRW-Durchschnitt je Anstalt** (gestrichelte Linien; Tabellenspalten NRW-Ø und % zu NRW-Ø)
+
+## Bericht 4a — Auslastungsquote (landesweit)
+- Kachel `auslastungsquote-landesweit`, nur Ministerium, eigene Vorschau + PDF
+- Pro Altersgruppe: 3 Summen-Charts (5Q / 13M / 11J, Linien weiblich/männlich/Summe) + 2 Kategorie-Charts (weiblich/männlich, je 6 Linien: SF, VM, SA, ST, AB, SO)
+- **Tabellen** (`AuslastungsquoteTables.tsx`): Quartal (grün) und Jahr (blau), Querformat-PDF
+  - Quartal: Auslastung beide Geschlechter (aktuelles Q.); je Geschlecht Auslastung (aktuell/letztes Q./Vorjahres-Q., % zum letzten Q., % zum Vorjahres-Q.) und Soll-Plätze (aktuell, Vorjahres-Q., absolute Veränderung)
+  - Jahr: Auslastung beide Geschlechter im abgeschlossenen Jahr; je Geschlecht Auslastung (aktuell/Vorjahr/% ) und Soll-Plätze (aktuell/Vorjahr/absolute Veränderung)
+  - Negative Veränderungen rot; Kategoriesummen und Gesamtsumme aus aggregierten Teilnehmenden/Soll-Plätzen
+- Jahresreihen nur abgeschlossene Jahre (`2025` bei Stichtag `2026-Q2`); Logik in `utils/auslastungsquote.ts`
+
+## Bericht 4b — Auslastungsquote einer JVA
+- Kachel `auslastungsquote-jva`: Ministerium (beliebige JVA) und Anstaltsrolle (nur eigene JVA)
+- Gleiche Grafiken/Tabellen wie 4a, aber nur Kurse/Kategorien/Altersgruppen, die in der Anstalt vorkommen
+- Landesweiter Vergleich als **NRW-Auslastung der jeweiligen Vergleichsgruppe** (gleiche Kurstypen; gestrichelte Linien; Tabellenspalten NRW-Ø und % zu NRW-Ø)
+
+## Bericht 5a — Beendigungsgründe (landesweit)
+- Kachel `beendigungsgruende-landesweit`, nur Ministerium, eigene Vorschau + PDF
+- Pro Altersgruppe: 3 Übersichts-Charts (5Q / 13M / 11J, je 6 Linien: vorzeitig/regulär × weiblich/männlich/Summe) + 2 Charts reguläre Gründe (w/m, je 3 Linien) + 2 Charts vorzeitige Gründe (w/m, je VB-01–VB-08)
+- **Tabellen:** Quartal (grün, relative % ) und Jahr (blau, absolute Veränderung); negative Werte rot; Summenzeilen je Beendigungsart
+- Freitextliste für das abgeschlossene Jahr (Demo: VB-01 und VB-08); Logik in `utils/beendigungsgruende.ts`
+
+## Bericht 5b — Beendigungsgründe einer JVA
+- Kachel `beendigungsgruende-jva`: Ministerium (beliebige JVA) und Anstaltsrolle (nur eigene JVA)
+- Gleiche Grafiken/Tabellen wie 5a, aber nur Altersgruppen, Geschlechter und Gründe, die in der Anstalt vorkommen
+- Landesweiter Vergleich als **NRW-Durchschnitt je Anstalt** (gestrichelte Linien; Tabellenspalten NRW-Ø und % zu NRW-Ø)
+
+## Bericht 6a — Erreichte Schulabschlüsse (landesweit)
+- Kachel `schulabschluesse-landesweit`, nur Ministerium, eigene Vorschau + PDF
+- Pro Altersgruppe: 1 Summen-Chart (11 Jahre, weiblich/männlich/Summe) + 3 Detail-Charts (weiblich, männlich, Summe beide Geschlechter) mit Abschlussarten ESA/EESA, MSA, Fachhochschulreife, Hochschulreife, Fachhochschulabschluss, Hochschulabschluss + Summe
+- **Jahrestabelle** (blau): aktuelles vs. Vorjahr, Anteil am jeweiligen Geschlecht, relative Veränderung (negativ rot)
+- Jahresreihen nur abgeschlossene Jahre (`2025` bei Stichtag `2026-Q2`); Logik in `utils/schulabschluesse.ts`
+
+## Bericht 6b — Erreichte Schulabschlüsse einer JVA
+- Kachel `schulabschluesse-jva`: Ministerium (beliebige JVA) und Anstaltsrolle (nur eigene JVA)
+- Gleiche Grafiken/Tabelle wie 6a, aber nur Altersgruppen, Geschlechter und Abschlussarten, die in der Anstalt vorkommen
+- Landesweiter Vergleich als **NRW-Durchschnitt je Anstalt** (gestrichelte Linien; Tabellenspalten NRW-Ø und % zu NRW-Ø)
+
+## Bericht 7 — Kursangebote (landesweit)
+- Kachel `kursangebote-landesweit` (Bildungsbroschüre Teil 2), für Ministerium und Anstaltsrolle, eigene Vorschau + PDF
+- Jährliche Übersicht, eine Sektion je JVA; Tabellen nach Geschlecht und Altersgruppe, nur aktive Angebote
+- Spalten: Hauptkategorie, Maßnahmenkategorie, Name Kurs, SOLL-Plätze (BASIS), Dauer/Beginn/vorgesehener Abschluss (Web-Erfassung)
+- Spalte **Durchführung durch externe Kraft** nur für Ministeriumsrolle (JM, FB Päd., ZBI); Logik in `utils/kursangebote.ts`
+
+## Bericht 8 — Veränderung der Schulkurse und deren Soll-Plätze
+- Kachel `sollplaetze-veraenderung`, nur Ministerium (FB Päd.), eigene Vorschau + PDF
+- Monatlicher Abgleich aktueller Monat vs. Vormonat je JVA und Kurs (aus BASIS)
+- **Rot:** veränderte Soll-Plätze, **grün:** neu eingerichteter Kurs, **schwarz:** unverändert; Zeile Gesamtsumme
+- Logik in `utils/sollplatzVeraenderung.ts`
+
+## Bericht 9 — Schulräume
+- Kachel `schulraeume-landesweit`, nur Ministerium (inkl. FB Päd.), eigene Vorschau + PDF
+- Tabelle **Übersicht der Schulräume**: JVA, Raumbezeichnung, Anzahl Räume, Größe in qm, eLis (1/0), Schulplätze; Summe je JVA und Gesamtsumme
+- Daten jährlich von den Anstalten im Webformular zu prüfen; Demo aus `demoSchoolRooms`; Logik in `utils/schulraeume.ts`
+
+## Bericht 10 — Stellen
+- Kachel `stellen-landesweit`, nur Ministerium (inkl. FB Päd.), eigene Vorschau + PDF
+- Tabelle **Stellen pädagogischer Dienst**: JVA, Anzahl Stellen, davon besetzt, Summenzeile
+- Demo aus Operationaldaten (`paedStellen` / `paedBesetzt`); Produktivbetrieb nur, sofern die Stellendaten geliefert werden; Logik in `utils/stellen.ts`
+
+## Bericht 11 — elis Räume und Mandantschaften
+- Kachel `elis-raeume-mandantschaften`, nur Ministerium (inkl. FB Päd.), eigene Vorschau + PDF
+- Tabelle mit Mandantschaften (Name, Kürzel, gemeldete Anzahl, rabattierte Zählung), Schulräumen, digitalen Sozialräumen, Rektorin/Rektor und Anmerkungen; Summe je JVA und Gesamtsumme
+- Demo aus Operationaldaten (eLis-Kennzahlen), aufgeteilt auf Mandantschaften je Anstalt; Logik in `utils/elisRaume.ts`
 
 ## Leerer Modus
 - **NRW-Übersicht:** `OperationalSummaryPanels` (Personal/eLis landesweit summiert) unter den Charts; Tabellen „Personal & eLis nach Anstalt“, „Alle Anstalten“ und „Freie Plätze“ entfernt

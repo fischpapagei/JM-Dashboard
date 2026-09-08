@@ -11,6 +11,11 @@ import {
   type LabelProps,
 } from "recharts";
 import { formatNumber } from "../utils/format";
+import { terminationReasons } from "../data/catalog";
+
+const CATALOG_TERMINATION_ORDER = new Map(
+  terminationReasons.map((reason, index) => [reason.key, index]),
+);
 
 const COLORS = ["#1a3352", "#2d5a8e", "#4a7ab5", "#6b9cd4", "#8bb8e8", "#a8cce8", "#c5dff5"];
 
@@ -23,12 +28,19 @@ export interface TerminationChartDatum {
 interface TerminationBarChartProps {
   data: TerminationChartDatum[];
   height: number;
+  pdfExportMode?: boolean;
 }
 
 interface AxisTickProps {
   x?: string | number;
   y?: string | number;
   payload?: { value: string };
+}
+
+type LayoutMode = "preview" | "modal";
+
+function getLayoutMode(height: number): LayoutMode {
+  return height >= 380 ? "modal" : "preview";
 }
 
 function wrapLabel(text: string, maxChars: number): string[] {
@@ -50,8 +62,21 @@ function wrapLabel(text: string, maxChars: number): string[] {
   return lines.length > 0 ? lines : [text];
 }
 
-function computeYAxisWidth(names: string[], expanded: boolean): number {
-  const maxCharsPerLine = expanded ? 32 : 16;
+function getLabelLines(name: string, mode: LayoutMode): string[] {
+  return wrapLabel(name, mode === "modal" ? 34 : 30);
+}
+
+function computeRowHeight(name: string, mode: LayoutMode, rowGap: number): number {
+  const lines = getLabelLines(name, mode);
+  const lineHeight = mode === "modal" ? 14 : 10;
+  const labelHeight = lines.length * lineHeight + (mode === "modal" ? 10 : 4);
+  const barHeight = mode === "modal" ? 22 : 11;
+  const minRow = mode === "modal" ? 52 : 26;
+  return Math.max(minRow, labelHeight, barHeight) + rowGap;
+}
+
+function computeYAxisWidth(names: string[], mode: LayoutMode): number {
+  const maxCharsPerLine = mode === "modal" ? 34 : 30;
   let longestLine = 0;
 
   for (const name of names) {
@@ -60,21 +85,30 @@ function computeYAxisWidth(names: string[], expanded: boolean): number {
     }
   }
 
-  const charWidth = expanded ? 6.2 : 5.2;
-  const minWidth = expanded ? 64 : 44;
-  const maxWidth = expanded ? 280 : 118;
-  return Math.min(maxWidth, Math.max(minWidth, Math.ceil(longestLine * charWidth) + 8));
+  const charWidth = mode === "modal" ? 6.5 : 5.8;
+  const minWidth = mode === "modal" ? 140 : 120;
+  const maxWidth = mode === "modal" ? 400 : 280;
+  return Math.min(maxWidth, Math.max(minWidth, Math.ceil(longestLine * charWidth) + 14));
 }
 
-function ReasonAxisTick({ x = 0, y = 0, payload, expanded }: AxisTickProps & { expanded: boolean }) {
+function ReasonAxisTick({ x = 0, y = 0, payload, mode }: AxisTickProps & { mode: LayoutMode }) {
   const label = payload?.value ?? "";
-  const lines = wrapLabel(label, expanded ? 32 : 16);
-  const xPos = Number(x) - 4;
+  const lines = getLabelLines(label, mode);
+  const xPos = Number(x) - 8;
+  const lineHeight = mode === "modal" ? 14 : 10;
+  const startDy = -((lines.length - 1) * lineHeight) / 2;
 
   return (
-    <text x={xPos} y={Number(y)} textAnchor="end" dominantBaseline="middle" fill="#475569" fontSize={expanded ? 11 : 8}>
+    <text
+      x={xPos}
+      y={Number(y)}
+      textAnchor="end"
+      dominantBaseline="middle"
+      fill="#475569"
+      fontSize={mode === "modal" ? 11 : 9}
+    >
       {lines.map((line, index) => (
-        <tspan key={`${line}-${index}`} x={xPos} dy={index === 0 ? 0 : 11}>
+        <tspan key={`${line}-${index}`} x={xPos} dy={index === 0 ? startDy : lineHeight}>
           {line}
         </tspan>
       ))}
@@ -89,7 +123,7 @@ function renderBarValueLabel(props: LabelProps, total: number, compact: boolean)
 
   const percent = total > 0 ? ((count / total) * 100).toFixed(1) : "0";
   const barWidth = Number(width);
-  const inside = barWidth > (compact ? 52 : 72);
+  const inside = barWidth > (compact ? 56 : 80);
 
   return (
     <text
@@ -98,7 +132,7 @@ function renderBarValueLabel(props: LabelProps, total: number, compact: boolean)
       textAnchor={inside ? "end" : "start"}
       dominantBaseline="middle"
       fill={inside ? "#ffffff" : "#1a3352"}
-      fontSize={compact ? 8 : 10}
+      fontSize={compact ? 9 : 10}
       fontWeight={600}
     >
       {formatNumber(count)} ({percent} %)
@@ -111,34 +145,55 @@ function xAxisMax(data: TerminationChartDatum[]): number {
   return Math.ceil(peak * 1.12) || 1;
 }
 
-export function TerminationBarChart({ data, height }: TerminationBarChartProps) {
-  const expanded = height > 250;
-  const compact = !expanded;
+export function TerminationBarChart({ data, height, pdfExportMode = false }: TerminationBarChartProps) {
+  const mode = getLayoutMode(height);
+  const isPreview = mode === "preview";
 
-  const sorted = useMemo(
-    () => [...data].sort((a, b) => b.value - a.value),
+  const chartData = useMemo(
+    () =>
+      [...data].sort(
+        (a, b) =>
+          (CATALOG_TERMINATION_ORDER.get(a.key ?? "") ?? Number.MAX_SAFE_INTEGER) -
+          (CATALOG_TERMINATION_ORDER.get(b.key ?? "") ?? Number.MAX_SAFE_INTEGER),
+      ),
     [data],
   );
 
-  const total = sorted.reduce((sum, item) => sum + item.value, 0);
+  const total = chartData.reduce((sum, item) => sum + item.value, 0);
   const yAxisWidth = computeYAxisWidth(
-    sorted.map((item) => item.name),
-    expanded,
+    chartData.map((item) => item.name),
+    mode,
   );
-  const maxX = xAxisMax(sorted);
-  const rowGap = compact ? 6 : 10;
-  const minRowHeight = compact ? 22 : 28;
-  const minContentHeight = sorted.length * (minRowHeight + rowGap) + 20;
+  const maxX = xAxisMax(chartData);
+  const rowGap = isPreview ? 4 : 14;
+  const rowHeights = chartData.map((item) => computeRowHeight(item.name, mode, rowGap));
+  const maxRowHeight = Math.max(...rowHeights, isPreview ? 26 : 52);
+  const minContentHeight = chartData.length * maxRowHeight + 36;
   const contentHeight = Math.max(height, minContentHeight);
-  const maxBarSize = Math.max(minRowHeight, Math.floor((contentHeight - 20) / sorted.length) - rowGap);
+  const maxBarSize = Math.max(isPreview ? 10 : 22, maxRowHeight - rowGap - 2);
 
   return (
-    <div className="h-full w-full overflow-y-auto overflow-x-hidden" style={{ maxHeight: height }}>
+    <div
+      className={
+        pdfExportMode
+          ? "h-full w-full overflow-visible"
+          : "h-full w-full overflow-y-auto overflow-x-hidden"
+      }
+      style={pdfExportMode ? undefined : { maxHeight: height }}
+      onClick={(event) => event.stopPropagation()}
+      onKeyDown={(event) => event.stopPropagation()}
+      onWheel={(event) => event.stopPropagation()}
+    >
       <ResponsiveContainer width="100%" height={contentHeight}>
         <BarChart
-          data={sorted}
+          data={chartData}
           layout="vertical"
-          margin={{ top: 4, right: expanded ? 16 : 8, left: 4, bottom: 4 }}
+          margin={{
+            top: 8,
+            right: isPreview ? 72 : 88,
+            left: isPreview ? 6 : 10,
+            bottom: isPreview ? 8 : 24,
+          }}
           barCategoryGap={rowGap}
         >
           <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
@@ -147,13 +202,15 @@ export function TerminationBarChart({ data, height }: TerminationBarChartProps) 
             domain={[0, maxX]}
             tick={{ fontSize: 10, fill: "#64748b" }}
             tickFormatter={(value) => formatNumber(Number(value))}
-            hide={compact}
+            hide={isPreview}
           />
           <YAxis
             type="category"
             dataKey="name"
             width={yAxisWidth}
-            tick={(props) => <ReasonAxisTick {...props} expanded={expanded} />}
+            tickMargin={10}
+            interval={0}
+            tick={(props) => <ReasonAxisTick {...props} mode={mode} />}
           />
           <Tooltip
             formatter={(value) => {
@@ -167,9 +224,9 @@ export function TerminationBarChart({ data, height }: TerminationBarChartProps) 
             dataKey="value"
             radius={[0, 4, 4, 0]}
             maxBarSize={maxBarSize}
-            label={(props) => renderBarValueLabel(props, total, compact)}
+            label={(props) => renderBarValueLabel(props, total, isPreview)}
           >
-            {sorted.map((entry, index) => (
+            {chartData.map((entry, index) => (
               <Cell key={entry.key ?? index} fill={COLORS[index % COLORS.length]} />
             ))}
           </Bar>

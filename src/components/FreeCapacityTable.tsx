@@ -17,7 +17,7 @@ export function FreeCapacityTable({ rows }: FreeCapacityTableProps) {
           <thead className="bg-slate-50 text-xs uppercase text-slate-500">
             <tr>
               <th className="px-3 py-2">JVA</th>
-              <th className="px-3 py-2">Kursgrundbezeichnung</th>
+              <th className="px-3 py-2 normal-case">MAßNAHMENKATEGORIE</th>
               <th className="px-3 py-2">Geschlecht</th>
               <th className="px-3 py-2">Haftform</th>
               <th className="px-3 py-2">Altersgruppe</th>

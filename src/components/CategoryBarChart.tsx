@@ -15,6 +15,7 @@ import type { CategoryChartDatum } from "../utils/aggregations";
 interface CategoryBarChartProps {
   data: CategoryChartDatum[];
   height: number;
+  pdfExportMode?: boolean;
 }
 
 export type { CategoryChartDatum };
@@ -44,14 +45,30 @@ function wrapLabel(text: string, maxChars: number): string[] {
   return lines.length > 0 ? lines : [text];
 }
 
-function CategoryAxisTick({ x = 0, y = 0, payload }: AxisTickProps) {
+function formatCategoryAxisLabel(text: string, pdfExportMode: boolean): string[] {
+  if (pdfExportMode && text.includes("(")) {
+    const openIndex = text.indexOf("(");
+    const firstLine = text.slice(0, openIndex).trim();
+    const secondLine = text.slice(openIndex).trim();
+    return secondLine ? [firstLine, secondLine] : [firstLine];
+  }
+  return wrapLabel(text, pdfExportMode ? 11 : 14);
+}
+
+function CategoryAxisTick({
+  x = 0,
+  y = 0,
+  payload,
+  pdfExportMode = false,
+}: AxisTickProps & { pdfExportMode?: boolean }) {
   const label = payload?.value ?? "";
-  const lines = wrapLabel(label, 14);
+  const lines = formatCategoryAxisLabel(label, pdfExportMode);
+  const lineHeight = pdfExportMode ? 12 : 13;
 
   return (
-    <text x={x} y={y + 14} textAnchor="middle" fill="#475569" fontSize={11}>
+    <text x={x} y={y + 14} textAnchor="middle" fill="#475569" fontSize={pdfExportMode ? 10 : 11}>
       {lines.map((line, index) => (
-        <tspan key={line} x={x} dy={index === 0 ? 0 : 13}>
+        <tspan key={`${line}-${index}`} x={x} dy={index === 0 ? 0 : lineHeight}>
           {line}
         </tspan>
       ))}
@@ -59,7 +76,12 @@ function CategoryAxisTick({ x = 0, y = 0, payload }: AxisTickProps) {
   );
 }
 
-function renderBarTopLabel(props: LabelProps, total: number, compact: boolean) {
+function renderBarTopLabel(
+  props: LabelProps,
+  total: number,
+  compact: boolean,
+  pdfExportMode: boolean,
+) {
   const { x = 0, y = 0, width = 0, value } = props;
   const numericValue = typeof value === "number" ? value : Number(value ?? 0);
   if (!numericValue) return null;
@@ -67,15 +89,17 @@ function renderBarTopLabel(props: LabelProps, total: number, compact: boolean) {
   const percent = total > 0 ? (numericValue / total) * 100 : 0;
   const centerX = Number(x) + Number(width) / 2;
   const barTop = Number(y);
-  const valueOffset = compact ? 22 : 28;
-  const percentOffset = compact ? 10 : 12;
+  const valueOffset = pdfExportMode ? 30 : compact ? 22 : 28;
+  const percentOffset = pdfExportMode ? 14 : compact ? 10 : 12;
+  const valueFontSize = pdfExportMode ? 12 : compact ? 9 : 12;
+  const percentFontSize = pdfExportMode ? 10 : compact ? 8 : 10;
 
   return (
     <text textAnchor="middle" fill="#1a3352">
       <tspan
         x={centerX}
         y={barTop - valueOffset}
-        fontSize={compact ? 9 : 12}
+        fontSize={valueFontSize}
         fontWeight={600}
       >
         {formatNumber(numericValue)}
@@ -83,7 +107,7 @@ function renderBarTopLabel(props: LabelProps, total: number, compact: boolean) {
       <tspan
         x={centerX}
         y={barTop - percentOffset}
-        fontSize={compact ? 8 : 10}
+        fontSize={percentFontSize}
         fill="#64748b"
         fontWeight={500}
       >
@@ -98,12 +122,12 @@ function yAxisMax(data: CategoryChartDatum[]): number {
   return Math.ceil(peak * 1.22) || 1;
 }
 
-export function CategoryBarChart({ data, height }: CategoryBarChartProps) {
-  const expanded = height > 250;
+export function CategoryBarChart({ data, height, pdfExportMode = false }: CategoryBarChartProps) {
+  const expanded = pdfExportMode || height > 250;
   const total = data.reduce((sum, item) => sum + item.value, 0);
   const labelKey = expanded ? "fullName" : "name";
-  const bottomMargin = expanded ? 88 : 56;
-  const topMargin = expanded ? 20 : 16;
+  const bottomMargin = pdfExportMode ? 108 : expanded ? 88 : 56;
+  const topMargin = pdfExportMode ? 32 : expanded ? 20 : 16;
   const maxY = yAxisMax(data);
 
   const leftMargin = expanded ? 28 : 18;
@@ -115,10 +139,10 @@ export function CategoryBarChart({ data, height }: CategoryBarChartProps) {
         <XAxis
           dataKey={labelKey}
           interval={0}
-          tick={expanded ? <CategoryAxisTick /> : { fontSize: 9, fill: "#475569" }}
+          tick={expanded ? <CategoryAxisTick pdfExportMode={pdfExportMode} /> : { fontSize: 9, fill: "#475569" }}
           angle={expanded ? 0 : -22}
           textAnchor={expanded ? "middle" : "end"}
-          height={expanded ? 84 : 52}
+          height={pdfExportMode ? 96 : expanded ? 84 : 52}
         />
         <YAxis
           tick={{ fontSize: 11, fill: "#64748b" }}
@@ -146,8 +170,8 @@ export function CategoryBarChart({ data, height }: CategoryBarChartProps) {
           dataKey="value"
           fill="#2d5a8e"
           radius={[4, 4, 0, 0]}
-          maxBarSize={expanded ? 72 : 48}
-          label={(props) => renderBarTopLabel(props, total, !expanded)}
+          maxBarSize={pdfExportMode ? 88 : expanded ? 72 : 48}
+          label={(props) => renderBarTopLabel(props, total, !expanded, pdfExportMode)}
         />
       </BarChart>
     </ResponsiveContainer>

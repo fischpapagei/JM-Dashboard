@@ -89,6 +89,21 @@ export function formatKursleitung(value?: 'intern' | 'extern' | null, fallback =
   return fallback;
 }
 
+export function formatZielgruppeGeschlecht(value?: string | null, fallback = EMPTY_VALUE_LABEL): string {
+  if (!value) return fallback;
+  if (value === 'gemischt' || value === 'beide') return 'beide';
+  if (value === 'männlich' || value === 'weiblich') return value;
+  return value;
+}
+
+export function formatZielgruppeAltersgruppe(value?: string | null, fallback = EMPTY_VALUE_LABEL): string {
+  if (!value) return fallback;
+  if (value === 'Jugendvollzug') return 'Jugendliche';
+  if (value === 'Erwachsenenvollzug') return 'Erwachsene';
+  if (value === 'beides' || value === 'beide') return 'beide';
+  return value;
+}
+
 export function formatMassnahmenbeginn(
   value?: { type: 'fortlaufend' } | { type: 'stichtag'; dates: string[] } | null,
   fallback = EMPTY_VALUE_LABEL,
