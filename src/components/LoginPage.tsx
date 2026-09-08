@@ -1,80 +1,92 @@
-import { useState, type FormEvent } from "react";
-import { useAuth } from "../context/AuthContext";
-import { getDemoCredentials } from "../data/users";
+import { useState, type FormEvent } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { getDemoCredentials } from '../data/users';
+import { KernAppChrome } from '../ui/KernAppChrome';
+import {
+  KernAlert,
+  KernButton,
+  KernCard,
+  KernContainer,
+  KernDescriptionList,
+  KernForm,
+  KernInput,
+  KernSpace,
+} from '../ui/kern';
 
 export function LoginPage() {
   const { login } = useAuth();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [showHelp, setShowHelp] = useState(false);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError("");
+    setError('');
     if (!login(username, password)) {
-      setError("Ungültige Zugangsdaten.");
+      setError('Ungültige Zugangsdaten.');
     }
   }
 
+  const demoDetails = Object.fromEntries(
+    getDemoCredentials().map((credential) => [
+      credential.role,
+      `${credential.username} / ${credential.password}`,
+    ]),
+  );
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#1a3352] p-4">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center text-white">
-          <h1 className="text-2xl font-semibold">Bildung & Beschäftigung</h1>
-          <p className="text-white/80">Justiz NRW</p>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-xl bg-white p-6 shadow-lg">
-          <div>
-            <label className="mb-1 block text-sm text-slate-600" htmlFor="username">
-              Benutzername
-            </label>
-            <input
+    <KernAppChrome>
+      <KernContainer>
+        <KernSpace size="x-large" />
+        <KernCard title="Anmeldung" subline="Justiz NRW · Kennzahlensystem schulische Bildung">
+          <KernForm onSubmit={handleSubmit}>
+            <KernInput
               id="username"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              name="username"
+              label="Benutzername"
               autoComplete="username"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
             />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm text-slate-600" htmlFor="password">
-              Passwort
-            </label>
-            <input
+            <KernSpace size="default" />
+            <KernInput
               id="password"
+              name="password"
               type="password"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              label="Passwort"
               autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
             />
-          </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-[#2d5a8e] py-2.5 text-sm font-medium text-white hover:bg-[#1a3352]"
-          >
-            Anmelden
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowHelp((v) => !v)}
-            className="w-full text-xs text-[#2d5a8e] hover:underline"
-          >
-            {showHelp ? "Demo-Zugänge ausblenden" : "Demo-Zugänge anzeigen"}
-          </button>
-          {showHelp && (
-            <div className="space-y-1 rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
-              {getDemoCredentials().map((c) => (
-                <div key={c.username}>
-                  <strong>{c.role}:</strong> {c.username} / {c.password}
-                </div>
-              ))}
-            </div>
-          )}
-        </form>
-      </div>
-    </div>
+            {error ? (
+              <>
+                <KernSpace size="default" />
+                <KernAlert title="Anmeldung fehlgeschlagen" variant="danger">
+                  {error}
+                </KernAlert>
+              </>
+            ) : null}
+            <KernSpace size="large" />
+            <KernButton type="submit" variant="primary" label="Anmelden" block />
+            <KernSpace size="small" />
+            <KernButton
+              type="button"
+              variant="tertiary"
+              label={showHelp ? 'Demo-Zugänge ausblenden' : 'Demo-Zugänge anzeigen'}
+              onClick={() => setShowHelp((current) => !current)}
+              block
+            />
+            {showHelp ? (
+              <>
+                <KernSpace size="default" />
+                <KernDescriptionList details={demoDetails} />
+              </>
+            ) : null}
+          </KernForm>
+        </KernCard>
+        <KernSpace size="x-large" />
+      </KernContainer>
+    </KernAppChrome>
   );
 }

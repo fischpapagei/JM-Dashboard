@@ -17,7 +17,7 @@ const CATALOG_TERMINATION_ORDER = new Map(
   terminationReasons.map((reason, index) => [reason.key, index]),
 );
 
-const COLORS = ["#1a3352", "#2d5a8e", "#4a7ab5", "#6b9cd4", "#8bb8e8", "#a8cce8", "#c5dff5"];
+const COLORS = ["#003064", "#175e54", "#009036", "#3fb0ac", "#5c8a86", "#8fb9b4", "#c5d9d6"];
 
 export interface TerminationChartDatum {
   name: string;
@@ -131,7 +131,7 @@ function renderBarValueLabel(props: LabelProps, total: number, compact: boolean)
       y={Number(y) + Number(height) / 2}
       textAnchor={inside ? "end" : "start"}
       dominantBaseline="middle"
-      fill={inside ? "#ffffff" : "#1a3352"}
+      fill={inside ? "#ffffff" : "var(--color-ink)"}
       fontSize={compact ? 9 : 10}
       fontWeight={600}
     >

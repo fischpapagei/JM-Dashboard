@@ -6,6 +6,7 @@ import { LoginPage } from "./components/LoginPage";
 import { ProtectedApp } from "./components/ProtectedApp";
 import { WeberfassungApp } from "./components/WeberfassungApp";
 import type { AppModule, KennzahlenLaunchContext } from "./types/app";
+import { KernContextProvider } from "./ui/kern";
 
 function AppShell() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -63,8 +64,10 @@ function AppShell() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppShell />
-    </AuthProvider>
+    <KernContextProvider>
+      <AuthProvider>
+        <AppShell />
+      </AuthProvider>
+    </KernContextProvider>
   );
 }

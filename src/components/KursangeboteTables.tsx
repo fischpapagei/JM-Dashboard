@@ -8,7 +8,7 @@ import {
   REPORT_TEXT_CELL,
 } from './reportTableStyles';
 
-const LABEL_CELL = `${REPORT_LABEL_CELL} border-slate-300 text-[11px] text-[#1a3352]`;
+const LABEL_CELL = `${REPORT_LABEL_CELL} border-slate-300 text-[11px] text-(--color-ink)`;
 const NUMBER_CELL = `${REPORT_DATA_CELL} border-slate-300 text-center`;
 const TEXT_CELL = `${REPORT_TEXT_CELL} border-slate-300 text-[11px]`;
 const HEADER_CELL = `${REPORT_HEADER_CELL} border-slate-600 text-[10px] font-semibold uppercase tracking-wide text-white`;
@@ -23,7 +23,7 @@ export function KursangeboteOfferTable({ table, showExternalColumn }: Kursangebo
   return (
     <section className="w-full overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
       <div className="border-b border-slate-200 bg-white px-4 py-3">
-        <h3 className="text-sm font-semibold text-[#1a3352]">
+        <h3 className="text-sm font-semibold text-(--color-ink)">
           {table.titlePrefix}
           <span className="text-emerald-700">{table.genderPhrase}</span>
           {` im ${table.agePhrase}`}

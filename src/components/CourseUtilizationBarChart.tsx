@@ -95,7 +95,7 @@ function renderBarPercentLabel(props: LabelProps, compact: boolean) {
       y={Number(y) + Number(height) / 2}
       textAnchor={inside ? "end" : "start"}
       dominantBaseline="middle"
-      fill={inside ? "#ffffff" : "#1a3352"}
+      fill={inside ? "#ffffff" : "var(--color-ink)"}
       fontSize={compact ? 8 : 10}
       fontWeight={600}
     >
@@ -166,7 +166,7 @@ export function CourseUtilizationBarChart({
           <Tooltip formatter={(value) => [formatPercent(typeof value === "number" ? value : Number(value ?? 0)), "Auslastung"]} />
           <Bar
             dataKey="value"
-            fill="#2d5a8e"
+            fill="var(--color-accent)"
             radius={[0, 4, 4, 0]}
             maxBarSize={maxBarSize}
             label={(props) => renderBarPercentLabel(props, compact)}

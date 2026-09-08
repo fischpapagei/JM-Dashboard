@@ -139,7 +139,7 @@ async function captureElementAsCanvas(
   const targetWidth = options.width;
   const dataUrl = await domToPng(element, {
     scale: CAPTURE_SCALE,
-    backgroundColor: '#eef1f6',
+    backgroundColor: 'var(--color-main-bg, #f3f6f5)',
     timeout: 60_000,
     maximumCanvasSize: 32_768,
     features: {

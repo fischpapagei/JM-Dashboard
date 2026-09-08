@@ -39,7 +39,7 @@ export function KurzberichtButton({
         type="button"
         onClick={handleClick}
         disabled={disabled || loading}
-        className="inline-flex items-center gap-2 rounded-lg border border-[#2d5a8e]/30 bg-white px-4 py-2 text-sm font-medium text-[#1a3352] shadow-sm transition-colors hover:border-[#2d5a8e]/50 hover:bg-[#2d5a8e]/5 disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex items-center gap-2 rounded-lg border border-(--color-accent)/30 bg-white px-4 py-2 text-sm font-medium text-(--color-ink) shadow-sm transition-colors hover:border-(--color-accent)/50 hover:bg-(--color-accent)/5 disabled:cursor-not-allowed disabled:opacity-50"
       >
         <FileDown className="h-4 w-4 shrink-0" aria-hidden />
         {loading ? 'PDF wird erzeugt …' : label}

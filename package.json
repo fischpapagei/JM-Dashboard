@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@kern-ux-annex/kern-react-kit": "^2.40.0",
+    "@kern-ux/native": "^2.7.2",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.525.0",
     "modern-screenshot": "^4.7.0",

@@ -84,7 +84,7 @@ export function SchoolRoomsDetailModal({
       <div className="relative mx-auto mt-16 w-full max-w-5xl rounded-xl border border-slate-200/80 bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
           <div>
-            <h3 className="text-base font-semibold text-[#1a3352]">{title}</h3>
+            <h3 className="text-base font-semibold text-(--color-ink)">{title}</h3>
             <p className="mt-1 text-xs text-slate-500">
               {formatNumber(totals.schulraeume)} Schulräume gesamt · davon {formatNumber(totals.elisSchulraeume)} eLis
               Schulräume — JVA aufklappen für Raumliste
@@ -127,7 +127,7 @@ export function SchoolRoomsDetailModal({
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
-                        <span className="text-sm font-semibold text-[#1a3352]">
+                        <span className="text-sm font-semibold text-(--color-ink)">
                           {formatNumber(summary.schulraeume)} Räume
                         </span>
                         <ChevronDown
@@ -165,7 +165,7 @@ export function SchoolRoomsDetailModal({
                                 <td className="py-2 text-right text-slate-700">{formatNumber(room.schoolSeats)}</td>
                               </tr>
                             ))}
-                            <tr className="border-t-2 border-slate-300 bg-slate-100/80 font-semibold text-[#1a3352]">
+                            <tr className="border-t-2 border-slate-300 bg-slate-100/80 font-semibold text-(--color-ink)">
                               <td className="py-2.5 pr-3" colSpan={2}>
                                 Summe {summary.jvaName}
                               </td>

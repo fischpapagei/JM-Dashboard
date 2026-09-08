@@ -65,7 +65,7 @@ function FilterRow({
 }
 
 const selectCls =
-  "w-full min-w-0 max-w-full rounded-md border border-slate-200 bg-white px-2 py-2 text-sm text-slate-800 shadow-sm focus:border-[#2d5a8e] focus:outline-none focus:ring-1 focus:ring-[#2d5a8e]";
+  "w-full min-w-0 max-w-full rounded-md border border-slate-200 bg-white px-2 py-2 text-sm text-slate-800 shadow-sm focus:border-(--color-accent) focus:outline-none focus:ring-1 focus:ring-(--color-accent)";
 
 function JvaMultiSelect({
   value,
@@ -259,7 +259,7 @@ function TerminationReasonInfoTooltip({
         type="button"
         tabIndex={-1}
         aria-label="Erklärung anzeigen"
-        className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-[#2d5a8e] shadow-sm hover:border-[#2d5a8e]/30 hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-[#2d5a8e]/40"
+        className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-(--color-accent) shadow-sm hover:border-(--color-accent)/30 hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-(--color-accent)/40"
         onClick={(event) => event.stopPropagation()}
         onMouseDown={(event) => event.stopPropagation()}
         onMouseEnter={handleOpen}
@@ -464,7 +464,7 @@ export function FilterBar({
 
   return (
     <section className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2 text-[#1a3352]">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-(--color-ink)">
         <div className="flex items-center gap-2">
           <Filter className="h-5 w-5" aria-hidden />
           <h2 className="text-sm font-semibold">Auswertungsfilter</h2>
@@ -472,7 +472,7 @@ export function FilterBar({
         <button
           type="button"
           onClick={handleReset}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-[#2d5a8e] shadow-sm transition-colors hover:bg-slate-50"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-(--color-accent) shadow-sm transition-colors hover:bg-slate-50"
         >
           <RotateCcw className="h-4 w-4" aria-hidden />
           Filter zurücksetzen

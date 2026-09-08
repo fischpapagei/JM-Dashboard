@@ -144,7 +144,7 @@ export function JvaDetail({
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0 flex-1">
                 {pdfExportMode || isJvaRole ? (
-                  <h2 className="text-base font-semibold text-[#1a3352]">{jva.name}</h2>
+                  <h2 className="text-base font-semibold text-(--color-ink)">{jva.name}</h2>
                 ) : (
                   <div className="max-w-md">
                     <label htmlFor="jva-stammdaten-select" className="text-xs font-medium text-slate-500">
@@ -154,7 +154,7 @@ export function JvaDetail({
                       id="jva-stammdaten-select"
                       value={jvaId}
                       onChange={(event) => onJvaChange?.(event.target.value)}
-                      className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-[#1a3352] shadow-sm focus:border-[#2d5a8e] focus:outline-none focus:ring-2 focus:ring-[#2d5a8e]/30"
+                      className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-(--color-ink) shadow-sm focus:border-(--color-accent) focus:outline-none focus:ring-2 focus:ring-(--color-accent)/30"
                     >
                       {jvaOptions.map((option) => (
                         <option key={option.id} value={option.id}>
@@ -344,7 +344,7 @@ export function JvaDetail({
             }
           >
             <div className="border-b border-slate-100 px-4 py-3">
-              <h3 className="text-sm font-semibold text-[#1a3352]">Kursangebot der JVA</h3>
+              <h3 className="text-sm font-semibold text-(--color-ink)">Kursangebot der JVA</h3>
               <p className="text-xs text-slate-500 mt-0.5">Soll-Plätze gemäß BASIS-Katalog (Mindest-Soll Erwachsene)</p>
             </div>
             <div className={pdfExportMode ? "overflow-visible px-2 pb-2" : "overflow-x-auto max-h-[320px] overflow-y-auto"}>
@@ -440,7 +440,7 @@ export function JvaDetail({
             onSchulraeumeClick={schoolRoomsClick}
           />
           <section className="rounded-xl border border-amber-200/80 bg-amber-50/60 p-4 shadow-sm">
-            <h3 className="text-sm font-semibold text-[#1a3352]">Datenqualität / offene Klärungen</h3>
+            <h3 className="text-sm font-semibold text-(--color-ink)">Datenqualität / offene Klärungen</h3>
             <ul className="mt-2 list-inside list-disc space-y-1 text-xs text-slate-600">
               <li>Soll-Plätze aus BASIS-Katalog (Mindest-Soll Erwachsene)</li>
               <li>Beendigungsgründe RB-01–VB-07 nach Excel-Katalog</li>

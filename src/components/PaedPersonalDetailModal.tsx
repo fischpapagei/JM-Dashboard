@@ -60,7 +60,7 @@ export function PaedPersonalDetailModal({
       <div className="relative mx-auto mt-16 w-full max-w-3xl rounded-xl border border-slate-200/80 bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
           <div>
-            <h3 className="text-base font-semibold text-[#1a3352]">{title}</h3>
+            <h3 className="text-base font-semibold text-(--color-ink)">{title}</h3>
             <p className="mt-1 text-xs text-slate-500">
               {formatNumber(computedStellen)} Stellen gesamt · davon {formatNumber(computedBesetzt)} besetzt ·{" "}
               {formatNumber(computedExtern)} externe Kräfte
@@ -93,7 +93,7 @@ export function PaedPersonalDetailModal({
                   <tr key={row.jvaId} className="border-b border-slate-100 last:border-0">
                     <td className="py-2.5 pr-3 font-medium text-slate-800">{row.jvaName}</td>
                     <td className="py-2.5 pr-3 text-right text-slate-700">{formatNumber(row.paedStellen)}</td>
-                    <td className="py-2.5 pr-3 text-right font-semibold text-[#1a3352]">
+                    <td className="py-2.5 pr-3 text-right font-semibold text-(--color-ink)">
                       {formatNumber(row.paedBesetzt)}
                     </td>
                     <td className="py-2.5 text-right text-slate-700">{formatNumber(row.paedExtern)}</td>

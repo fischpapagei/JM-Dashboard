@@ -33,7 +33,7 @@ export function RegulaereTerminationReasonsCard({
         {rows.map((row) => (
           <li key={row.key} className="flex items-start justify-between gap-2">
             <span className="text-[11px] leading-snug text-slate-600">{row.label}</span>
-            <span className="shrink-0 text-sm font-semibold text-[#1a3352]">
+            <span className="shrink-0 text-sm font-semibold text-(--color-ink)">
               {demoMode ? formatNumber(row.count) : "—"}
             </span>
           </li>

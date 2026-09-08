@@ -124,7 +124,7 @@ export function KpiCard({
           ? "text-xs font-medium leading-snug text-slate-600"
           : "text-sm font-medium text-slate-600";
   const valueClass =
-    accent === "purple" ? "text-violet-950" : "text-[#1a3352]";
+    accent === "purple" ? "text-violet-950" : "text-(--color-ink)";
   const metaClass =
     accent === "purple" ? "text-violet-700/80" : "text-slate-500";
   const dividerClass = accent === "purple" ? "border-violet-200" : "border-slate-200";
@@ -150,8 +150,8 @@ export function KpiCard({
           ? accent === "purple"
             ? "cursor-pointer hover:border-violet-400 hover:from-violet-100 hover:to-purple-100 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-violet-300/50"
             : surface === "inset"
-              ? "cursor-pointer hover:border-[#2d5a8e]/30 hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#2d5a8e]/40"
-              : "cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#2d5a8e]/40"
+              ? "cursor-pointer hover:border-(--color-accent)/30 hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-(--color-accent)/40"
+              : "cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-(--color-accent)/40"
           : "",
       ].join(" ")}
       role={clickable ? "button" : undefined}

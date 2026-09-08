@@ -169,7 +169,7 @@ export function BeendigungsgruendeLandesweitView({
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-[#1a3352]">{title}</h2>
+          <h2 className="text-xl font-semibold text-(--color-ink)">{title}</h2>
           <p className="mt-1 text-sm text-slate-600">
             {reportLabel}
             {jvaName ? ` · ${jvaName}` : ''}
@@ -214,7 +214,7 @@ export function BeendigungsgruendeLandesweitView({
             }) => (
               <section key={ageGroup.key} className="space-y-5">
                 <div data-pdf-block className="rounded-xl border border-slate-200/80 bg-white px-4 py-3 shadow-sm">
-                  <h3 className="text-lg font-semibold text-[#1a3352]">
+                  <h3 className="text-lg font-semibold text-(--color-ink)">
                     {ageGroup.label} — Beendigungsgründe schulischer Maßnahmen
                   </h3>
                   <p className="text-xs text-slate-500">
@@ -300,7 +300,7 @@ export function BeendigungsgruendeLandesweitView({
 
           {completedYear != null && (
             <section data-pdf-block className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-              <h3 className="text-sm font-semibold text-[#1a3352]">
+              <h3 className="text-sm font-semibold text-(--color-ink)">
                 Freitextgründe im aktuellen Jahr ({completedYear})
               </h3>
               <p className="mt-0.5 text-xs text-slate-500">
@@ -312,7 +312,7 @@ export function BeendigungsgruendeLandesweitView({
                 <ul className="mt-3 space-y-2 text-sm text-slate-700">
                   {freeTextEntries.map((entry) => (
                     <li key={`${entry.reasonKey}-${entry.text}`}>
-                      <span className="font-medium text-[#1a3352]">{entry.reasonLabel}:</span> {entry.text}
+                      <span className="font-medium text-(--color-ink)">{entry.reasonLabel}:</span> {entry.text}
                       <span className="text-slate-500"> ({entry.count})</span>
                     </li>
                   ))}

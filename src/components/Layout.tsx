@@ -33,7 +33,7 @@ export function Layout({
       <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-xl font-semibold text-[#1a3352]">{title}</h1>
+            <h1 className="text-xl font-semibold text-(--color-ink)">{title}</h1>
             {showDemo && <Badge variant="demo">Demo-Daten</Badge>}
           </div>
           {subtitle && <p className="mt-1 max-w-3xl text-sm text-slate-600">{subtitle}</p>}

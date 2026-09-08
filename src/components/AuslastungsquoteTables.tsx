@@ -45,7 +45,7 @@ export function AuslastungsquoteQuarterTable({
   return (
     <section className="w-full overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
       <div className="border-b border-emerald-200 bg-emerald-50 px-4 py-3">
-        <h3 className="text-sm font-semibold text-[#1a3352]">{title}</h3>
+        <h3 className="text-sm font-semibold text-(--color-ink)">{title}</h3>
       </div>
       <div className="w-full overflow-x-auto">
         <table className={`${REPORT_TABLE_CLASS} text-[11px]`}>
@@ -131,7 +131,7 @@ export function AuslastungsquoteQuarterTable({
                   className={row.isCategorySum ? 'bg-emerald-50/70 font-medium' : 'bg-white'}
                 >
                   {showCategory && (
-                    <td className={`${LABEL_CELL} border-slate-200 text-[#1a3352]`} rowSpan={span}>
+                    <td className={`${LABEL_CELL} border-slate-200 text-(--color-ink)`} rowSpan={span}>
                       {row.categoryLabel}
                     </td>
                   )}
@@ -209,7 +209,7 @@ export function AuslastungsquoteYearTable({
   return (
     <section className="w-full overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
       <div className="border-b border-sky-200 bg-sky-50 px-4 py-3">
-        <h3 className="text-sm font-semibold text-[#1a3352]">{title}</h3>
+        <h3 className="text-sm font-semibold text-(--color-ink)">{title}</h3>
       </div>
       <div className="w-full overflow-x-auto">
         <table className={`${REPORT_TABLE_CLASS} text-[11px]`}>
@@ -293,7 +293,7 @@ export function AuslastungsquoteYearTable({
                   className={row.isCategorySum ? 'bg-sky-50/70 font-medium' : 'bg-white'}
                 >
                   {showCategory && (
-                    <td className={`${LABEL_CELL} border-slate-200 text-[#1a3352]`} rowSpan={span}>
+                    <td className={`${LABEL_CELL} border-slate-200 text-(--color-ink)`} rowSpan={span}>
                       {row.categoryLabel}
                     </td>
                   )}

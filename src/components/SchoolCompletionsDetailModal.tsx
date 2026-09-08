@@ -61,7 +61,7 @@ export function SchoolCompletionsDetailModal({
       <div className="relative mx-auto mt-16 w-full max-w-4xl rounded-xl border border-slate-200/80 bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
           <div>
-            <h3 className="text-base font-semibold text-[#1a3352]">{title}</h3>
+            <h3 className="text-base font-semibold text-(--color-ink)">{title}</h3>
             <p className="mt-1 text-xs text-slate-500">
               {formatNumber(computedTotal)} Abschlüsse gesamt — Anzahl anklicken für Verteilung nach JVA
             </p>
@@ -101,7 +101,7 @@ export function SchoolCompletionsDetailModal({
                           type="button"
                           onClick={() => toggle(key)}
                           aria-expanded={isOpen}
-                          className="inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-semibold text-[#2d5a8e] hover:bg-[#2d5a8e]/10 focus:outline-none focus:ring-2 focus:ring-[#2d5a8e]/40"
+                          className="inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-semibold text-(--color-accent) hover:bg-(--color-accent)/10 focus:outline-none focus:ring-2 focus:ring-(--color-accent)/40"
                         >
                           {formatNumber(row.total)}
                           <ChevronDown
@@ -128,7 +128,7 @@ export function SchoolCompletionsDetailModal({
                                 className="border-b border-slate-100 last:border-0"
                               >
                                 <td className="py-2 pr-3 font-medium text-slate-700">{jvaRow.jvaName}</td>
-                                <td className="py-2 text-right font-semibold text-[#1a3352]">
+                                <td className="py-2 text-right font-semibold text-(--color-ink)">
                                   {formatNumber(jvaRow.count)}
                                 </td>
                               </tr>

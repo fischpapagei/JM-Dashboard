@@ -7,8 +7,8 @@ import {
   REPORT_TABLE_CLASS,
 } from './reportTableStyles';
 
-const LABEL_CELL = `${REPORT_LABEL_CELL} border-slate-300 text-[11px] text-[#1a3352]`;
-const DATA_CELL = `${REPORT_DATA_CELL} border-slate-300 text-[11px] text-[#1a3352]`;
+const LABEL_CELL = `${REPORT_LABEL_CELL} border-slate-300 text-[11px] text-(--color-ink)`;
+const DATA_CELL = `${REPORT_DATA_CELL} border-slate-300 text-[11px] text-(--color-ink)`;
 const HEADER_CELL = `${REPORT_HEADER_CELL} border-slate-400 bg-slate-200 text-[10px] font-semibold uppercase tracking-wide text-slate-800`;
 
 interface SchulraeumeTableProps {
@@ -19,7 +19,7 @@ export function SchulraeumeTable({ table }: SchulraeumeTableProps) {
   return (
     <section className="w-full overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
       <div className="border-b border-slate-200 bg-slate-100 px-4 py-3 text-center">
-        <h3 className="text-sm font-semibold text-[#1a3352]">Übersicht der Schulräume</h3>
+        <h3 className="text-sm font-semibold text-(--color-ink)">Übersicht der Schulräume</h3>
       </div>
       <div className="w-full overflow-x-auto">
         <table className={`${REPORT_TABLE_CLASS} text-[11px]`}>

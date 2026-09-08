@@ -2,11 +2,12 @@
 
 ## Stand
 - Vite + React 19 + TypeScript + Tailwind v4 + Recharts
+- **KERN UX:** `@kern-ux/native` (CSS/Schriften, GitLab [kern-ux-plain](https://gitlab.opencode.de/kern-ux/kern-ux-plain)) + `@kern-ux-annex/kern-react-kit` (React, GitLab [community/kern-react-kit](https://gitlab.opencode.de/kern-ux/community/kern-react-kit)); Fassade `src/ui/`
 - `npm run build` erfolgreich
 
 ## UI-Struktur
 - **Auth:** `ministerium`/`jm2026` (Landesübersicht), `jva-<slug>`/`jva2026` (nur eigene JVA)
-- **Top-Level:** Login → **LandingPage** → Kennzahlensystem, **Berichte** oder Web-Erfassung (`App.tsx`, `types/app.ts`)
+- **Berichte:** `BerichteApp` — **Sidebar-Layout** (`JustizSidebar`) mit Berichtsebenen (JVA vs. Ministerium) und Berichtstypen. Konfiguration mit KERN-Formularen. Anstaltsrolle sieht nur Ebenen mit verfügbaren Berichten. Inline-Vorschauen bleiben im Hauptbereich, die Navigation in der Seitenleiste.
 - **Kennzahlensystem:** ProtectedApp + SidebarLayout (Auswertung)
 - **Tabellen in Berichten:** Spaltenbreite nach Inhalt (`table-auto`); Kennzahlen bleiben in der Zelle, breite Tabellen horizontal scrollbar
 - **Sidebar (Ministerium):** vier aufklappbare Bereiche in `data/dashboardAreas.ts`:
@@ -15,9 +16,10 @@
   3. **Arbeit und Arbeitstherapie:** Hub → „NRW gesamt“, „JVA-Stammdatenblatt“
   4. **Beschäftigungsquote:** Hub → „NRW gesamt“, „JVA-Stammdatenblatt“
 - **Landesweit freie Plätze:** `LandesweitFreiePlaetze` — KPI + Tabelle; **Excel-Export** (Pivot: JVA × Haupt-/Maßnahmenkategorie, inkl. Filterübersicht) via `ExcelExportButton` + `utils/exportFreiePlaetzeExcel.ts`
-- **Web-Erfassung:** WeberfassungApp — zwei Überkategorien in `data/weberfassungNav.ts`:
+- **Web-Erfassung:** `WeberfassungApp` — **Sidebar-Layout** (`JustizSidebar` in `src/ui/`): Nachtblau mit KERN-Buttons, -Icons und Fira-Sans-Typografie; aufklappbare Kategorien. Offizielles KERN native hat keine Sidebar; das Community-Kit bietet nur ein schlankes Addon (`KernSidebar`/`KernSidebarItem`). Zwei Überkategorien in `data/weberfassungNav.ts`:
   - **Strukturdaten:** Schulische Bildung, Berufliche Bildung, Betriebe, eLis
   - **Haushalt:** Anmeldungen Arbeit und berufliche Bildung, Anmeldungen schulische Bildung, Prüfung FB Pädagogik, Prüfung ZBI
+  - Formularseiten sind vorerst Platzhalter (KERN-Alert/Karte), ohne Speicherung
 
 ## Filter & Kennzahlen (funktional im Demo-Modus)
 - **FilterBar** (`components/FilterBar.tsx`) — drei Ebenen, immer sichtbar:
@@ -122,7 +124,8 @@
 - Ohne Demo-Toggle: KPIs `—`, leere Charts/Tabellen (keine erfundenen Zahlen)
 
 ## Design
-- Sidebar `#1a3352`, aktiv `#2d5a8e`, Main `#eef1f6`
+- **KERN UX-Standard** als Komponentenbasis ([OpenCoDE GitLab](https://gitlab.opencode.de/kern-ux))
+- **Farbklima Justiz NRW** ([justiz.nrw](https://www.justiz.nrw)): Nachtblau `#003064`, Petrol `#175E54`, Landesgrün `#009036`; KERN-Action-Tokens darauf gemappt (`src/index.css`)
 
 ## Nächste Schritte (optional)
 - Echte BASIS-Web-API-Anbindung

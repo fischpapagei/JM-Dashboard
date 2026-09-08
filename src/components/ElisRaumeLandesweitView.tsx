@@ -39,7 +39,7 @@ export function ElisRaumeLandesweitView({
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-[#1a3352]">elis Räume und Mandantschaften</h2>
+          <h2 className="text-xl font-semibold text-(--color-ink)">elis Räume und Mandantschaften</h2>
           <p className="mt-1 text-sm text-slate-600">
             Bericht 11
             {' · '}Berichtszeitpunkt {formatReportingPeriodDisplay(berichtszeitpunkt)}

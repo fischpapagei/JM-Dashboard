@@ -40,7 +40,7 @@ export function SollplatzVeraenderungView({
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-[#1a3352]">
+          <h2 className="text-xl font-semibold text-(--color-ink)">
             Veränderung der Schulkurse und deren Soll-Plätze
           </h2>
           <p className="mt-1 text-sm text-slate-600">
@@ -83,7 +83,7 @@ export function SollplatzVeraenderungView({
               {' · '}
               <span className="font-medium text-emerald-700">Grün:</span> neu eingerichteter Kurs
               {' · '}
-              <span className="font-medium text-[#1a3352]">Schwarz:</span> keine Veränderung
+              <span className="font-medium text-(--color-ink)">Schwarz:</span> keine Veränderung
             </p>
           </div>
           <div

@@ -1,18 +1,137 @@
 @import "tailwindcss";
 
-:root {
-  --color-sidebar: #1a3352;
-  --color-sidebar-active: #2d5a8e;
-  --color-main-bg: #eef1f6;
+/* Farbklima Justiz NRW / Landes-CD, angelegt an https://www.justiz.nrw */
+:root,
+[data-kern-theme="light"],
+.kern-light {
+  --justiz-nachtblau: #003064;
+  --justiz-petrol: #175e54;
+  --justiz-gruen: #009036;
+  --justiz-rot: #e2001a;
+  --justiz-bg: #f3f6f5;
+
+  --color-sidebar: var(--justiz-nachtblau);
+  --color-sidebar-active: var(--justiz-petrol);
+  --color-ink: var(--justiz-nachtblau);
+  --color-accent: var(--justiz-petrol);
+  --color-main-bg: var(--justiz-bg);
+
+  --kern-color-action-default: var(--justiz-petrol);
+  --kern-color-action-default-contextual: var(--justiz-petrol);
+  --kern-color-action-on-default: #ffffff;
+  --kern-color-action-on-default-contextual: #ffffff;
+  --kern-color-decorative-brand-default: var(--justiz-nachtblau);
+  --kern-color-feedback-success: var(--justiz-gruen);
+  --kern-color-feedback-danger: var(--justiz-rot);
+  --kern-color-layout-background-hued: var(--justiz-bg);
+  --kern-color-layout-background-default-surface: var(--justiz-bg);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   background-color: var(--color-main-bg);
 }
 
 #root {
   min-height: 100vh;
+}
+
+.justiz-brand-bar {
+  background-color: var(--color-sidebar);
+  color: #fff;
+  border-bottom: 4px solid var(--justiz-gruen);
+}
+
+.justiz-brand-bar .kern-btn--tertiary .kern-label {
+  color: #fff;
+}
+
+.justiz-brand-bar .kern-btn--tertiary:hover {
+  background-color: rgb(255 255 255 / 12%);
+}
+
+.justiz-brand-bar p,
+.justiz-brand-bar .kern-text {
+  color: #fff;
+}
+
+/* Justiz-Seitenleiste: KERN-Buttons und -Typografie auf Nachtblau */
+.justiz-sidebar {
+  background-color: var(--color-sidebar);
+  color: #fff;
+  font-family: var(--kern-typography-font-family-default, "Fira Sans");
+}
+
+.justiz-sidebar .kern-preline,
+.justiz-sidebar .kern-subline,
+.justiz-sidebar .kern-body,
+.justiz-sidebar .kern-body--muted,
+.justiz-sidebar [class^="kern-heading"] {
+  color: #fff;
+}
+
+.justiz-sidebar .kern-preline,
+.justiz-sidebar .kern-subline,
+.justiz-sidebar .justiz-sidebar__note .kern-body {
+  color: rgb(255 255 255 / 75%);
+}
+
+.justiz-sidebar .kern-btn {
+  justify-content: flex-start;
+  height: auto;
+  min-height: var(--kern-metric-dimension-x-large, 48px);
+  align-items: center;
+}
+
+.justiz-sidebar .kern-btn .kern-label {
+  color: #fff;
+  text-align: left;
+  white-space: normal;
+}
+
+.justiz-sidebar .kern-btn--tertiary .kern-label {
+  color: #fff;
+}
+
+.justiz-sidebar .kern-btn--tertiary > .kern-icon {
+  background-color: #fff;
+}
+
+.justiz-sidebar .kern-btn--tertiary:hover {
+  background-color: rgb(255 255 255 / 12%);
+}
+
+.justiz-sidebar .kern-btn--primary {
+  background-color: var(--color-accent);
+}
+
+.justiz-sidebar__nav .kern-btn--tertiary .kern-label {
+  text-decoration: none;
+}
+
+.justiz-sidebar__sub {
+  padding-left: 1.75rem;
+}
+
+.justiz-sidebar__icon-btn {
+  width: var(--kern-metric-dimension-x-large, 48px);
+  min-width: var(--kern-metric-dimension-x-large, 48px);
+  padding-inline: 0;
+  justify-content: center;
+}
+
+.justiz-sidebar__icon-btn .kern-label:empty {
+  display: none;
+}
+
+.justiz-sidebar__icon-btn[aria-expanded="true"] > .kern-icon {
+  transform: rotate(180deg);
+}
+
+.justiz-sidebar__lucide {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+  color: #fff;
 }

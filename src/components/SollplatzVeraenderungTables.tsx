@@ -14,7 +14,7 @@ const HEADER_CELL = `${REPORT_HEADER_CELL} border-slate-600 bg-slate-600 text-[1
 function rowTone(kind: SollplatzChangeKind): string {
   if (kind === 'new') return 'text-emerald-700';
   if (kind === 'changed') return 'text-red-600';
-  return 'text-[#1a3352]';
+  return 'text-(--color-ink)';
 }
 
 function formatSigned(value: number): string {
@@ -30,7 +30,7 @@ export function SollplatzVeraenderungTableView({ table }: SollplatzVeraenderungT
   return (
     <section className="w-full overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
       <div className="border-b border-slate-200 bg-white px-4 py-3">
-        <h3 className="text-sm font-semibold text-[#1a3352]">Veränderung der Schulkurse und deren Soll-Plätze</h3>
+        <h3 className="text-sm font-semibold text-(--color-ink)">Veränderung der Schulkurse und deren Soll-Plätze</h3>
         <p className="mt-0.5 text-xs text-slate-500">
           Vergleich {table.previousMonthLabel} → {table.currentMonthLabel}
         </p>
@@ -67,7 +67,7 @@ export function SollplatzVeraenderungTableView({ table }: SollplatzVeraenderungT
                 </tr>
               );
             })}
-            <tr className="bg-slate-50 font-semibold text-[#1a3352]">
+            <tr className="bg-slate-50 font-semibold text-(--color-ink)">
               <td className={LABEL_CELL} colSpan={4}>
                 Gesamtsumme
               </td>

@@ -43,7 +43,7 @@ export function SchulabschluesseYearTable({
   return (
     <section className="w-full overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
       <div className="border-b border-sky-200 bg-sky-50 px-4 py-3">
-        <h3 className="text-sm font-semibold text-[#1a3352]">{title}</h3>
+        <h3 className="text-sm font-semibold text-(--color-ink)">{title}</h3>
       </div>
       <div className="w-full overflow-x-auto">
         <table className={`${REPORT_TABLE_CLASS} text-[11px]`}>
@@ -110,7 +110,7 @@ export function SchulabschluesseYearTable({
                   key={row.groupKey}
                   className={row.isSum ? 'bg-sky-50/70 font-medium' : 'bg-white'}
                 >
-                  <td className={`${LABEL_CELL} border-slate-200 text-[#1a3352]`}>{row.groupLabel}</td>
+                  <td className={`${LABEL_CELL} border-slate-200 text-(--color-ink)`}>{row.groupLabel}</td>
                   {showNrwComparison ? (
                     <>
                       <td className={DATA_CELL}>{formatNumber(row.both)}</td>

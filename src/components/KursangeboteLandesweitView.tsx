@@ -45,7 +45,7 @@ export function KursangeboteLandesweitView({
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-[#1a3352]">Kursangebote (landesweit)</h2>
+          <h2 className="text-xl font-semibold text-(--color-ink)">Kursangebote (landesweit)</h2>
           <p className="mt-1 text-sm text-slate-600">
             Bericht 7 · Bildungsbroschüre Teil 2 · Stand {year}
             {' · '}Berichtszeitpunkt {formatReportingPeriodDisplay(berichtszeitpunkt)}
@@ -104,7 +104,7 @@ export function KursangeboteLandesweitView({
               className="space-y-4"
             >
               <div className="rounded-xl border border-slate-200/80 bg-white px-4 py-3 shadow-sm">
-                <h3 className="text-lg font-semibold text-[#1a3352]">{section.jvaName}</h3>
+                <h3 className="text-lg font-semibold text-(--color-ink)">{section.jvaName}</h3>
                 <p className="text-xs text-slate-500">Schulisches Bildungsangebot · Stand {year}</p>
               </div>
               {section.tables.map((table) => (

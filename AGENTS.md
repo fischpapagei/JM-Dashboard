@@ -97,4 +97,4 @@ Eine Änderung ist erst abgeschlossen, wenn:
 - keine bekannten kritischen Fehler verbleiben.
 
 ## Projektstand (Frontend-Prototyp)
-Dieses Repository ist aktuell eine Vite/React-Oberfläche ohne getrennte Backend-Module. Fachlicher Kontext steht in `Kontext.md`. Typprüfung über `npm run build`.
+Dieses Repository ist aktuell eine Vite/React-Oberfläche ohne getrennte Backend-Module. Fachlicher Kontext steht in `Kontext.md`. UI-Grundlage ist der KERN UX-Standard (`src/ui/`). Typprüfung über `npm run build`.

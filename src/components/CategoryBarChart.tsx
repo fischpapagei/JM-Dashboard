@@ -95,7 +95,7 @@ function renderBarTopLabel(
   const percentFontSize = pdfExportMode ? 10 : compact ? 8 : 10;
 
   return (
-    <text textAnchor="middle" fill="#1a3352">
+    <text textAnchor="middle" fill="var(--color-ink)">
       <tspan
         x={centerX}
         y={barTop - valueOffset}
@@ -168,7 +168,7 @@ export function CategoryBarChart({ data, height, pdfExportMode = false }: Catego
         />
         <Bar
           dataKey="value"
-          fill="#2d5a8e"
+          fill="var(--color-accent)"
           radius={[4, 4, 0, 0]}
           maxBarSize={pdfExportMode ? 88 : expanded ? 72 : 48}
           label={(props) => renderBarTopLabel(props, total, !expanded, pdfExportMode)}

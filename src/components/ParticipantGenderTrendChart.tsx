@@ -85,7 +85,7 @@ export function ParticipantGenderTrendChart({
 
   return (
     <section className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-      <h3 className="text-sm font-semibold text-[#1a3352]">{title}</h3>
+      <h3 className="text-sm font-semibold text-(--color-ink)">{title}</h3>
       {subtitle && <p className="mt-0.5 text-xs text-slate-500">{subtitle}</p>}
       <div className="mt-3" style={{ height }}>
         <ResponsiveContainer width="100%" height="100%">

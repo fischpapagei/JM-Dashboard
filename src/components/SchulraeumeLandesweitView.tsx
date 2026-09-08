@@ -46,7 +46,7 @@ export function SchulraeumeLandesweitView({
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-[#1a3352]">Schulräume</h2>
+          <h2 className="text-xl font-semibold text-(--color-ink)">Schulräume</h2>
           <p className="mt-1 text-sm text-slate-600">
             Bericht 9 · Übersicht der Schulräume · Stand {year}
             {' · '}Berichtszeitpunkt {formatReportingPeriodDisplay(berichtszeitpunkt)}

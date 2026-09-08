@@ -39,7 +39,7 @@ export function StellenLandesweitView({
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-[#1a3352]">Stellen</h2>
+          <h2 className="text-xl font-semibold text-(--color-ink)">Stellen</h2>
           <p className="mt-1 text-sm text-slate-600">
             Bericht 10 · Stellen pädagogischer Dienst
             {' · '}Berichtszeitpunkt {formatReportingPeriodDisplay(berichtszeitpunkt)}

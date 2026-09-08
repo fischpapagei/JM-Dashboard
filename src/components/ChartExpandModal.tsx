@@ -44,7 +44,7 @@ export function ChartExpandModal({
       >
         <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4">
           <div>
-            <h3 id="chart-expand-title" className="text-lg font-semibold text-[#1a3352]">
+            <h3 id="chart-expand-title" className="text-lg font-semibold text-(--color-ink)">
               {title}
             </h3>
             {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}

@@ -76,7 +76,7 @@ export function LandesweitFreiePlaetze({
       </div>
 
       <section className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-        <h2 className="text-base font-semibold text-[#1a3352]">Landesweit freie Plätze</h2>
+        <h2 className="text-base font-semibold text-(--color-ink)">Landesweit freie Plätze</h2>
         <p className="mt-1 text-sm text-slate-600">
           Tagesaktuelle freie Plätze für {area.sidebarLabel.toLowerCase()} — Auswertung aus BASIS-Web.
         </p>

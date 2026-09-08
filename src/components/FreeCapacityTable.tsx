@@ -10,7 +10,7 @@ export function FreeCapacityTable({ rows }: FreeCapacityTableProps) {
   return (
     <section className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
       <div className="border-b border-slate-100 px-4 py-3">
-        <h3 className="text-sm font-semibold text-[#1a3352]">Tagesaktuell freie Plätze</h3>
+        <h3 className="text-sm font-semibold text-(--color-ink)">Tagesaktuell freie Plätze</h3>
       </div>
       <div className="overflow-x-auto max-h-[280px]">
         <table className="min-w-full text-left text-sm">

@@ -111,7 +111,7 @@ export function NrwOverview({
       <FilterBar filters={filters} onChange={onFiltersChange} role="ministry" />
 
       {!isJahresbericht && (
-        <div className="rounded-lg border border-[#2d5a8e]/20 bg-[#2d5a8e]/5 px-4 py-3 text-sm text-[#1a3352]">
+        <div className="rounded-lg border border-(--color-accent)/20 bg-(--color-accent)/5 px-4 py-3 text-sm text-(--color-ink)">
           <span className="font-medium">Berichtsausgabe:</span>{" "}
           {LANDESWEIT_REPORT_VARIANT_LABELS[reportVariant]}
           {entwicklungZeitraum && (
@@ -139,7 +139,7 @@ export function NrwOverview({
         {isJahresbericht ? (
           <section className="space-y-4 rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
             <div data-pdf-block className={pdfBlockClass}>
-              <div className="flex items-center gap-2 text-[#1a3352]">
+              <div className="flex items-center gap-2 text-(--color-ink)">
                 <BarChart3 className="h-5 w-5" aria-hidden />
                 <h2 className="text-sm font-semibold">Jahresbericht — tabellarische Auswertung</h2>
               </div>
@@ -151,7 +151,7 @@ export function NrwOverview({
         ) : (
         <section className="space-y-4 rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
           <div data-pdf-block className={pdfBlockClass}>
-            <div className="flex items-center gap-2 text-[#1a3352]">
+            <div className="flex items-center gap-2 text-(--color-ink)">
               <BarChart3 className="h-5 w-5" aria-hidden />
               <h2 className="text-sm font-semibold">Ausgewertete Daten</h2>
             </div>

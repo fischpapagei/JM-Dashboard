@@ -44,7 +44,7 @@ export function NrwJahresberichtView({ kpis, jvaRows, demoMode }: NrwJahresberic
     <div className="space-y-4">
       <section className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
         <div className="border-b border-slate-100 px-4 py-3">
-          <h3 className="text-sm font-semibold text-[#1a3352]">Kennzahlenübersicht</h3>
+          <h3 className="text-sm font-semibold text-(--color-ink)">Kennzahlenübersicht</h3>
           <p className="mt-0.5 text-xs text-slate-500">Landesweite Kennzahlen für den Jahresbericht</p>
         </div>
         <div className="overflow-x-auto">
@@ -58,7 +58,7 @@ export function NrwJahresberichtView({ kpis, jvaRows, demoMode }: NrwJahresberic
             <tbody>
               {kpiRows.map((row) => (
                 <tr key={row.kennzahl} className="border-t border-slate-100">
-                  <td className={`${REPORT_LABEL_CELL} px-3 text-[#1a3352]`}>{row.kennzahl}</td>
+                  <td className={`${REPORT_LABEL_CELL} px-3 text-(--color-ink)`}>{row.kennzahl}</td>
                   <td className={`${REPORT_DATA_CELL} px-3 font-medium`}>{row.wert}</td>
                 </tr>
               ))}
@@ -69,7 +69,7 @@ export function NrwJahresberichtView({ kpis, jvaRows, demoMode }: NrwJahresberic
 
       <section className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
         <div className="border-b border-slate-100 px-4 py-3">
-          <h3 className="text-sm font-semibold text-[#1a3352]">Vergleich nach JVA</h3>
+          <h3 className="text-sm font-semibold text-(--color-ink)">Vergleich nach JVA</h3>
           <p className="mt-0.5 text-xs text-slate-500">Tabellarische Aufschlüsselung aller Anstalten</p>
         </div>
         <div className="overflow-x-auto max-h-[420px] overflow-y-auto">

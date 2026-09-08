@@ -282,8 +282,21 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
   },
 ];
 
+export type ReportAudience = 'jva' | 'ministry';
+
+export function audienceFromScope(scope: ReportDefinition['scope']): ReportAudience {
+  return scope === 'jva' ? 'jva' : 'ministry';
+}
+
 export function getReportsForRole(role: UserRole): ReportDefinition[] {
   return REPORT_DEFINITIONS.filter((report) => report.roles.includes(role));
+}
+
+export function getReportsForRoleAndAudience(
+  role: UserRole,
+  audience: ReportAudience,
+): ReportDefinition[] {
+  return getReportsForRole(role).filter((report) => audienceFromScope(report.scope) === audience);
 }
 
 export function getReportByKey(key: ReportKey): ReportDefinition | undefined {

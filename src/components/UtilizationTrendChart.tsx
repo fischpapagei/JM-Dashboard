@@ -40,7 +40,7 @@ function renderValueLabel(
       x={Number(x)}
       y={Number(y) - 10}
       textAnchor="middle"
-      fill="#1a3352"
+      fill="var(--color-ink)"
       fontSize={fontSize}
       fontWeight={600}
     >
@@ -135,7 +135,7 @@ export function UtilizationTrendChart({
               className={[
                 "rounded-md px-2 py-1 text-[11px] font-medium transition-colors",
                 active
-                  ? "bg-[#2d5a8e] text-white"
+                  ? "bg-(--color-accent) text-white"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200",
               ].join(" ")}
             >
@@ -190,12 +190,12 @@ export function UtilizationTrendChart({
               type="monotone"
               dataKey="value"
               name="value"
-              stroke="#1a3352"
+              stroke="var(--color-ink)"
               strokeWidth={pdfExportMode ? 2.5 : compact ? 2 : 2.5}
               isAnimationActive={!pdfExportMode}
               dot={
                 showAllValueLabels || !(effectiveGranularity === "week" && compact)
-                  ? { r: pdfExportMode ? 5 : compact ? 3 : 4, fill: "#1a3352", strokeWidth: 0 }
+                  ? { r: pdfExportMode ? 5 : compact ? 3 : 4, fill: "var(--color-ink)", strokeWidth: 0 }
                   : false
               }
               activeDot={{ r: 5 }}

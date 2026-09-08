@@ -110,7 +110,7 @@ function AccordionRow({
           {meta && <p className="mt-0.5 text-xs text-slate-500">{meta}</p>}
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <span className="text-sm font-semibold text-[#1a3352]">{formatValue(total)} freie Plätze</span>
+          <span className="text-sm font-semibold text-(--color-ink)">{formatValue(total)} freie Plätze</span>
           <ChevronDown
             className={`h-4 w-4 text-slate-500 transition-transform ${isOpen ? "rotate-180" : ""}`}
             aria-hidden
@@ -166,7 +166,7 @@ export function FreePlacesGroupedDetailModal({
       <div className="relative mx-auto mt-16 w-full max-w-4xl rounded-xl bg-white shadow-xl border border-slate-200/80">
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
           <div>
-            <h3 className="text-base font-semibold text-[#1a3352]">{title}</h3>
+            <h3 className="text-base font-semibold text-(--color-ink)">{title}</h3>
             <p className="text-xs text-slate-500 mt-1">
               Kurs-Überkategorie → Kursart → JVA — jeweils aufklappbar.
             </p>
