@@ -90,7 +90,7 @@ function ChartInfoTooltip({ description }: { description: string }) {
         <div
           role="tooltip"
           style={{ top: position.top, left: position.left }}
-          className="fixed z-[100] w-72 max-w-[calc(100vw-1.5rem)] rounded-md border border-slate-200 bg-white p-3 text-xs leading-relaxed text-slate-600 shadow-xl"
+          className="fixed z-[100] w-72 max-w-[calc(100vw-1.5rem)] rounded border-2 border-(--color-border) bg-white p-3 text-sm leading-relaxed text-(--color-ink) shadow-xl"
           onMouseEnter={handleOpen}
           onMouseLeave={scheduleClose}
         >
@@ -106,7 +106,7 @@ function ChartInfoTooltip({ description }: { description: string }) {
         ref={buttonRef}
         type="button"
         aria-label="Erklärung anzeigen"
-        className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-(--color-accent) shadow-sm hover:border-(--color-accent)/30 hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-(--color-accent)/40"
+        className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-(--color-border) bg-white text-(--color-accent) hover:border-(--color-accent) focus:outline-none focus:ring-2 focus:ring-(--color-accent)"
         onClick={(event) => event.stopPropagation()}
         onMouseDown={(event) => event.stopPropagation()}
         onMouseEnter={handleOpen}
@@ -138,9 +138,7 @@ export function ChartShell({
   const canExpand = expandable && expandedChart && !pdfExportMode;
   const chartHeight = pdfExportMode ? expandedHeight : previewHeight;
   const surfaceClass =
-    surface === "inset"
-      ? "border-slate-200/90 bg-slate-50/90 shadow-sm ring-1 ring-slate-100/80"
-      : "border-slate-200/80 bg-white shadow-sm";
+    surface === "inset" ? "dashboard-kpi dashboard-kpi--inset" : "dashboard-kpi";
 
   const handleOpen = () => {
     if (canExpand) setOpen(true);
@@ -150,12 +148,10 @@ export function ChartShell({
     <>
       <section
         className={[
-          "rounded-xl border p-4",
+          "rounded p-4",
           surfaceClass,
           canExpand
-            ? surface === "inset"
-              ? "cursor-pointer transition-colors hover:border-(--color-accent)/30 hover:bg-white hover:shadow-md"
-              : "cursor-pointer transition-colors hover:border-slate-300 hover:shadow-md"
+            ? "cursor-pointer transition-colors hover:border-(--color-accent) hover:shadow-md"
             : "",
           className,
         ].join(" ")}
@@ -173,13 +169,13 @@ export function ChartShell({
         <header className="mb-3 flex items-start justify-between gap-2">
           <div className="min-w-0">
             <div className="flex items-start gap-2">
-              <h3 className="text-sm font-semibold text-(--color-ink)">{title}</h3>
+              <h3 className="kern-heading-small text-(--color-ink)">{title}</h3>
               {infoDescription && !pdfExportMode && <ChartInfoTooltip description={infoDescription} />}
             </div>
-            {subtitle && <p className="mt-1 text-xs text-slate-500">{subtitle}</p>}
+            {subtitle && <p className="kern-body kern-body--small mt-1 text-(--color-muted)">{subtitle}</p>}
           </div>
           {canExpand && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-slate-100 px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-slate-500">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded bg-(--justiz-petrol) px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
               <Maximize2 className="h-3 w-3" aria-hidden />
               Vergrößern
             </span>

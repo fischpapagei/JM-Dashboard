@@ -1,5 +1,5 @@
-import { ChevronDown, Filter, Info, RotateCcw } from "lucide-react";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { ChevronDown, Filter, Info } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type ReactNode, type SelectHTMLAttributes } from "react";
 import { createPortal } from "react-dom";
 import {
   completionTypes,
@@ -13,6 +13,7 @@ import {
 import { jvas } from "../data/jvas";
 import type { DashboardFilters, TerminationReason } from "../types/domain";
 import type { UserRole } from "../types/auth";
+import { KernButton } from "../ui/kern";
 import { formatJvaFilterSummary, resetDashboardFilters } from "../utils/filters";
 import {
   getReportingPeriodSelectOptions,
@@ -30,23 +31,23 @@ interface FilterBarProps {
 function FilterCard({
   label,
   children,
-  preserveCase = false,
 }: {
   label: string;
   children: ReactNode;
-  preserveCase?: boolean;
 }) {
   return (
-    <div className="min-w-0 flex-1 basis-[9.75rem] rounded-lg bg-slate-100/90 p-3 sm:basis-[10.5rem]">
-      <label
-        title={label}
-        className={`mb-1.5 block text-[11px] font-semibold leading-snug text-slate-500 break-words ${
-          preserveCase ? "normal-case" : "uppercase tracking-wide"
-        }`}
-      >
-        {label}
-      </label>
-      <div className="min-w-0">{children}</div>
+    <div className="kern-form-input min-w-0 flex-1 basis-[9.75rem] sm:basis-[10.5rem]">
+      <label className="kern-label">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function FilterSelect(props: SelectHTMLAttributes<HTMLSelectElement>) {
+  const { className, ...rest } = props;
+  return (
+    <div className="kern-form-input__select-wrapper">
+      <select className={["kern-form-input__select", className].filter(Boolean).join(" ")} {...rest} />
     </div>
   );
 }
@@ -64,8 +65,8 @@ function FilterRow({
   return <div className="flex flex-wrap gap-2">{children}</div>;
 }
 
-const selectCls =
-  "w-full min-w-0 max-w-full rounded-md border border-slate-200 bg-white px-2 py-2 text-sm text-slate-800 shadow-sm focus:border-(--color-accent) focus:outline-none focus:ring-1 focus:ring-(--color-accent)";
+const selectTriggerClass =
+  "kern-form-input__select flex w-full items-center justify-between gap-2 text-left";
 
 function JvaMultiSelect({
   value,
@@ -114,47 +115,46 @@ function JvaMultiSelect({
 
   return (
     <div ref={containerRef} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        aria-expanded={open}
-        aria-haspopup="listbox"
-        className={`${selectCls} flex items-center justify-between gap-2 text-left`}
-      >
-        <span className="truncate">{displayLabel}</span>
-        <ChevronDown
-          className={`h-4 w-4 shrink-0 text-slate-500 transition-transform ${open ? "rotate-180" : ""}`}
-          aria-hidden
-        />
-      </button>
+      <div className="kern-form-input__select-wrapper">
+        <button
+          type="button"
+          onClick={() => setOpen((prev) => !prev)}
+          aria-expanded={open}
+          aria-haspopup="listbox"
+          className={selectTriggerClass}
+        >
+          <span className="truncate">{displayLabel}</span>
+          <ChevronDown
+            className={`h-4 w-4 shrink-0 text-(--color-ink) transition-transform ${open ? "rotate-180" : ""}`}
+            aria-hidden
+          />
+        </button>
+      </div>
 
       {open && (
         <div
           role="listbox"
           aria-multiselectable="true"
-          className="absolute left-0 right-0 z-20 mt-1 max-h-52 overflow-y-auto rounded-md border border-slate-200 bg-white p-2 text-sm text-slate-800 shadow-lg"
+          className="absolute left-0 right-0 z-20 mt-1 max-h-52 overflow-y-auto rounded border-2 border-(--color-border) bg-white p-2 text-sm text-(--color-ink) shadow-lg"
         >
-          <label className="flex cursor-pointer items-start gap-2 rounded px-1 py-1 hover:bg-slate-50">
+          <label className="kern-form-check mb-1">
             <input
               type="checkbox"
-              className="mt-0.5"
+              className="kern-form-check__checkbox"
               checked={allSelected}
               onChange={() => onChange([])}
             />
-            <span>Alle</span>
+            <span className="kern-label">Alle</span>
           </label>
           {jvas.map((jva) => (
-            <label
-              key={jva.id}
-              className="flex cursor-pointer items-start gap-2 rounded px-1 py-1 hover:bg-slate-50"
-            >
+            <label key={jva.id} className="kern-form-check mb-1">
               <input
                 type="checkbox"
-                className="mt-0.5"
+                className="kern-form-check__checkbox"
                 checked={!allSelected && value.includes(jva.id)}
                 onChange={() => toggleJva(jva.id)}
               />
-              <span className="leading-snug">{jva.name}</span>
+              <span className="kern-label leading-snug">{jva.name}</span>
             </label>
           ))}
         </div>
@@ -236,7 +236,7 @@ function TerminationReasonInfoTooltip({
     <div
       role="tooltip"
       style={{ top: position.top, left: position.left }}
-      className="fixed z-[100] w-80 max-w-[calc(100vw-1.5rem)] rounded-md border border-slate-200 bg-white p-3 text-xs leading-relaxed text-slate-600 shadow-xl"
+      className="fixed z-[100] w-80 max-w-[calc(100vw-1.5rem)] rounded border-2 border-(--color-border) bg-white p-3 text-sm leading-relaxed text-(--color-ink) shadow-xl"
       onMouseEnter={handleOpen}
       onMouseLeave={scheduleClose}
     >
@@ -259,7 +259,7 @@ function TerminationReasonInfoTooltip({
         type="button"
         tabIndex={-1}
         aria-label="Erklärung anzeigen"
-        className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-(--color-accent) shadow-sm hover:border-(--color-accent)/30 hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-(--color-accent)/40"
+        className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-(--color-border) bg-white text-(--color-accent) hover:border-(--color-accent) focus:outline-none focus:ring-2 focus:ring-(--color-accent)"
         onClick={(event) => event.stopPropagation()}
         onMouseDown={(event) => event.stopPropagation()}
         onMouseEnter={handleOpen}
@@ -312,32 +312,34 @@ function TerminationReasonSelect({
 
   return (
     <div ref={containerRef} className="relative">
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={() => !disabled && setOpen((prev) => !prev)}
-        aria-expanded={open}
-        aria-haspopup="listbox"
-        className={`${selectCls} flex items-center justify-between gap-2 text-left disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400`}
-      >
-        <span className="truncate">{displayLabel}</span>
-        <ChevronDown
-          className={`h-4 w-4 shrink-0 text-slate-500 transition-transform ${open ? "rotate-180" : ""}`}
-          aria-hidden
-        />
-      </button>
+      <div className="kern-form-input__select-wrapper">
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => !disabled && setOpen((prev) => !prev)}
+          aria-expanded={open}
+          aria-haspopup="listbox"
+          className={`${selectTriggerClass} disabled:cursor-not-allowed`}
+        >
+          <span className="truncate">{displayLabel}</span>
+          <ChevronDown
+            className={`h-4 w-4 shrink-0 text-(--color-ink) transition-transform ${open ? "rotate-180" : ""}`}
+            aria-hidden
+          />
+        </button>
+      </div>
 
       {open && (
         <div
           role="listbox"
-          className="absolute left-0 z-20 mt-1 max-h-60 w-max min-w-full max-w-sm overflow-y-auto overflow-x-visible rounded-md border border-slate-200 bg-white p-2 text-sm text-slate-800 shadow-lg"
+          className="absolute left-0 z-20 mt-1 max-h-60 w-max min-w-full max-w-sm overflow-y-auto overflow-x-visible rounded border-2 border-(--color-border) bg-white p-2 text-sm text-(--color-ink) shadow-lg"
         >
           <div
             role="option"
             aria-selected={!value}
             tabIndex={0}
-            className={`flex w-full cursor-pointer items-center rounded px-2 py-1.5 hover:bg-slate-50 ${
-              !value ? "bg-slate-50 font-medium" : ""
+            className={`flex w-full cursor-pointer items-center rounded px-2 py-1.5 hover:bg-[#dceae6] ${
+              !value ? "bg-[#dceae6] font-semibold" : ""
             }`}
             onClick={() => {
               onChange(null);
@@ -359,8 +361,8 @@ function TerminationReasonSelect({
               role="option"
               aria-selected={value === reason.key}
               tabIndex={0}
-              className={`flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover:bg-slate-50 ${
-                value === reason.key ? "bg-slate-50 font-medium" : ""
+              className={`flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover:bg-[#dceae6] ${
+                value === reason.key ? "bg-[#dceae6] font-semibold" : ""
               }`}
               onClick={() => {
                 onChange(reason.key);
@@ -463,28 +465,21 @@ export function FilterBar({
   };
 
   return (
-    <section className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2 text-(--color-ink)">
+    <section className="kern-card kern-card--hug dashboard-panel">
+      <div className="kern-card__container w-full space-y-4">
+      <div className="flex w-full flex-wrap items-center justify-between gap-2 text-(--color-ink)">
         <div className="flex items-center gap-2">
           <Filter className="h-5 w-5" aria-hidden />
-          <h2 className="text-sm font-semibold">Auswertungsfilter</h2>
+          <h2 className="kern-heading-small">Auswertungsfilter</h2>
         </div>
-        <button
-          type="button"
-          onClick={handleReset}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-(--color-accent) shadow-sm transition-colors hover:bg-slate-50"
-        >
-          <RotateCcw className="h-4 w-4" aria-hidden />
-          Filter zurücksetzen
-        </button>
+        <KernButton type="button" variant="secondary" label="Filter zurücksetzen" onClick={handleReset} />
       </div>
 
       {/* Ebene 1: Zeit & Organisation */}
       {!isFreePlaces && (
         <FilterRow>
           <FilterCard label="Zeitraum">
-          <select
-            className={selectCls}
+          <FilterSelect
             value={filters.timeGranularity ?? ""}
             onChange={(e) => set("timeGranularity", (e.target.value || null) as DashboardFilters["timeGranularity"])}
           >
@@ -492,12 +487,11 @@ export function FilterBar({
             <option value="month">Monat</option>
             <option value="quarter">Quartal</option>
             <option value="year">Jahr</option>
-          </select>
+          </FilterSelect>
         </FilterCard>
 
         <FilterCard label="Berichtszeitraum">
-          <select
-            className={`${selectCls} disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400`}
+          <FilterSelect
             value={filters.reportingPeriod ?? ""}
             disabled={!filters.timeGranularity}
             onChange={(e) => set("reportingPeriod", e.target.value || null)}
@@ -525,7 +519,7 @@ export function FilterBar({
                   ))}
                 </optgroup>
               ))}
-          </select>
+          </FilterSelect>
         </FilterCard>
 
         {!hideJva && (
@@ -539,45 +533,41 @@ export function FilterBar({
       {/* Ebene 2: Personenmerkmale */}
       <FilterRow>
         <FilterCard label="Geschlecht">
-          <select
-            className={selectCls}
+          <FilterSelect
             value={filters.geschlecht}
             onChange={(e) => set("geschlecht", e.target.value as DashboardFilters["geschlecht"])}
           >
             <option value="alle">Alle</option>
             <option value="männlich">Männlich</option>
             <option value="weiblich">Weiblich</option>
-          </select>
+          </FilterSelect>
         </FilterCard>
 
         <FilterCard label="Haftform">
-          <select
-            className={selectCls}
+          <FilterSelect
             value={filters.haftform}
             onChange={(e) => set("haftform", e.target.value as DashboardFilters["haftform"])}
           >
             <option value="alle">Alle</option>
             <option value="offen">Offen</option>
             <option value="geschlossen">Geschlossen</option>
-          </select>
+          </FilterSelect>
         </FilterCard>
 
         <FilterCard label="Altersgruppe">
-          <select
-            className={selectCls}
+          <FilterSelect
             value={filters.altersgruppe}
             onChange={(e) => set("altersgruppe", e.target.value as DashboardFilters["altersgruppe"])}
           >
             <option value="alle">Alle</option>
             <option value="Erwachsenenvollzug">Erwachsenenvollzug</option>
             <option value="Jugendvollzug">Jugendvollzug</option>
-          </select>
+          </FilterSelect>
         </FilterCard>
 
         {!isFreePlaces && (
           <FilterCard label="Haftart">
-            <select
-              className={selectCls}
+            <FilterSelect
               value={filters.haftart}
               onChange={(e) => set("haftart", e.target.value as DashboardFilters["haftart"])}
             >
@@ -587,7 +577,7 @@ export function FilterBar({
                   {h.label}
                 </option>
               ))}
-            </select>
+            </FilterSelect>
           </FilterCard>
         )}
       </FilterRow>
@@ -595,8 +585,7 @@ export function FilterBar({
       {/* Ebene 3: Kurs & Beendigung */}
       <FilterRow layout="grid">
         <FilterCard label="Hauptkategorie">
-          <select
-            className={selectCls}
+          <FilterSelect
             value={filters.courseCategoryKey ?? ""}
             onChange={(e) => set("courseCategoryKey", e.target.value || null)}
           >
@@ -606,12 +595,11 @@ export function FilterBar({
                 {c.label}
               </option>
             ))}
-          </select>
+          </FilterSelect>
         </FilterCard>
 
-        <FilterCard label="Maßnahmenkategorie" preserveCase>
-          <select
-            className={selectCls}
+        <FilterCard label="Maßnahmenkategorie">
+          <FilterSelect
             value={filters.courseTypeKey ?? ""}
             onChange={(e) => set("courseTypeKey", e.target.value || null)}
           >
@@ -625,14 +613,13 @@ export function FilterBar({
                 ))}
               </optgroup>
             ))}
-          </select>
+          </FilterSelect>
         </FilterCard>
 
         {!isFreePlaces && (
           <>
             <FilterCard label="Beendigungsart">
-              <select
-                className={selectCls}
+              <FilterSelect
                 value={filters.terminationLevel1 ?? ""}
                 onChange={(e) =>
                   set(
@@ -647,7 +634,7 @@ export function FilterBar({
                     {option.label}
                   </option>
                 ))}
-              </select>
+              </FilterSelect>
             </FilterCard>
 
             <FilterCard label="Beendigungsgrund">
@@ -661,8 +648,7 @@ export function FilterBar({
             </FilterCard>
 
             <FilterCard label="Abschlussart">
-              <select
-                className={selectCls}
+              <FilterSelect
                 value={filters.completionType ?? ""}
                 onChange={(e) => set("completionType", e.target.value || null)}
               >
@@ -672,11 +658,12 @@ export function FilterBar({
                     {c.label}
                   </option>
                 ))}
-              </select>
+              </FilterSelect>
             </FilterCard>
           </>
         )}
       </FilterRow>
+      </div>
     </section>
   );
 }

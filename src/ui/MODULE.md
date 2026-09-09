@@ -9,7 +9,7 @@
 - Dokumentation: [kern-ux.de/komponenten](https://www.kern-ux.de/komponenten), [React-Kit Storybook](https://kern-react-kit-75d4e7.usercontent.opencode.de/)
 
 ## Nutzung
-Neue Oberflächen (Formulare, Buttons, Karten, Kopfzeile) mit KERN-Komponenten umsetzen. Bestehende Tailwind-Dashboards bleiben vorerst; schrittweise angleichen.
+Neue Oberflächen (Formulare, Buttons, Karten, Kopfzeile) mit KERN-Komponenten umsetzen. Im Kennzahlensystem gilt das für Rahmen, Hub, Filter, KPI-Karten, Tabellen und Aktionsbuttons. Grafiken bleiben Recharts, nutzen aber Justiz-Farben mit höherem Kontrast (`src/ui/chartTheme.ts`).
 
 Für die App-Navigation (Kennzahlensystem, Web-Erfassung, Berichte) bleibt die Justiz-Seitenleiste (`JustizSidebar`). KERN native enthält kein Sidebar-Pattern; das Community-Kit-Addon `KernSidebar` ist nur eine `nav`/`ul`-Hülle. Die Leiste nutzt deshalb KERN-Buttons, -Icons und -Typografie (Fira Sans) auf Nachtblau. Formulare im Berichtsbereich nutzen `KernSelect` und `KernCheckbox`.
 

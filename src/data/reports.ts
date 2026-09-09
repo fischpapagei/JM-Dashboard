@@ -37,7 +37,7 @@ export interface ReportDefinition {
 export const REPORT_DEFINITIONS: ReportDefinition[] = [
   {
     key: 'schulischer-bildungsbericht-landesweit',
-    title: 'Schulischer Bildungsbericht landesweit',
+    title: 'Schulischer Kurzbericht landesweit',
     description:
       'PDF-Bericht zur schulischen Bildung in NRW mit aktiven Filtern, KPI-Übersicht und Grafiken zur landesweiten Auswertung.',
     contents: [
@@ -53,7 +53,7 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
   },
   {
     key: 'schulischer-bildungsbericht-jva',
-    title: 'Schulischer Bildungsbericht JVA',
+    title: 'Schulischer Kurzbericht JVA',
     description:
       'PDF-Bericht für eine Justizvollzugsanstalt mit Stammdaten, Kennzahlen, Grafiken und Kursangebotstabelle im Querformat.',
     contents: [

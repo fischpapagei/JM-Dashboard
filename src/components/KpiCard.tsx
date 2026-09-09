@@ -1,4 +1,4 @@
-import { Badge } from "./Badge";
+import { KernBadge } from "../ui/kern";
 import { formatAverageNumber, formatNumber, formatPercent } from "../utils/format";
 
 interface KpiCardProps {
@@ -107,27 +107,25 @@ export function KpiCard({
   const clickable = Boolean(onClick) && !exportMode;
   const surfaceClass =
     accent === "purple"
-      ? "border-violet-300/80 bg-gradient-to-br from-violet-50 via-purple-50 to-violet-100 shadow-sm ring-1 ring-violet-200/70"
+      ? "dashboard-kpi dashboard-kpi--accent"
       : surface === "inset"
-        ? "border-slate-200/90 bg-slate-50/90 shadow-sm ring-1 ring-slate-100/80"
-        : "border-slate-200/80 bg-white shadow-sm";
+        ? "dashboard-kpi dashboard-kpi--inset"
+        : "dashboard-kpi";
   const titleClass =
     accent === "purple"
       ? compact
-        ? "text-xs font-medium text-violet-800"
+        ? "text-xs font-semibold text-white"
         : exportMode
-          ? "text-xs font-medium leading-snug text-violet-800"
-          : "text-sm font-medium text-violet-800"
+          ? "text-xs font-semibold leading-snug text-white"
+          : "text-sm font-semibold text-white"
       : compact
-        ? "text-xs font-medium text-slate-600"
+        ? "text-xs font-semibold text-(--color-ink)"
         : exportMode
-          ? "text-xs font-medium leading-snug text-slate-600"
-          : "text-sm font-medium text-slate-600";
-  const valueClass =
-    accent === "purple" ? "text-violet-950" : "text-(--color-ink)";
-  const metaClass =
-    accent === "purple" ? "text-violet-700/80" : "text-slate-500";
-  const dividerClass = accent === "purple" ? "border-violet-200" : "border-slate-200";
+          ? "text-xs font-semibold leading-snug text-(--color-ink)"
+          : "text-sm font-semibold text-(--color-ink)";
+  const valueClass = accent === "purple" ? "text-white" : "text-(--color-ink)";
+  const metaClass = accent === "purple" ? "text-white" : "text-(--color-muted)";
+  const dividerClass = accent === "purple" ? "border-white/50" : "border-(--color-border)";
   const secondaryDisplay = secondaryMetric
     ? secondaryMetric.isPercent
       ? formatPercent(secondaryMetric.value)
@@ -143,15 +141,13 @@ export function KpiCard({
   return (
     <article
       className={[
-        "rounded-xl border",
+        "rounded",
         surfaceClass,
         compact ? "p-3" : "p-4",
         clickable
           ? accent === "purple"
-            ? "cursor-pointer hover:border-violet-400 hover:from-violet-100 hover:to-purple-100 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-violet-300/50"
-            : surface === "inset"
-              ? "cursor-pointer hover:border-(--color-accent)/30 hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-(--color-accent)/40"
-              : "cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-(--color-accent)/40"
+            ? "cursor-pointer hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-white"
+            : "cursor-pointer hover:border-(--color-accent) hover:shadow-md focus:outline-none focus:ring-2 focus:ring-(--color-accent)"
           : "",
       ].join(" ")}
       role={clickable ? "button" : undefined}
@@ -165,9 +161,10 @@ export function KpiCard({
       <div className={["flex items-start justify-between gap-2", compact ? "mb-1.5" : "mb-2"].join(" ")}>
         <h3 className={titleClass}>{title}</h3>
         {showBadge && (
-          <Badge variant={badge === "Demo-Daten" ? "demo" : "empty"}>
-            {badge ?? "nicht geladen"}
-          </Badge>
+          <KernBadge
+            label={badge ?? "nicht geladen"}
+            variant={badge === "Demo-Daten" ? "info" : "warning"}
+          />
         )}
       </div>
       {valueLabel && (

@@ -78,9 +78,7 @@ export function JvaDetail({
     () => [...JVAS].sort((a, b) => a.name.localeCompare(b.name, "de-DE")),
     [],
   );
-  const pdfBlockClass = pdfExportMode
-    ? "rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm"
-    : "";
+  const pdfBlockClass = pdfExportMode ? "dashboard-kpi p-4" : "";
 
   const handleKurzbericht = useCallback(async () => {
     if (!jva) return;
@@ -140,37 +138,39 @@ export function JvaDetail({
 
       <div ref={exportRef} data-kurzbericht-root className="space-y-6">
         <div data-pdf-block>
-          <section className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+          <section className="kern-card kern-card--hug dashboard-panel p-4">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0 flex-1">
                 {pdfExportMode || isJvaRole ? (
-                  <h2 className="text-base font-semibold text-(--color-ink)">{jva.name}</h2>
+                  <h2 className="kern-heading-small text-(--color-ink)">{jva.name}</h2>
                 ) : (
-                  <div className="max-w-md">
-                    <label htmlFor="jva-stammdaten-select" className="text-xs font-medium text-slate-500">
+                  <div className="kern-form-input max-w-md">
+                    <label htmlFor="jva-stammdaten-select" className="kern-label">
                       JVA auswählen
                     </label>
-                    <select
-                      id="jva-stammdaten-select"
-                      value={jvaId}
-                      onChange={(event) => onJvaChange?.(event.target.value)}
-                      className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-(--color-ink) shadow-sm focus:border-(--color-accent) focus:outline-none focus:ring-2 focus:ring-(--color-accent)/30"
-                    >
-                      {jvaOptions.map((option) => (
-                        <option key={option.id} value={option.id}>
-                          {option.name}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="kern-form-input__select-wrapper">
+                      <select
+                        id="jva-stammdaten-select"
+                        value={jvaId}
+                        onChange={(event) => onJvaChange?.(event.target.value)}
+                        className="kern-form-input__select font-semibold"
+                      >
+                        {jvaOptions.map((option) => (
+                          <option key={option.id} value={option.id}>
+                            {option.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 )}
-                <p className="mt-2 text-sm text-slate-600">
+                <p className="mt-2 text-sm text-(--color-muted)">
                   {jva.region ? `Region ${jva.region} · ` : ""}
                   Geschlecht: {jva.geschlecht} · Haftform: {jva.haftform} · Altersgruppe: {jva.altersgruppe}
                 </p>
               </div>
               {!isJvaRole && !pdfExportMode && (
-                <p className="text-xs text-slate-500">Ansicht aus Sicht der ausgewählten JVA</p>
+                <p className="text-xs font-medium text-(--color-muted)">Ansicht aus Sicht der ausgewählten JVA</p>
               )}
             </div>
           </section>
@@ -339,87 +339,78 @@ export function JvaDetail({
           <section
             className={
               pdfExportMode
-                ? "overflow-visible rounded-xl border border-slate-200/80 bg-white shadow-sm"
-                : "overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm"
+                ? "dashboard-kpi overflow-visible"
+                : "kern-card kern-card--hug dashboard-panel overflow-hidden"
             }
           >
-            <div className="border-b border-slate-100 px-4 py-3">
-              <h3 className="text-sm font-semibold text-(--color-ink)">Kursangebot der JVA</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Soll-Plätze gemäß BASIS-Katalog (Mindest-Soll Erwachsene)</p>
+            <div className="border-b-2 border-(--color-border) px-4 py-3">
+              <h3 className="kern-heading-small text-(--color-ink)">Kursangebot der JVA</h3>
+              <p className="kern-body kern-body--small mt-0.5 text-(--color-muted)">Soll-Plätze gemäß BASIS-Katalog (Mindest-Soll Erwachsene)</p>
             </div>
             <div className={pdfExportMode ? "overflow-visible px-2 pb-2" : "overflow-x-auto max-h-[320px] overflow-y-auto"}>
               <table
                 className={
                   pdfExportMode
-                    ? "w-full min-w-[2320px] border-collapse text-[10px] leading-tight"
-                    : "min-w-full text-sm"
+                    ? "kern-table kern-table--small dashboard-table w-full min-w-[2320px] border-collapse text-[10px] leading-tight"
+                    : "kern-table kern-table--small kern-table--striped dashboard-table"
                 }
               >
-                <thead
-                  className={
-                    pdfExportMode
-                      ? "bg-slate-50 text-[10px] uppercase text-slate-500"
-                      : "sticky top-0 bg-slate-50 text-xs uppercase text-slate-500"
-                  }
-                >
-                  <tr>
-                    <th className="px-3 py-2 text-left" rowSpan={2}>
+                <thead>
+                  <tr className="kern-table__row">
+                    <th className="kern-table__header" rowSpan={2}>
                       Überkategorie
                     </th>
-                    <th className="px-3 py-2 text-left" rowSpan={2}>
+                    <th className="kern-table__header" rowSpan={2}>
                       Kursgrundbezeichnung
                     </th>
-                    <th
-                      className="border-b border-slate-200 px-3 py-2 text-center normal-case"
-                      colSpan={2}
-                    >
+                    <th className="kern-table__header text-center" colSpan={2}>
                       Zielgruppe
                     </th>
-                    <th className="px-3 py-2 text-left" rowSpan={2}>
+                    <th className="kern-table__header" rowSpan={2}>
                       Kursleitung
                     </th>
-                    <th className="px-3 py-2 text-left normal-case" rowSpan={2}>
+                    <th className="kern-table__header" rowSpan={2}>
                       Maßnahmenbeginn
                     </th>
-                    <th className="px-3 py-2 text-left" rowSpan={2}>
+                    <th className="kern-table__header" rowSpan={2}>
                       Dauer
                     </th>
-                    <th className="px-3 py-2 text-left" rowSpan={2}>
+                    <th className="kern-table__header" rowSpan={2}>
                       Teilnehmende
                     </th>
-                    <th className="px-3 py-2 text-left" rowSpan={2}>
+                    <th className="kern-table__header" rowSpan={2}>
                       Soll-Plätze
                     </th>
-                    <th className="px-3 py-2 text-left normal-case" rowSpan={2}>
+                    <th className="kern-table__header" rowSpan={2}>
                       Auslastung (letzter Monat)
                     </th>
                   </tr>
-                  <tr>
-                    <th className="px-3 py-2 text-left normal-case">Geschlecht</th>
-                    <th className="px-3 py-2 text-left normal-case">Altersgruppe</th>
+                  <tr className="kern-table__row">
+                    <th className="kern-table__header">Geschlecht</th>
+                    <th className="kern-table__header">Altersgruppe</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="kern-table__body">
                   {courseRows.length > 0 ? (
                     courseRows.map((row) => (
-                      <tr key={row.courseTypeKey} className="border-t border-slate-100">
-                        <td className={pdfExportMode ? "px-2 py-1.5 align-top break-words" : "px-3 py-2"}>{row.courseCategory}</td>
-                        <td className={pdfExportMode ? "px-2 py-1.5 align-top break-words" : "px-3 py-2"}>{row.courseType}</td>
-                        <td className={pdfExportMode ? "px-2 py-1.5 align-top whitespace-nowrap" : "px-3 py-2"}>{row.zielgruppeGeschlecht}</td>
-                        <td className={pdfExportMode ? "px-2 py-1.5 align-top whitespace-nowrap" : "px-3 py-2"}>{row.zielgruppeAltersgruppe}</td>
-                        <td className={pdfExportMode ? "px-2 py-1.5 align-top break-words" : "px-3 py-2"}>{formatKursleitung(row.kursleitung)}</td>
-                        <td className={pdfExportMode ? "px-2 py-1.5 align-top break-words text-slate-600" : "px-3 py-2 text-slate-600"}>
+                      <tr key={row.courseTypeKey} className="kern-table__row">
+                        <td className="kern-table__cell">{row.courseCategory}</td>
+                        <td className="kern-table__cell">{row.courseType}</td>
+                        <td className="kern-table__cell">{row.zielgruppeGeschlecht}</td>
+                        <td className="kern-table__cell">{row.zielgruppeAltersgruppe}</td>
+                        <td className="kern-table__cell">{formatKursleitung(row.kursleitung)}</td>
+                        <td className="kern-table__cell">
                           <MassnahmenbeginnCell value={row.massnahmenbeginn} />
                         </td>
-                        <td className={pdfExportMode ? "px-2 py-1.5 align-top whitespace-nowrap text-slate-500" : "px-3 py-2 text-slate-500"}>{row.duration ?? "—"}</td>
-                        <td className={pdfExportMode ? "px-2 py-1.5 align-top whitespace-nowrap" : "px-3 py-2"}>{formatNumber(row.participants)}</td>
-                        <td className={pdfExportMode ? "px-2 py-1.5 align-top whitespace-nowrap" : "px-3 py-2"}>{formatNumber(row.targetPlaces)}</td>
-                        <td className={pdfExportMode ? "px-2 py-1.5 align-top whitespace-nowrap" : "px-3 py-2"}>{formatPercent(row.utilizationLastMonth)}</td>
+                        <td className="kern-table__cell">{row.duration ?? "—"}</td>
+                        <td className="kern-table__cell">{formatNumber(row.participants)}</td>
+                        <td className="kern-table__cell">{formatNumber(row.targetPlaces)}</td>
+                        <td className="kern-table__cell">{formatPercent(row.utilizationLastMonth)}</td>
                       </tr>
                     ))
                   ) : (
-                    <tr>
-                      <td colSpan={9} className="p-4">
+                    <tr className="kern-table__row">
+                      <td className="kern-table__cell" colSpan={10}>
                         <EmptyState description={demoMode ? "Keine Maßnahmen für aktuelle Filterauswahl." : "Kursangebote werden aus BASIS-Web geladen."} />
                       </td>
                     </tr>
@@ -439,9 +430,9 @@ export function JvaDetail({
             onPersonalClick={personalClick}
             onSchulraeumeClick={schoolRoomsClick}
           />
-          <section className="rounded-xl border border-amber-200/80 bg-amber-50/60 p-4 shadow-sm">
-            <h3 className="text-sm font-semibold text-(--color-ink)">Datenqualität / offene Klärungen</h3>
-            <ul className="mt-2 list-inside list-disc space-y-1 text-xs text-slate-600">
+          <section className="kern-card kern-card--hug dashboard-panel p-4">
+            <h3 className="kern-heading-small text-(--color-ink)">Datenqualität / offene Klärungen</h3>
+            <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-(--color-muted)">
               <li>Soll-Plätze aus BASIS-Katalog (Mindest-Soll Erwachsene)</li>
               <li>Beendigungsgründe RB-01–VB-07 nach Excel-Katalog</li>
               <li>Datenstand wird aus BASIS-Web übernommen</li>

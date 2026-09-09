@@ -13,24 +13,26 @@ export function PeriodContextHeading({
   const summaryItems = buildFilterSummary(filters, { variant, hideJva });
 
   return (
-    <div className="rounded-xl border border-slate-200/80 bg-white px-4 py-3 shadow-sm">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Aktive Filter</p>
+    <div className="kern-card kern-card--hug dashboard-panel">
+      <div className="kern-card__container w-full">
+      <p className="kern-label mb-2">Aktive Filter</p>
       <div className="flex flex-wrap gap-2">
         {summaryItems.map((item) => (
           <span
             key={item.label}
-            className={`inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-1.5 text-sm ${
+            className={`inline-flex max-w-full items-center gap-2 rounded-full border-2 px-3 py-1.5 text-sm ${
               item.isActive
-                ? "border-(--color-accent)/35 bg-(--color-accent)/10 text-(--color-ink)"
-                : "border-slate-200 bg-slate-50 text-slate-600"
+                ? "border-(--justiz-petrol) bg-[#dceae6] text-(--color-ink)"
+                : "border-(--color-border) bg-white text-(--color-ink)"
             }`}
           >
-            <span className="shrink-0 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+            <span className="shrink-0 text-[11px] font-semibold uppercase tracking-wide text-(--color-muted)">
               {item.label}
             </span>
-            <span className="truncate font-medium">{item.value}</span>
+            <span className="truncate font-semibold">{item.value}</span>
           </span>
         ))}
+      </div>
       </div>
     </div>
   );

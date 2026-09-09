@@ -11,6 +11,7 @@ import {
   type LabelProps,
 } from "recharts";
 import { formatPercent } from "../utils/format";
+import { CHART_BAR, CHART_GRID, CHART_TICK } from "../ui/chartTheme";
 
 export interface CourseUtilizationChartDatum {
   name: string;
@@ -70,7 +71,7 @@ function CourseAxisTick({ x = 0, y = 0, payload, expanded }: AxisTickProps & { e
   const xPos = Number(x) - 4;
 
   return (
-    <text x={xPos} y={Number(y)} textAnchor="end" dominantBaseline="middle" fill="#475569" fontSize={expanded ? 11 : 8}>
+    <text x={xPos} y={Number(y)} textAnchor="end" dominantBaseline="middle" fill={CHART_TICK} fontSize={expanded ? 11 : 8}>
       {lines.map((line, index) => (
         <tspan key={`${line}-${index}`} x={xPos} dy={index === 0 ? 0 : 11}>
           {line}
@@ -144,17 +145,17 @@ export function CourseUtilizationBarChart({
           margin={{ top: 4, right: expanded ? 16 : 8, left: 4, bottom: bottomMargin }}
           barCategoryGap={rowGap}
         >
-          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={CHART_GRID} />
           <XAxis
             type="number"
             domain={[0, 100]}
-            tick={{ fontSize: compact ? 9 : 10, fill: "#64748b" }}
+            tick={{ fontSize: compact ? 9 : 10, fill: CHART_TICK }}
           >
             <Label
               value="Auslastung in %"
               position="insideBottom"
               offset={compact ? -2 : -4}
-              style={{ fill: "#475569", fontSize: compact ? 9 : 11, fontWeight: 600 }}
+              style={{ fill: CHART_TICK, fontSize: compact ? 9 : 11, fontWeight: 600 }}
             />
           </XAxis>
           <YAxis
@@ -166,7 +167,7 @@ export function CourseUtilizationBarChart({
           <Tooltip formatter={(value) => [formatPercent(typeof value === "number" ? value : Number(value ?? 0)), "Auslastung"]} />
           <Bar
             dataKey="value"
-            fill="var(--color-accent)"
+            fill={CHART_BAR}
             radius={[0, 4, 4, 0]}
             maxBarSize={maxBarSize}
             label={(props) => renderBarPercentLabel(props, compact)}

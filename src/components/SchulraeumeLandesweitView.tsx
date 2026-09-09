@@ -3,7 +3,9 @@ import { demoSchoolRooms } from '../data/demoData';
 import { generateKurzberichtPdf } from '../utils/generateKurzberichtPdf';
 import { formatReportingPeriodDisplay, getCompletedYearAsOf, getYearFromPeriod } from '../utils/periods';
 import { buildSchulraumTable } from '../utils/schulraeume';
+import { exportSchulraeumeExcel } from '../utils/exportBerichteExcel';
 import { EmptyState } from './EmptyState';
+import { ExcelExportButton } from './ExcelExportButton';
 import { KurzberichtButton } from './KurzberichtButton';
 import { SchulraeumeTable } from './SchulraeumeTables';
 
@@ -42,6 +44,23 @@ export function SchulraeumeLandesweitView({
     });
   };
 
+  const handleExcel = () => {
+    if (!table || table.rows.length === 0) {
+      throw new Error('Keine Schulräume zum Excel-Export.');
+    }
+    exportSchulraeumeExcel({
+      meta: {
+        reportLabel: 'Bericht 9',
+        title: 'Schulräume',
+        berichtszeitpunkt,
+        extra: `Stand ${year}`,
+        filenameBase: `Schulraeume_landesweit_${year}`,
+      },
+      year,
+      table,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -60,6 +79,7 @@ export function SchulraeumeLandesweitView({
           >
             Zurück zur Konfiguration
           </button>
+          <ExcelExportButton onExport={handleExcel} disabled={!demoMode} label="Excel erzeugen" />
           <KurzberichtButton onGenerate={handlePdf} disabled={!demoMode} label="PDF erzeugen" />
         </div>
       </div>

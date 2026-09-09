@@ -1,5 +1,5 @@
-import { FileDown } from 'lucide-react';
 import { useState } from 'react';
+import { KernAlert, KernButton } from '../ui/kern';
 
 interface KurzberichtButtonProps {
   onGenerate: () => void | Promise<void>;
@@ -24,8 +24,7 @@ export function KurzberichtButton({
     try {
       await onGenerate();
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'PDF konnte nicht erzeugt werden.';
+      const message = err instanceof Error ? err.message : 'PDF konnte nicht erzeugt werden.';
       setError(message);
       onError?.(message);
     } finally {
@@ -35,20 +34,19 @@ export function KurzberichtButton({
 
   return (
     <div className="flex flex-col items-end gap-1">
-      <button
+      <KernButton
         type="button"
-        onClick={handleClick}
+        variant="secondary"
+        icon="download"
+        label={loading ? 'PDF wird erzeugt …' : label}
         disabled={disabled || loading}
-        className="inline-flex items-center gap-2 rounded-lg border border-(--color-accent)/30 bg-white px-4 py-2 text-sm font-medium text-(--color-ink) shadow-sm transition-colors hover:border-(--color-accent)/50 hover:bg-(--color-accent)/5 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        <FileDown className="h-4 w-4 shrink-0" aria-hidden />
-        {loading ? 'PDF wird erzeugt …' : label}
-      </button>
-      {error && (
-        <p className="max-w-sm text-right text-xs text-red-600" role="alert">
+        onClick={handleClick}
+      />
+      {error ? (
+        <KernAlert title="PDF-Erzeugung fehlgeschlagen" variant="danger">
           {error}
-        </p>
-      )}
+        </KernAlert>
+      ) : null}
     </div>
   );
 }

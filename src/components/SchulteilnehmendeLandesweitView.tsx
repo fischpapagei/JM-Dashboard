@@ -17,7 +17,9 @@ import {
   getPresentCourseTypeKeys,
   SCHULTEILNEHMENDE_ALTERSGRUPPEN,
 } from '../utils/schulteilnehmende';
+import { exportSchulteilnehmendeExcel } from '../utils/exportBerichteExcel';
 import { EmptyState } from './EmptyState';
+import { ExcelExportButton } from './ExcelExportButton';
 import { KurzberichtButton } from './KurzberichtButton';
 import { ParticipantCategoryTrendChart } from './ParticipantCategoryTrendChart';
 import { ParticipantGenderTrendChart } from './ParticipantGenderTrendChart';
@@ -136,6 +138,37 @@ export function SchulteilnehmendeLandesweitView({
     ? `Schulteilnehmende (${jvaName})`
     : 'Schulteilnehmende (landesweit)';
   const reportLabel = isJvaReport ? 'Bericht 3b' : 'Bericht 3a';
+  const slug = jvaId ? jvaId.replace(/^jva-/, '') : 'landesweit';
+
+  const handleExcel = () => {
+    if (ageSections.length === 0) {
+      throw new Error('Keine Tabellendaten zum Excel-Export.');
+    }
+    exportSchulteilnehmendeExcel({
+      meta: {
+        reportLabel,
+        title,
+        berichtszeitpunkt,
+        jvaName,
+        extra: completedYear != null ? `Jahresdaten ${completedYear}` : null,
+        filenameBase: `Schulteilnehmende_${slug}_${berichtszeitpunkt}`,
+      },
+      showNrwComparison: isJvaReport,
+      sections: ageSections.map((section) => ({
+        ageLabel: section.ageGroup.label,
+        femaleLabel: section.femaleLabel,
+        maleLabel: section.maleLabel,
+        quarter: section.quarterTable,
+        year: section.yearTable,
+        trends: section.trends,
+        categoryCharts: section.categoryCharts.map((chart) => ({
+          title: chart.title,
+          group: chart.group,
+          data: chart.data,
+        })),
+      })),
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -157,6 +190,7 @@ export function SchulteilnehmendeLandesweitView({
           >
             Zurück zur Konfiguration
           </button>
+          <ExcelExportButton onExport={handleExcel} disabled={!demoMode} label="Excel erzeugen" />
           <KurzberichtButton onGenerate={handlePdf} disabled={!demoMode} label="PDF erzeugen" />
         </div>
       </div>

@@ -20,6 +20,7 @@ import {
   type EntwicklungZeitraum,
   type TrendGranularity,
 } from "../utils/periods";
+import { CHART_GRID, CHART_LINE, CHART_TICK, CHART_TREND } from "../ui/chartTheme";
 
 const GRANULARITIES: TrendGranularity[] = ["week", "month", "quarter", "year"];
 
@@ -40,7 +41,7 @@ function renderValueLabel(
       x={Number(x)}
       y={Number(y) - 10}
       textAnchor="middle"
-      fill="var(--color-ink)"
+      fill={CHART_LINE}
       fontSize={fontSize}
       fontWeight={600}
     >
@@ -135,8 +136,8 @@ export function UtilizationTrendChart({
               className={[
                 "rounded-md px-2 py-1 text-[11px] font-medium transition-colors",
                 active
-                  ? "bg-(--color-accent) text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200",
+                  ? "bg-(--justiz-petrol) text-white"
+                  : "border border-(--color-border) bg-white text-(--color-ink) hover:bg-[#dceae6]",
               ].join(" ")}
             >
               {TREND_GRANULARITY_LABELS[option]}
@@ -149,8 +150,8 @@ export function UtilizationTrendChart({
           className={[
             "ml-1 rounded-md border px-2 py-1 text-[11px] font-medium transition-colors",
             showTrendLine
-              ? "border-red-200 bg-red-50 text-red-700"
-              : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
+              ? "border-(--justiz-rot) bg-[#fde8ea] text-(--justiz-rot)"
+              : "border-(--color-border) bg-white text-(--color-ink) hover:bg-[#dceae6]",
           ].join(" ")}
           aria-pressed={showTrendLine}
         >
@@ -162,22 +163,22 @@ export function UtilizationTrendChart({
       <div className="min-h-0 flex-1 pointer-events-none">
         <ResponsiveContainer width="100%" height={height - controlsHeight}>
           <LineChart data={data} margin={{ top: topMargin, right: 12, left: leftMargin, bottom: bottomMargin }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
             <XAxis
               dataKey="name"
-              tick={{ fontSize: tickFontSize, fill: "#64748b" }}
+              tick={{ fontSize: tickFontSize, fill: CHART_TICK }}
               interval={tickInterval}
               angle={tickAngle}
               textAnchor={tickAngle ? "end" : "middle"}
               height={tickAngle ? (compact ? 48 : 56) : 28}
             />
-            <YAxis tick={{ fontSize: 11, fill: "#64748b" }} domain={[0, maxY]} width={48}>
+            <YAxis tick={{ fontSize: 11, fill: CHART_TICK }} domain={[0, maxY]} width={48}>
               <Label
                 value="Auslastungsquote in %"
                 angle={-90}
                 position="insideLeft"
                 offset={expanded ? 4 : 0}
-                style={{ fill: "#475569", fontSize: expanded ? 11 : 9, fontWeight: 600, textAnchor: "middle" }}
+                style={{ fill: CHART_TICK, fontSize: expanded ? 11 : 9, fontWeight: 600, textAnchor: "middle" }}
               />
             </YAxis>
             <Tooltip
@@ -190,12 +191,12 @@ export function UtilizationTrendChart({
               type="monotone"
               dataKey="value"
               name="value"
-              stroke="var(--color-ink)"
+              stroke={CHART_LINE}
               strokeWidth={pdfExportMode ? 2.5 : compact ? 2 : 2.5}
               isAnimationActive={!pdfExportMode}
               dot={
                 showAllValueLabels || !(effectiveGranularity === "week" && compact)
-                  ? { r: pdfExportMode ? 5 : compact ? 3 : 4, fill: "var(--color-ink)", strokeWidth: 0 }
+                  ? { r: pdfExportMode ? 5 : compact ? 3 : 4, fill: CHART_LINE, strokeWidth: 0 }
                   : false
               }
               activeDot={{ r: 5 }}
@@ -206,12 +207,12 @@ export function UtilizationTrendChart({
                 type="monotone"
                 dataKey="trend"
                 name="trend"
-                stroke="#dc2626"
+                stroke={CHART_TREND}
                 strokeWidth={pdfExportMode ? 2 : compact ? 1.5 : 2}
                 isAnimationActive={!pdfExportMode}
                 dot={false}
                 strokeDasharray="6 4"
-                activeDot={{ r: 4, fill: "#dc2626" }}
+                activeDot={{ r: 4, fill: CHART_TREND }}
               />
             )}
           </LineChart>

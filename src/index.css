@@ -6,21 +6,27 @@
 .kern-light {
   --justiz-nachtblau: #003064;
   --justiz-petrol: #175e54;
-  --justiz-gruen: #009036;
-  --justiz-rot: #e2001a;
-  --justiz-bg: #f3f6f5;
+  --justiz-gruen: #007a2e;
+  --justiz-rot: #c40016;
+  --justiz-bg: #e8eef2;
 
   --color-sidebar: var(--justiz-nachtblau);
   --color-sidebar-active: var(--justiz-petrol);
   --color-ink: var(--justiz-nachtblau);
   --color-accent: var(--justiz-petrol);
   --color-main-bg: var(--justiz-bg);
+  --color-muted: #1f3b55;
+  --color-border: #5b7388;
+  --color-surface: #ffffff;
 
   --kern-color-action-default: var(--justiz-petrol);
   --kern-color-action-default-contextual: var(--justiz-petrol);
   --kern-color-action-on-default: #ffffff;
   --kern-color-action-on-default-contextual: #ffffff;
   --kern-color-decorative-brand-default: var(--justiz-nachtblau);
+  --kern-color-decorative-border-default: #5b7388;
+  --kern-color-layout-border: #5b7388;
+  --kern-color-layout-text-muted: #1f3b55;
   --kern-color-feedback-success: var(--justiz-gruen);
   --kern-color-feedback-danger: var(--justiz-rot);
   --kern-color-layout-background-hued: var(--justiz-bg);
@@ -134,4 +140,51 @@ body {
   height: 1.5rem;
   flex-shrink: 0;
   color: #fff;
+}
+
+/* Kennzahlensystem: KERN-Karten und Tabellen mit höherem Kontrast */
+.kern-card {
+  border-width: 2px;
+  border-color: var(--color-border);
+  align-self: stretch;
+  width: 100%;
+}
+
+.dashboard-panel {
+  width: 100%;
+}
+
+.dashboard-panel > .kern-card__container {
+  width: 100%;
+}
+
+.dashboard-table.kern-table .kern-table__header {
+  background-color: var(--justiz-nachtblau);
+  color: #fff;
+  box-shadow: inset 0 -2px 0 var(--justiz-petrol);
+}
+
+.dashboard-table.kern-table .kern-table__header {
+  color: #fff;
+}
+
+.dashboard-kpi {
+  border: 2px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.dashboard-kpi--inset {
+  border-color: var(--justiz-petrol);
+  background: #dceae6;
+}
+
+.dashboard-kpi--accent {
+  border-color: var(--justiz-nachtblau);
+  background: var(--justiz-nachtblau);
+  color: #fff;
+}
+
+.kern-body--muted,
+.kern-text--muted {
+  color: var(--color-muted);
 }

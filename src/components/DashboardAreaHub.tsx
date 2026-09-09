@@ -1,6 +1,6 @@
-import { Building2, LayoutGrid, Map } from "lucide-react";
-import type { DashboardAreaKey } from "../types/domain";
-import { areaHasFreiePlaetze, getDashboardArea } from "../data/dashboardAreas";
+import type { DashboardAreaKey } from '../types/domain';
+import { areaHasFreiePlaetze, getDashboardArea } from '../data/dashboardAreas';
+import { KernButton, KernCard, KernColumn, KernHeading, KernRow, KernSpace, KernText } from '../ui/kern';
 
 interface DashboardAreaHubProps {
   areaKey: DashboardAreaKey;
@@ -9,62 +9,69 @@ interface DashboardAreaHubProps {
   onSelectJva: () => void;
 }
 
-export function DashboardAreaHub({ areaKey, onSelectNrw, onSelectFreiePlaetze, onSelectJva }: DashboardAreaHubProps) {
+export function DashboardAreaHub({
+  areaKey,
+  onSelectNrw,
+  onSelectFreiePlaetze,
+  onSelectJva,
+}: DashboardAreaHubProps) {
   const area = getDashboardArea(areaKey);
   const showFreiePlaetze = areaHasFreiePlaetze(areaKey);
+  const columnSize = showFreiePlaetze ? 4 : 6;
 
   return (
-    <section className="rounded-xl border border-slate-200/80 bg-white p-6 shadow-sm">
-      <h2 className="text-lg font-semibold text-(--color-ink)">{area.sidebarLabel}</h2>
-      <p className="mt-1 text-sm text-slate-600">
+    <>
+      <KernHeading level={2} size="small">
+        {area.sidebarLabel}
+      </KernHeading>
+      <KernText muted>
         Wählen Sie die gewünschte Auswertungsebene für {area.sidebarLabel.toLowerCase()}.
-      </p>
-
-      <div className={`mt-6 grid grid-cols-1 gap-4 ${showFreiePlaetze ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
-        <button
-          type="button"
-          onClick={onSelectNrw}
-          className="group rounded-xl border border-slate-200/80 bg-slate-50/50 p-5 text-left shadow-sm transition hover:border-(--color-accent)/40 hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-(--color-accent)/30"
-        >
-          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-(--color-accent)/10 text-(--color-accent)">
-            <Map className="h-5 w-5" aria-hidden />
-          </div>
-          <h3 className="text-base font-semibold text-(--color-ink)">NRW gesamt</h3>
-          <p className="mt-1 text-sm text-slate-600">
-            Landesweites Dashboard mit Kennzahlen, Verläufen und Übersichten für alle JVAen.
-          </p>
-        </button>
-
-        {showFreiePlaetze && onSelectFreiePlaetze && (
-          <button
-            type="button"
-            onClick={onSelectFreiePlaetze}
-            className="group rounded-xl border border-slate-200/80 bg-slate-50/50 p-5 text-left shadow-sm transition hover:border-(--color-accent)/40 hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-(--color-accent)/30"
+      </KernText>
+      <KernSpace size="large" />
+      <KernRow>
+        <KernColumn sizes={{ xs: 12, md: columnSize }}>
+          <KernCard
+            title="NRW gesamt"
+            subline="Landesdashboard"
+            footer={
+              <KernButton type="button" variant="primary" label="Zur Auswertung" onClick={onSelectNrw} />
+            }
           >
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-(--color-accent)/10 text-(--color-accent)">
-              <LayoutGrid className="h-5 w-5" aria-hidden />
-            </div>
-            <h3 className="text-base font-semibold text-(--color-ink)">Landesweit freie Plätze</h3>
-            <p className="mt-1 text-sm text-slate-600">
-              Tagesaktuelle freie Plätze landesweit nach Kursart und JVA.
-            </p>
-          </button>
-        )}
+            Landesweites Dashboard mit Kennzahlen, Verläufen und Übersichten für alle JVAen.
+          </KernCard>
+        </KernColumn>
 
-        <button
-          type="button"
-          onClick={onSelectJva}
-          className="group rounded-xl border border-slate-200/80 bg-slate-50/50 p-5 text-left shadow-sm transition hover:border-(--color-accent)/40 hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-(--color-accent)/30"
-        >
-          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-(--color-accent)/10 text-(--color-accent)">
-            <Building2 className="h-5 w-5" aria-hidden />
-          </div>
-          <h3 className="text-base font-semibold text-(--color-ink)">JVA-Stammdatenblatt</h3>
-          <p className="mt-1 text-sm text-slate-600">
+        {showFreiePlaetze && onSelectFreiePlaetze ? (
+          <KernColumn sizes={{ xs: 12, md: columnSize }}>
+            <KernCard
+              title="Landesweit freie Plätze"
+              subline="Kapazität"
+              footer={
+                <KernButton
+                  type="button"
+                  variant="primary"
+                  label="Zu den freien Plätzen"
+                  onClick={onSelectFreiePlaetze}
+                />
+              }
+            >
+              Tagesaktuelle freie Plätze landesweit nach Kursart und JVA.
+            </KernCard>
+          </KernColumn>
+        ) : null}
+
+        <KernColumn sizes={{ xs: 12, md: columnSize }}>
+          <KernCard
+            title="JVA-Stammdatenblatt"
+            subline="Anstalt"
+            footer={
+              <KernButton type="button" variant="primary" label="Zum Stammdatenblatt" onClick={onSelectJva} />
+            }
+          >
             Anstaltsbezogene Kennzahlen und Detailauswertungen je JVA mit NRW-Vergleich.
-          </p>
-        </button>
-      </div>
-    </section>
+          </KernCard>
+        </KernColumn>
+      </KernRow>
+    </>
   );
 }

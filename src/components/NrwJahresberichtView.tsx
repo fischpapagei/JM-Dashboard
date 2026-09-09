@@ -2,7 +2,6 @@ import type { JvaTableRow } from '../types/domain';
 import type { SchulischeBildungKpis } from '../utils/aggregations';
 import { formatNumber, formatPercent } from '../utils/format';
 import { EmptyState } from './EmptyState';
-import { REPORT_DATA_CELL, REPORT_LABEL_CELL, REPORT_TABLE_CLASS } from './reportTableStyles';
 
 interface NrwJahresberichtViewProps {
   kpis: SchulischeBildungKpis;
@@ -42,24 +41,24 @@ export function NrwJahresberichtView({ kpis, jvaRows, demoMode }: NrwJahresberic
 
   return (
     <div className="space-y-4">
-      <section className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
-        <div className="border-b border-slate-100 px-4 py-3">
-          <h3 className="text-sm font-semibold text-(--color-ink)">Kennzahlenübersicht</h3>
-          <p className="mt-0.5 text-xs text-slate-500">Landesweite Kennzahlen für den Jahresbericht</p>
+      <section className="kern-card kern-card--hug dashboard-panel overflow-hidden">
+        <div className="border-b-2 border-(--color-border) px-4 py-3">
+          <h3 className="kern-heading-small text-(--color-ink)">Kennzahlenübersicht</h3>
+          <p className="kern-body kern-body--small text-(--color-muted)">Landesweite Kennzahlen für den Jahresbericht</p>
         </div>
         <div className="overflow-x-auto">
-          <table className={`${REPORT_TABLE_CLASS} text-sm`}>
-            <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-              <tr>
-                <th className={`${REPORT_LABEL_CELL} px-3`}>Kennzahl</th>
-                <th className={`${REPORT_DATA_CELL} px-3`}>Wert</th>
+          <table className="kern-table kern-table--small kern-table--striped dashboard-table">
+            <thead>
+              <tr className="kern-table__row">
+                <th className="kern-table__header">Kennzahl</th>
+                <th className="kern-table__header">Wert</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="kern-table__body">
               {kpiRows.map((row) => (
-                <tr key={row.kennzahl} className="border-t border-slate-100">
-                  <td className={`${REPORT_LABEL_CELL} px-3 text-(--color-ink)`}>{row.kennzahl}</td>
-                  <td className={`${REPORT_DATA_CELL} px-3 font-medium`}>{row.wert}</td>
+                <tr key={row.kennzahl} className="kern-table__row">
+                  <td className="kern-table__cell text-(--color-ink)">{row.kennzahl}</td>
+                  <td className="kern-table__cell font-semibold">{row.wert}</td>
                 </tr>
               ))}
             </tbody>
@@ -67,27 +66,27 @@ export function NrwJahresberichtView({ kpis, jvaRows, demoMode }: NrwJahresberic
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
-        <div className="border-b border-slate-100 px-4 py-3">
-          <h3 className="text-sm font-semibold text-(--color-ink)">Vergleich nach JVA</h3>
-          <p className="mt-0.5 text-xs text-slate-500">Tabellarische Aufschlüsselung aller Anstalten</p>
+      <section className="kern-card kern-card--hug dashboard-panel overflow-hidden">
+        <div className="border-b-2 border-(--color-border) px-4 py-3">
+          <h3 className="kern-heading-small text-(--color-ink)">Vergleich nach JVA</h3>
+          <p className="kern-body kern-body--small text-(--color-muted)">Tabellarische Aufschlüsselung aller Anstalten</p>
         </div>
         <div className="overflow-x-auto max-h-[420px] overflow-y-auto">
-          <table className={`${REPORT_TABLE_CLASS} text-sm`}>
-            <thead className="sticky top-0 bg-slate-50 text-xs uppercase text-slate-500">
-              <tr>
-                <th className={`${REPORT_LABEL_CELL} px-3`}>JVA</th>
-                <th className={`${REPORT_DATA_CELL} px-3`}>Teilnehmende</th>
-                <th className={`${REPORT_DATA_CELL} px-3`}>Soll-Plätze</th>
-                <th className={`${REPORT_DATA_CELL} px-3`}>Auslastung</th>
-                <th className={`${REPORT_DATA_CELL} px-3`}>Freie Plätze</th>
-                <th className={`${REPORT_DATA_CELL} px-3`}>Beendigungen</th>
+          <table className="kern-table kern-table--small kern-table--striped dashboard-table">
+            <thead>
+              <tr className="kern-table__row">
+                <th className="kern-table__header">JVA</th>
+                <th className="kern-table__header">Teilnehmende</th>
+                <th className="kern-table__header">Soll-Plätze</th>
+                <th className="kern-table__header">Auslastung</th>
+                <th className="kern-table__header">Freie Plätze</th>
+                <th className="kern-table__header">Beendigungen</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="kern-table__body">
               {jvaRows.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="p-3">
+                <tr className="kern-table__row">
+                  <td className="kern-table__cell" colSpan={6}>
                     <EmptyState
                       description={
                         demoMode
@@ -99,13 +98,13 @@ export function NrwJahresberichtView({ kpis, jvaRows, demoMode }: NrwJahresberic
                 </tr>
               ) : (
                 jvaRows.map((row) => (
-                  <tr key={row.jvaId} className="border-t border-slate-100">
-                    <td className={`${REPORT_LABEL_CELL} px-3`}>{row.jvaName}</td>
-                    <td className={`${REPORT_DATA_CELL} px-3`}>{formatNumber(row.participants)}</td>
-                    <td className={`${REPORT_DATA_CELL} px-3`}>{formatNumber(row.targetPlaces)}</td>
-                    <td className={`${REPORT_DATA_CELL} px-3`}>{formatPercent(row.utilization)}</td>
-                    <td className={`${REPORT_DATA_CELL} px-3`}>{formatNumber(row.freePlaces)}</td>
-                    <td className={`${REPORT_DATA_CELL} px-3`}>{formatNumber(row.terminations)}</td>
+                  <tr key={row.jvaId} className="kern-table__row">
+                    <td className="kern-table__cell">{row.jvaName}</td>
+                    <td className="kern-table__cell">{formatNumber(row.participants)}</td>
+                    <td className="kern-table__cell">{formatNumber(row.targetPlaces)}</td>
+                    <td className="kern-table__cell">{formatPercent(row.utilization)}</td>
+                    <td className="kern-table__cell">{formatNumber(row.freePlaces)}</td>
+                    <td className="kern-table__cell">{formatNumber(row.terminations)}</td>
                   </tr>
                 ))
               )}

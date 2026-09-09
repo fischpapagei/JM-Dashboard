@@ -15,7 +15,9 @@ import {
   scopeJvaSchulabschlussRecords,
 } from '../utils/schulabschluesse';
 import { SCHULTEILNEHMENDE_ALTERSGRUPPEN } from '../utils/schulteilnehmende';
+import { exportSchulabschluesseExcel } from '../utils/exportBerichteExcel';
 import { EmptyState } from './EmptyState';
+import { ExcelExportButton } from './ExcelExportButton';
 import { KurzberichtButton } from './KurzberichtButton';
 import { ParticipantCategoryTrendChart } from './ParticipantCategoryTrendChart';
 import { ParticipantGenderTrendChart } from './ParticipantGenderTrendChart';
@@ -116,6 +118,38 @@ export function SchulabschluesseLandesweitView({
     ? `Erreichte Schulabschlüsse (${jvaName})`
     : 'Erreichte Schulabschlüsse (landesweit)';
   const reportLabel = isJvaReport ? 'Bericht 6b' : 'Bericht 6a';
+  const slug = jvaId ? jvaId.replace(/^jva-/, '') : 'landesweit';
+
+  const handleExcel = () => {
+    if (ageSections.length === 0) {
+      throw new Error('Keine Tabellendaten zum Excel-Export.');
+    }
+    exportSchulabschluesseExcel({
+      meta: {
+        reportLabel,
+        title,
+        berichtszeitpunkt,
+        jvaName,
+        extra: completedYear != null ? `Jahresdaten ${completedYear}` : null,
+        filenameBase: `Schulabschluesse_${slug}_${berichtszeitpunkt}`,
+      },
+      showNrwComparison: isJvaReport,
+      sections: ageSections.map((section) => ({
+        ageLabel: section.ageGroup.label,
+        femaleLabel: section.femaleLabel,
+        maleLabel: section.maleLabel,
+        showWeiblich: section.showWeiblich,
+        showMaennlich: section.showMaennlich,
+        year: section.yearTable,
+        genderTrend: section.genderTrend,
+        detailGroup: section.detailGroup,
+        detailCharts: section.detailCharts.map((chart) => ({
+          title: chart.title,
+          data: chart.data,
+        })),
+      })),
+    });
+  };
   const tableCaptureWidth = isJvaReport ? '2600' : '2400';
 
   return (
@@ -138,6 +172,7 @@ export function SchulabschluesseLandesweitView({
           >
             Zurück zur Konfiguration
           </button>
+          <ExcelExportButton onExport={handleExcel} disabled={!demoMode} label="Excel erzeugen" />
           <KurzberichtButton onGenerate={handlePdf} disabled={!demoMode} label="PDF erzeugen" />
         </div>
       </div>

@@ -11,13 +11,14 @@ import {
   type LabelProps,
 } from "recharts";
 import { formatNumber } from "../utils/format";
+import { CHART_SERIES, CHART_GRID, CHART_TICK } from "../ui/chartTheme";
 import { terminationReasons } from "../data/catalog";
 
 const CATALOG_TERMINATION_ORDER = new Map(
   terminationReasons.map((reason, index) => [reason.key, index]),
 );
 
-const COLORS = ["#003064", "#175e54", "#009036", "#3fb0ac", "#5c8a86", "#8fb9b4", "#c5d9d6"];
+const COLORS = [...CHART_SERIES];
 
 export interface TerminationChartDatum {
   name: string;
@@ -104,7 +105,7 @@ function ReasonAxisTick({ x = 0, y = 0, payload, mode }: AxisTickProps & { mode:
       y={Number(y)}
       textAnchor="end"
       dominantBaseline="middle"
-      fill="#475569"
+      fill={CHART_TICK}
       fontSize={mode === "modal" ? 11 : 9}
     >
       {lines.map((line, index) => (
@@ -196,11 +197,11 @@ export function TerminationBarChart({ data, height, pdfExportMode = false }: Ter
           }}
           barCategoryGap={rowGap}
         >
-          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={CHART_GRID} />
           <XAxis
             type="number"
             domain={[0, maxX]}
-            tick={{ fontSize: 10, fill: "#64748b" }}
+            tick={{ fontSize: 10, fill: CHART_TICK }}
             tickFormatter={(value) => formatNumber(Number(value))}
             hide={isPreview}
           />

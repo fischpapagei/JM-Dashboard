@@ -6,7 +6,9 @@ import {
   brochureYearFromBerichtszeitpunkt,
   buildKursangeboteSections,
 } from '../utils/kursangebote';
+import { exportKursangeboteExcel } from '../utils/exportBerichteExcel';
 import { EmptyState } from './EmptyState';
+import { ExcelExportButton } from './ExcelExportButton';
 import { KurzberichtButton } from './KurzberichtButton';
 import { KursangeboteOfferTable } from './KursangeboteTables';
 
@@ -41,6 +43,24 @@ export function KursangeboteLandesweitView({
     });
   };
 
+  const handleExcel = () => {
+    if (sections.length === 0) {
+      throw new Error('Keine Kursangebote zum Excel-Export.');
+    }
+    exportKursangeboteExcel({
+      meta: {
+        reportLabel: 'Bericht 7',
+        title: 'Kursangebote (landesweit)',
+        berichtszeitpunkt,
+        extra: `Bildungsbroschüre Teil 2 · Stand ${year}`,
+        filenameBase: `Kursangebote_landesweit_${year}`,
+      },
+      year,
+      showExternalColumn,
+      sections,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -59,6 +79,7 @@ export function KursangeboteLandesweitView({
           >
             Zurück zur Konfiguration
           </button>
+          <ExcelExportButton onExport={handleExcel} disabled={!demoMode} label="Excel erzeugen" />
           <KurzberichtButton onGenerate={handlePdf} disabled={!demoMode} label="PDF erzeugen" />
         </div>
       </div>

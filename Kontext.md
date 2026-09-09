@@ -7,9 +7,11 @@
 
 ## UI-Struktur
 - **Auth:** `ministerium`/`jm2026` (Landesübersicht), `jva-<slug>`/`jva2026` (nur eigene JVA)
-- **Berichte:** `BerichteApp` — **Sidebar-Layout** (`JustizSidebar`) mit Berichtsebenen (JVA vs. Ministerium) und Berichtstypen. Konfiguration mit KERN-Formularen. Anstaltsrolle sieht nur Ebenen mit verfügbaren Berichten. Inline-Vorschauen bleiben im Hauptbereich, die Navigation in der Seitenleiste.
-- **Kennzahlensystem:** ProtectedApp + SidebarLayout (Auswertung)
+- **Berichte:** `BerichteApp` — **Sidebar-Layout** (`JustizSidebar`) mit Berichtsebenen (JVA vs. Ministerium) und Berichtstypen. Die ersten beiden Einträge heißen **Schulischer Kurzbericht JVA** bzw. **Schulischer Kurzbericht landesweit**. Konfiguration mit KERN-Formularen. Anstaltsrolle sieht nur Ebenen mit verfügbaren Berichten. Inline-Vorschauen bleiben im Hauptbereich, die Navigation in der Seitenleiste.
+- **Kennzahlensystem:** ProtectedApp + SidebarLayout (`JustizSidebar`). Filter, KPI-Karten, Tabellen und Auswertungsflächen in KERN (Karten, Formulare, Tabellen, Badges); Charts mit Justiz-Kontrastfarben (`ui/chartTheme.ts`).
 - **Tabellen in Berichten:** Spaltenbreite nach Inhalt (`table-auto`); Kennzahlen bleiben in der Zelle, breite Tabellen horizontal scrollbar
+- **PDF-Export:** `generateKurzberichtPdf` speichert Abschnitte als JPEG (~120 dpi, Qualität 0,72) statt PNG, damit Dateien im Megabyte-Bereich bleiben
+- **Excel-Export Berichte 3–10:** Button „Excel erzeugen“ neben PDF (nur Demo-Modus); formatierte Workbooks via `utils/excelWorkbook.ts` + `utils/exportBerichteExcel.ts` (Justiz-Kopfzeilen, Summenzeilen, Prozentpunkte, negative Werte rot). **Native Excel-Diagramme** (OOXML, injiziert mit `fflate`, weil `xlsx-js-style` keine Charts kann): Berichte 3–6 dieselben Zeitreihen wie die Vorschau (Blätter „Diag …“), Berichte 7–10 Säulendiagramme aus den Tabellen (Blatt „Diagramme“). Bericht 11 ohne Excel.
 - **Sidebar (Ministerium):** vier aufklappbare Bereiche in `data/dashboardAreas.ts`:
   1. **Schulische Bildung:** Hub → „NRW gesamt“, „Landesweit freie Plätze“, „JVA-Stammdatenblatt“
   2. **Berufliche Bildung:** Hub → „NRW gesamt“, „Landesweit freie Plätze“, „JVA-Stammdatenblatt“
@@ -44,7 +46,7 @@
 
 ## Bericht 3a — Schulteilnehmende (landesweit)
 - Kachel in `BerichteApp` (`reports.ts` Key `schulteilnehmende-landesweit`, nur Ministerium)
-- Eigene Vorschau `SchulteilnehmendeLandesweitView` + PDF, **ohne** Kennzahlen-Dashboard
+- Eigene Vorschau `SchulteilnehmendeLandesweitView` + PDF + Excel, **ohne** Kennzahlen-Dashboard
 - Stichtag: nur abgeschlossene Perioden; Default `2026-Q2`; Jahresdaten letztes abgeschlossenes Jahr (`2025` vs `2024`)
 - Pro Altersgruppe: 3 Summen-Charts (5Q / 13M / 11J) + 10 Kategorie-Charts (SF inkl. SO, VM, SA, ST, AB × Geschlecht) + Quartals-/Jahrestabellen
 - Logik in `utils/schulteilnehmende.ts`
@@ -55,7 +57,7 @@
 - Landesweiter Vergleich als **NRW-Durchschnitt je Anstalt** (gestrichelte Linien; Tabellenspalten NRW-Ø und % zu NRW-Ø)
 
 ## Bericht 4a — Auslastungsquote (landesweit)
-- Kachel `auslastungsquote-landesweit`, nur Ministerium, eigene Vorschau + PDF
+- Kachel `auslastungsquote-landesweit`, nur Ministerium, eigene Vorschau + PDF + Excel
 - Pro Altersgruppe: 3 Summen-Charts (5Q / 13M / 11J, Linien weiblich/männlich/Summe) + 2 Kategorie-Charts (weiblich/männlich, je 6 Linien: SF, VM, SA, ST, AB, SO)
 - **Tabellen** (`AuslastungsquoteTables.tsx`): Quartal (grün) und Jahr (blau), Querformat-PDF
   - Quartal: Auslastung beide Geschlechter (aktuelles Q.); je Geschlecht Auslastung (aktuell/letztes Q./Vorjahres-Q., % zum letzten Q., % zum Vorjahres-Q.) und Soll-Plätze (aktuell, Vorjahres-Q., absolute Veränderung)
@@ -69,7 +71,7 @@
 - Landesweiter Vergleich als **NRW-Auslastung der jeweiligen Vergleichsgruppe** (gleiche Kurstypen; gestrichelte Linien; Tabellenspalten NRW-Ø und % zu NRW-Ø)
 
 ## Bericht 5a — Beendigungsgründe (landesweit)
-- Kachel `beendigungsgruende-landesweit`, nur Ministerium, eigene Vorschau + PDF
+- Kachel `beendigungsgruende-landesweit`, nur Ministerium, eigene Vorschau + PDF + Excel
 - Pro Altersgruppe: 3 Übersichts-Charts (5Q / 13M / 11J, je 6 Linien: vorzeitig/regulär × weiblich/männlich/Summe) + 2 Charts reguläre Gründe (w/m, je 3 Linien) + 2 Charts vorzeitige Gründe (w/m, je VB-01–VB-08)
 - **Tabellen:** Quartal (grün, relative % ) und Jahr (blau, absolute Veränderung); negative Werte rot; Summenzeilen je Beendigungsart
 - Freitextliste für das abgeschlossene Jahr (Demo: VB-01 und VB-08); Logik in `utils/beendigungsgruende.ts`
@@ -80,7 +82,7 @@
 - Landesweiter Vergleich als **NRW-Durchschnitt je Anstalt** (gestrichelte Linien; Tabellenspalten NRW-Ø und % zu NRW-Ø)
 
 ## Bericht 6a — Erreichte Schulabschlüsse (landesweit)
-- Kachel `schulabschluesse-landesweit`, nur Ministerium, eigene Vorschau + PDF
+- Kachel `schulabschluesse-landesweit`, nur Ministerium, eigene Vorschau + PDF + Excel
 - Pro Altersgruppe: 1 Summen-Chart (11 Jahre, weiblich/männlich/Summe) + 3 Detail-Charts (weiblich, männlich, Summe beide Geschlechter) mit Abschlussarten ESA/EESA, MSA, Fachhochschulreife, Hochschulreife, Fachhochschulabschluss, Hochschulabschluss + Summe
 - **Jahrestabelle** (blau): aktuelles vs. Vorjahr, Anteil am jeweiligen Geschlecht, relative Veränderung (negativ rot)
 - Jahresreihen nur abgeschlossene Jahre (`2025` bei Stichtag `2026-Q2`); Logik in `utils/schulabschluesse.ts`
@@ -91,24 +93,24 @@
 - Landesweiter Vergleich als **NRW-Durchschnitt je Anstalt** (gestrichelte Linien; Tabellenspalten NRW-Ø und % zu NRW-Ø)
 
 ## Bericht 7 — Kursangebote (landesweit)
-- Kachel `kursangebote-landesweit` (Bildungsbroschüre Teil 2), für Ministerium und Anstaltsrolle, eigene Vorschau + PDF
+- Kachel `kursangebote-landesweit` (Bildungsbroschüre Teil 2), für Ministerium und Anstaltsrolle, eigene Vorschau + PDF + Excel
 - Jährliche Übersicht, eine Sektion je JVA; Tabellen nach Geschlecht und Altersgruppe, nur aktive Angebote
 - Spalten: Hauptkategorie, Maßnahmenkategorie, Name Kurs, SOLL-Plätze (BASIS), Dauer/Beginn/vorgesehener Abschluss (Web-Erfassung)
 - Spalte **Durchführung durch externe Kraft** nur für Ministeriumsrolle (JM, FB Päd., ZBI); Logik in `utils/kursangebote.ts`
 
 ## Bericht 8 — Veränderung der Schulkurse und deren Soll-Plätze
-- Kachel `sollplaetze-veraenderung`, nur Ministerium (FB Päd.), eigene Vorschau + PDF
+- Kachel `sollplaetze-veraenderung`, nur Ministerium (FB Päd.), eigene Vorschau + PDF + Excel
 - Monatlicher Abgleich aktueller Monat vs. Vormonat je JVA und Kurs (aus BASIS)
 - **Rot:** veränderte Soll-Plätze, **grün:** neu eingerichteter Kurs, **schwarz:** unverändert; Zeile Gesamtsumme
 - Logik in `utils/sollplatzVeraenderung.ts`
 
 ## Bericht 9 — Schulräume
-- Kachel `schulraeume-landesweit`, nur Ministerium (inkl. FB Päd.), eigene Vorschau + PDF
+- Kachel `schulraeume-landesweit`, nur Ministerium (inkl. FB Päd.), eigene Vorschau + PDF + Excel
 - Tabelle **Übersicht der Schulräume**: JVA, Raumbezeichnung, Anzahl Räume, Größe in qm, eLis (1/0), Schulplätze; Summe je JVA und Gesamtsumme
 - Daten jährlich von den Anstalten im Webformular zu prüfen; Demo aus `demoSchoolRooms`; Logik in `utils/schulraeume.ts`
 
 ## Bericht 10 — Stellen
-- Kachel `stellen-landesweit`, nur Ministerium (inkl. FB Päd.), eigene Vorschau + PDF
+- Kachel `stellen-landesweit`, nur Ministerium (inkl. FB Päd.), eigene Vorschau + PDF + Excel
 - Tabelle **Stellen pädagogischer Dienst**: JVA, Anzahl Stellen, davon besetzt, Summenzeile
 - Demo aus Operationaldaten (`paedStellen` / `paedBesetzt`); Produktivbetrieb nur, sofern die Stellendaten geliefert werden; Logik in `utils/stellen.ts`
 
@@ -125,7 +127,7 @@
 
 ## Design
 - **KERN UX-Standard** als Komponentenbasis ([OpenCoDE GitLab](https://gitlab.opencode.de/kern-ux))
-- **Farbklima Justiz NRW** ([justiz.nrw](https://www.justiz.nrw)): Nachtblau `#003064`, Petrol `#175E54`, Landesgrün `#009036`; KERN-Action-Tokens darauf gemappt (`src/index.css`)
+- **Farbklima Justiz NRW** ([justiz.nrw](https://www.justiz.nrw)): Nachtblau `#003064`, Petrol `#175E54`, Landesgrün `#007A2E` (kontraststärker), Signalrot `#C40016`; KERN-Action- und Rahmen-Tokens darauf gemappt (`src/index.css`)
 
 ## Nächste Schritte (optional)
 - Echte BASIS-Web-API-Anbindung

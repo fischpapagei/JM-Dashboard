@@ -21,6 +21,7 @@ import { SchoolCompletionsDetailModal } from "./SchoolCompletionsDetailModal";
 import { SchoolRoomsDetailModal } from "./SchoolRoomsDetailModal";
 
 import { NrwJahresberichtView } from "./NrwJahresberichtView";
+import { KernAlert } from "../ui/kern";
 
 interface NrwOverviewProps {
   filters: DashboardFilters;
@@ -72,9 +73,7 @@ export function NrwOverview({
   const personalClick = demoMode ? () => setPersonalOpen(true) : undefined;
 
   const schoolRoomModalRows = useMemo(() => schoolRoomSummaries, [schoolRoomSummaries]);
-  const pdfBlockClass = pdfExportMode
-    ? "rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm"
-    : "";
+  const pdfBlockClass = pdfExportMode ? "dashboard-kpi p-4" : "";
 
   const handleKurzbericht = useCallback(async () => {
     const scrollY = window.scrollY;
@@ -111,24 +110,22 @@ export function NrwOverview({
       <FilterBar filters={filters} onChange={onFiltersChange} role="ministry" />
 
       {!isJahresbericht && (
-        <div className="rounded-lg border border-(--color-accent)/20 bg-(--color-accent)/5 px-4 py-3 text-sm text-(--color-ink)">
-          <span className="font-medium">Berichtsausgabe:</span>{" "}
+        <KernAlert title="Berichtsausgabe" variant="info">
           {LANDESWEIT_REPORT_VARIANT_LABELS[reportVariant]}
-          {entwicklungZeitraum && (
+          {entwicklungZeitraum ? (
             <>
-              {" "}
-              · <span className="font-medium">Berichtszeitraum:</span>{" "}
-              {getEntwicklungZeitraumLabel(entwicklungZeitraum)}
-              {berichtszeitpunkt && (
+              {' '}
+              · Berichtszeitraum: {getEntwicklungZeitraumLabel(entwicklungZeitraum)}
+              {berichtszeitpunkt ? (
                 <>
-                  {" "}
-                  · <span className="font-medium">Berichtszeitpunkt:</span>{" "}
+                  {' '}
+                  · Berichtszeitpunkt:{' '}
                   {formatBerichtszeitpunktLabel(entwicklungZeitraum, berichtszeitpunkt)}
                 </>
-              )}
+              ) : null}
             </>
-          )}
-        </div>
+          ) : null}
+        </KernAlert>
       )}
 
       <div ref={exportRef} data-kurzbericht-root className="space-y-6">
@@ -137,11 +134,11 @@ export function NrwOverview({
         </div>
 
         {isJahresbericht ? (
-          <section className="space-y-4 rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+          <section className="kern-card kern-card--hug dashboard-panel space-y-4 p-4">
             <div data-pdf-block className={pdfBlockClass}>
               <div className="flex items-center gap-2 text-(--color-ink)">
                 <BarChart3 className="h-5 w-5" aria-hidden />
-                <h2 className="text-sm font-semibold">Jahresbericht — tabellarische Auswertung</h2>
+                <h2 className="kern-heading-small">Jahresbericht — tabellarische Auswertung</h2>
               </div>
               <div className="mt-4">
                 <NrwJahresberichtView kpis={kpis} jvaRows={jvaTableRows} demoMode={demoMode} />
@@ -149,11 +146,11 @@ export function NrwOverview({
             </div>
           </section>
         ) : (
-        <section className="space-y-4 rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+        <section className="kern-card kern-card--hug dashboard-panel space-y-4 p-4">
           <div data-pdf-block className={pdfBlockClass}>
             <div className="flex items-center gap-2 text-(--color-ink)">
               <BarChart3 className="h-5 w-5" aria-hidden />
-              <h2 className="text-sm font-semibold">Ausgewertete Daten</h2>
+              <h2 className="kern-heading-small">Ausgewertete Daten</h2>
             </div>
 
             <div className="mt-4 space-y-3">
@@ -247,7 +244,7 @@ export function NrwOverview({
           </div>
           </div>
 
-          <div className="space-y-4 border-t border-slate-100 pt-4">
+          <div className="space-y-4 border-t-2 border-(--color-border) pt-4">
             <div className={pdfExportMode ? "space-y-4" : "grid grid-cols-1 gap-4 lg:grid-cols-2"}>
               <div {...(pdfExportMode ? { "data-pdf-block": true } : {})} className={pdfBlockClass}>
                 <ChartShell
@@ -312,7 +309,7 @@ export function NrwOverview({
           </div>
 
           {!pdfExportMode && (
-            <div className="border-t border-slate-100 pt-4">
+            <div className="border-t-2 border-(--color-border) pt-4">
               <OperationalSummaryPanels
                 kpis={kpis}
                 demoMode={demoMode}

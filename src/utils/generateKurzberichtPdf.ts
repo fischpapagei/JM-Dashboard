@@ -1,13 +1,18 @@
-import { domToPng } from 'modern-screenshot';
+import { domToCanvas } from 'modern-screenshot';
 import { jsPDF } from 'jspdf';
 
 const MUTED: [number, number, number] = [100, 116, 139];
-const CAPTURE_SCALE = 2;
+/** 120 dpi — lesbar in Druck und Bildschirm, ohne PNG-Riesenauflösung. */
+const CAPTURE_SCALE = 1.25;
+const JPEG_QUALITY = 0.72;
 const BLOCK_GAP_MM = 4;
 const MARGIN_MM = 8;
 const FOOTER_SPACE_MM = 6;
-/** CSS-Pixel der Querformat-Tabellen vor dem Skalieren — füllt A4-quer ohne seitlichen Leerraum. */
-const LANDSCAPE_TABLE_CAPTURE_WIDTH_PX = 2400;
+/** CSS-Pixel der Querformat-Tabellen vor dem Skalieren — reicht für A4-quer. */
+const LANDSCAPE_TABLE_CAPTURE_WIDTH_PX = 1600;
+/** Obere Grenze für eingebettete Pixelbreite (A4-quer ~150 dpi). */
+const MAX_EMBED_WIDTH_PX = 1600;
+const MAX_CAPTURE_WIDTH_PX = 1600;
 
 export interface KurzberichtCaptureInput {
   root: HTMLElement;
@@ -47,16 +52,57 @@ function isNewPageBlock(block: HTMLElement): boolean {
   return block.hasAttribute('data-pdf-new-page');
 }
 
+function capCaptureWidth(width: number): number {
+  return Math.min(width, MAX_CAPTURE_WIDTH_PX);
+}
+
 function getCaptureOptions(block: HTMLElement): CaptureOptions {
   const widthAttr = block.getAttribute('data-pdf-capture-width');
   if (widthAttr) {
     const width = Number.parseInt(widthAttr, 10);
-    if (Number.isFinite(width)) return { width };
+    if (Number.isFinite(width)) return { width: capCaptureWidth(width) };
   }
   if (isLandscapeBlock(block) && isTableBlock(block)) {
     return { width: LANDSCAPE_TABLE_CAPTURE_WIDTH_PX };
   }
   return {};
+}
+
+function canvasToJpegDataUrl(canvas: HTMLCanvasElement): string {
+  const source = downsampleCanvas(canvas, MAX_EMBED_WIDTH_PX);
+  return source.toDataURL('image/jpeg', JPEG_QUALITY);
+}
+
+function downsampleCanvas(canvas: HTMLCanvasElement, maxWidth: number): HTMLCanvasElement {
+  const scale = canvas.width > maxWidth ? maxWidth / canvas.width : 1;
+  if (scale === 1) {
+    return canvas;
+  }
+
+  const output = document.createElement('canvas');
+  output.width = Math.round(canvas.width * scale);
+  output.height = Math.round(canvas.height * scale);
+  const ctx = output.getContext('2d');
+  if (!ctx) {
+    throw new Error('Canvas-Kontext nicht verfügbar');
+  }
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, output.width, output.height);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(canvas, 0, 0, output.width, output.height);
+  return output;
+}
+
+function addJpegImage(
+  pdf: jsPDF,
+  canvas: HTMLCanvasElement,
+  x: number,
+  y: number,
+  widthMm: number,
+  heightMm: number,
+): void {
+  pdf.addImage(canvasToJpegDataUrl(canvas), 'JPEG', x, y, widthMm, heightMm, undefined, 'FAST');
 }
 
 function clearOverflowConstraints(el: HTMLElement): void {
@@ -137,11 +183,11 @@ async function captureElementAsCanvas(
   options: CaptureOptions = {},
 ): Promise<HTMLCanvasElement> {
   const targetWidth = options.width;
-  const dataUrl = await domToPng(element, {
+  return domToCanvas(element, {
     scale: CAPTURE_SCALE,
-    backgroundColor: 'var(--color-main-bg, #f3f6f5)',
+    backgroundColor: '#f3f6f5',
     timeout: 60_000,
-    maximumCanvasSize: 32_768,
+    maximumCanvasSize: 16_384,
     features: {
       restoreScrollPosition: true,
     },
@@ -158,24 +204,6 @@ async function captureElementAsCanvas(
           },
         }
       : {}),
-  });
-
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = image.naturalWidth;
-      canvas.height = image.naturalHeight;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        reject(new Error('Canvas-Kontext nicht verfügbar'));
-        return;
-      }
-      ctx.drawImage(image, 0, 0);
-      resolve(canvas);
-    };
-    image.onerror = () => reject(new Error('Screenshot konnte nicht geladen werden.'));
-    image.src = dataUrl;
   });
 }
 
@@ -267,10 +295,12 @@ function drawCanvasMultipage(
     if (!ctx) {
       throw new Error('Canvas-Kontext nicht verfügbar');
     }
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
     ctx.drawImage(canvas, 0, sourceY, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
 
     const sliceHeightMm = sliceHeightPx / pxPerMm;
-    pdf.addImage(sliceCanvas.toDataURL('image/png'), 'PNG', MARGIN_MM, cursorY, widthMm, sliceHeightMm);
+    addJpegImage(pdf, sliceCanvas, MARGIN_MM, cursorY, widthMm, sliceHeightMm);
 
     sourceY += sliceHeightPx;
     cursorY += sliceHeightMm;
@@ -290,7 +320,7 @@ export async function generateKurzberichtPdf(input: KurzberichtCaptureInput): Pr
     throw new Error('Keine PDF-Abschnitte gefunden.');
   }
 
-  const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+  const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
 
   let cursorY = MARGIN_MM;
   let pageStarted = false;
@@ -339,7 +369,7 @@ export async function generateKurzberichtPdf(input: KurzberichtCaptureInput): Pr
     }
 
     const x = MARGIN_MM + (contentWidth - widthMm) / 2;
-    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, cursorY, widthMm, heightMm);
+    addJpegImage(pdf, canvas, x, cursorY, widthMm, heightMm);
     cursorY += heightMm + BLOCK_GAP_MM;
   }
 

@@ -8,42 +8,42 @@ interface FreeCapacityTableProps {
 
 export function FreeCapacityTable({ rows }: FreeCapacityTableProps) {
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
-      <div className="border-b border-slate-100 px-4 py-3">
-        <h3 className="text-sm font-semibold text-(--color-ink)">Tagesaktuell freie Plätze</h3>
+    <section className="kern-card kern-card--hug dashboard-panel overflow-hidden">
+      <div className="border-b-2 border-(--color-border) px-4 py-3">
+        <h3 className="kern-heading-small text-(--color-ink)">Tagesaktuell freie Plätze</h3>
       </div>
-      <div className="overflow-x-auto max-h-[280px]">
-        <table className="min-w-full text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-            <tr>
-              <th className="px-3 py-2">JVA</th>
-              <th className="px-3 py-2 normal-case">MAßNAHMENKATEGORIE</th>
-              <th className="px-3 py-2">Geschlecht</th>
-              <th className="px-3 py-2">Haftform</th>
-              <th className="px-3 py-2">Altersgruppe</th>
-              <th className="px-3 py-2">Haftart</th>
-              <th className="px-3 py-2">Freie Plätze</th>
-              <th className="px-3 py-2">Datenstand</th>
+      <div className="kern-table-responsive max-h-[280px] overflow-x-auto">
+        <table className="kern-table kern-table--small kern-table--striped dashboard-table">
+          <thead>
+            <tr className="kern-table__row">
+              <th className="kern-table__header">JVA</th>
+              <th className="kern-table__header">Maßnahmenkategorie</th>
+              <th className="kern-table__header">Geschlecht</th>
+              <th className="kern-table__header">Haftform</th>
+              <th className="kern-table__header">Altersgruppe</th>
+              <th className="kern-table__header">Haftart</th>
+              <th className="kern-table__header">Freie Plätze</th>
+              <th className="kern-table__header">Datenstand</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="kern-table__body">
             {rows.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="p-3">
+              <tr className="kern-table__row">
+                <td className="kern-table__cell" colSpan={8}>
                   <EmptyState description="Startzustand ohne Beispielzahlen — Daten aus BASIS-Web" />
                 </td>
               </tr>
             ) : (
               rows.map((r, i) => (
-                <tr key={`${r.jvaId}-${i}`} className="border-t border-slate-100">
-                  <td className="px-3 py-2">{r.jvaName}</td>
-                  <td className="px-3 py-2">{r.courseType}</td>
-                  <td className="px-3 py-2">{r.geschlecht}</td>
-                  <td className="px-3 py-2">{r.haftform}</td>
-                  <td className="px-3 py-2">{r.altersgruppe ?? "—"}</td>
-                  <td className="px-3 py-2">{r.haftart ?? "—"}</td>
-                  <td className="px-3 py-2">{formatNumber(r.freePlaces)}</td>
-                  <td className="px-3 py-2 text-slate-500">{r.dataStatus}</td>
+                <tr key={`${r.jvaId}-${i}`} className="kern-table__row">
+                  <td className="kern-table__cell">{r.jvaName}</td>
+                  <td className="kern-table__cell">{r.courseType}</td>
+                  <td className="kern-table__cell">{r.geschlecht}</td>
+                  <td className="kern-table__cell">{r.haftform}</td>
+                  <td className="kern-table__cell">{r.altersgruppe ?? "—"}</td>
+                  <td className="kern-table__cell">{r.haftart ?? "—"}</td>
+                  <td className="kern-table__cell">{formatNumber(r.freePlaces)}</td>
+                  <td className="kern-table__cell">{r.dataStatus}</td>
                 </tr>
               ))
             )}

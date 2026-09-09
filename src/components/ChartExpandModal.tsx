@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from "react";
-import { X } from "lucide-react";
 import { EmptyState } from "./EmptyState";
+import { KernButton, KernHeading, KernText } from "../ui/kern";
 
 interface ChartExpandModalProps {
   open: boolean;
@@ -34,29 +34,22 @@ export function ChartExpandModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-      <div className="absolute inset-0 bg-slate-900/45" onClick={onClose} aria-hidden />
+      <div className="absolute inset-0 bg-(--justiz-nachtblau)/55" onClick={onClose} aria-hidden />
 
       <div
-        className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-2xl"
+        className="kern-card relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden"
         role="dialog"
         aria-modal="true"
         aria-labelledby="chart-expand-title"
       >
-        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4">
+        <div className="flex w-full items-start justify-between gap-4 border-b-2 border-(--color-border) px-5 py-4">
           <div>
-            <h3 id="chart-expand-title" className="text-lg font-semibold text-(--color-ink)">
+            <KernHeading id="chart-expand-title" level={3} size="small">
               {title}
-            </h3>
-            {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+            </KernHeading>
+            {subtitle ? <KernText>{subtitle}</KernText> : null}
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
-          >
-            <X className="h-4 w-4" aria-hidden />
-            Schließen
-          </button>
+          <KernButton type="button" variant="secondary" label="Schließen" onClick={onClose} />
         </div>
 
         <div className="flex-1 overflow-auto px-5 py-5">

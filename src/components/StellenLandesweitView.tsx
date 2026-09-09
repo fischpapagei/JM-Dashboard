@@ -3,7 +3,9 @@ import { demoOperational } from '../data/demoData';
 import { generateKurzberichtPdf } from '../utils/generateKurzberichtPdf';
 import { formatReportingPeriodDisplay } from '../utils/periods';
 import { buildStellenTable } from '../utils/stellen';
+import { exportStellenExcel } from '../utils/exportBerichteExcel';
 import { EmptyState } from './EmptyState';
+import { ExcelExportButton } from './ExcelExportButton';
 import { KurzberichtButton } from './KurzberichtButton';
 import { StellenTableView } from './StellenTables';
 
@@ -35,6 +37,22 @@ export function StellenLandesweitView({
     });
   };
 
+  const handleExcel = () => {
+    if (!table) {
+      throw new Error('Keine Stellendaten zum Excel-Export.');
+    }
+    exportStellenExcel({
+      meta: {
+        reportLabel: 'Bericht 10',
+        title: 'Stellen',
+        berichtszeitpunkt,
+        extra: `Datenstand ${formatReportingPeriodDisplay(table.period)}`,
+        filenameBase: `Stellen_paedagogischer_Dienst_${table.period}`,
+      },
+      table,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -54,6 +72,7 @@ export function StellenLandesweitView({
           >
             Zurück zur Konfiguration
           </button>
+          <ExcelExportButton onExport={handleExcel} disabled={!demoMode} label="Excel erzeugen" />
           <KurzberichtButton onGenerate={handlePdf} disabled={!demoMode} label="PDF erzeugen" />
         </div>
       </div>

@@ -28,6 +28,7 @@ import { JvaDetail } from "./JvaDetail";
 import { LandesweitFreiePlaetze } from "./LandesweitFreiePlaetze";
 import { Layout } from "./Layout";
 import { SidebarLayout } from "./SidebarLayout";
+import { KernAlert } from "../ui/kern";
 
 const DEFAULT_EXPANDED_AREAS: Record<DashboardAreaKey, boolean> = {
   "schulische-bildung": true,
@@ -281,9 +282,10 @@ export function ProtectedApp({
           />
         )}
         {isDashboardNav(nav) && isJvaRole && (
-          <p className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm">
-            Die Landesübersicht ist für Ihre JVA-Rolle nicht freigeschaltet. Bitte „JVA-Stammdatenblatt“ wählen.
-          </p>
+          <KernAlert title="Landesübersicht nicht verfügbar" variant="info">
+            Die Landesübersicht ist für Ihre JVA-Rolle nicht freigeschaltet. Bitte
+            „JVA-Stammdatenblatt“ wählen.
+          </KernAlert>
         )}
         {nav === "jva" && (
           <JvaDetail

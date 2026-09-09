@@ -24,7 +24,9 @@ import {
   BeendigungsgruendeQuarterTable,
   BeendigungsgruendeYearTable,
 } from './BeendigungsgruendeTables';
+import { exportBeendigungsgruendeExcel } from '../utils/exportBerichteExcel';
 import { EmptyState } from './EmptyState';
+import { ExcelExportButton } from './ExcelExportButton';
 import { KurzberichtButton } from './KurzberichtButton';
 import { ParticipantCategoryTrendChart } from './ParticipantCategoryTrendChart';
 
@@ -163,6 +165,40 @@ export function BeendigungsgruendeLandesweitView({
     ? `Beendigungsgründe (${jvaName})`
     : 'Beendigungsgründe (landesweit)';
   const reportLabel = isJvaReport ? 'Bericht 5b' : 'Bericht 5a';
+  const slug = jvaId ? jvaId.replace(/^jva-/, '') : 'landesweit';
+
+  const handleExcel = () => {
+    if (ageSections.length === 0) {
+      throw new Error('Keine Tabellendaten zum Excel-Export.');
+    }
+    exportBeendigungsgruendeExcel({
+      meta: {
+        reportLabel,
+        title,
+        berichtszeitpunkt,
+        jvaName,
+        extra: completedYear != null ? `Jahresdaten ${completedYear}` : null,
+        filenameBase: `Beendigungsgruende_${slug}_${berichtszeitpunkt}`,
+      },
+      showNrwComparison: isJvaReport,
+      freeTextYear: completedYear,
+      freeTextEntries,
+      sections: ageSections.map((section) => ({
+        ageLabel: section.ageGroup.label,
+        showWeiblich: section.showWeiblich,
+        showMaennlich: section.showMaennlich,
+        quarter: section.quarterTable,
+        year: section.yearTable,
+        overviewGroup: section.overviewGroup,
+        overview: section.overview,
+        reasonCharts: section.reasonCharts.map((chart) => ({
+          title: chart.title,
+          group: chart.group,
+          data: chart.data,
+        })),
+      })),
+    });
+  };
   const tableCaptureWidth = isJvaReport ? '2600' : '2400';
 
   return (
@@ -185,6 +221,7 @@ export function BeendigungsgruendeLandesweitView({
           >
             Zurück zur Konfiguration
           </button>
+          <ExcelExportButton onExport={handleExcel} disabled={!demoMode} label="Excel erzeugen" />
           <KurzberichtButton onGenerate={handlePdf} disabled={!demoMode} label="PDF erzeugen" />
         </div>
       </div>

@@ -31,19 +31,20 @@ export function OperationalSummaryPanels({
   const show = (value: number | null) => (demoMode ? formatNumber(value) : "—");
 
   const panelClass =
-    "rounded-xl border-2 border-emerald-600 bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-600 p-4 shadow-md shadow-emerald-900/20";
-
+    "rounded border-2 p-4 text-white shadow-md";
   const personalPanelClass = [
     panelClass,
+    "border-(--justiz-nachtblau) bg-(--justiz-nachtblau)",
     onPersonalClick
-      ? "cursor-pointer transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-emerald-200/80"
+      ? "cursor-pointer transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-white"
       : "",
   ].join(" ");
 
   const schulraeumePanelClass = [
     panelClass,
+    "border-(--justiz-petrol) bg-(--justiz-petrol)",
     onSchulraeumeClick
-      ? "cursor-pointer transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-emerald-200/80"
+      ? "cursor-pointer transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-white"
       : "",
   ].join(" ");
 
@@ -59,11 +60,11 @@ export function OperationalSummaryPanels({
           if (e.key === "Enter" || e.key === " ") onPersonalClick();
         }}
       >
-        <h3 className="text-sm font-semibold text-emerald-50">Personal (pädagogischer Dienst)</h3>
-        {scopeLabel && <p className="mt-0.5 text-xs font-medium text-emerald-100/90">{scopeLabel}</p>}
-        <p className="mt-2 text-xs font-medium text-emerald-50/95">Stellen: {show(kpis.paedStellen)}</p>
-        <p className="text-xs font-medium text-emerald-50/95">Besetzt: {show(kpis.paedBesetzt)}</p>
-        <p className="text-xs font-medium text-emerald-50/95">Externe Kräfte: {show(kpis.paedExtern)}</p>
+        <h3 className="text-sm font-semibold text-white">Personal (pädagogischer Dienst)</h3>
+        {scopeLabel && <p className="mt-0.5 text-xs font-medium text-white">{scopeLabel}</p>}
+        <p className="mt-2 text-xs font-medium text-white">Stellen: {show(kpis.paedStellen)}</p>
+        <p className="text-xs font-medium text-white">Besetzt: {show(kpis.paedBesetzt)}</p>
+        <p className="text-xs font-medium text-white">Externe Kräfte: {show(kpis.paedExtern)}</p>
       </section>
       <section
         className={schulraeumePanelClass}
@@ -75,17 +76,17 @@ export function OperationalSummaryPanels({
           if (e.key === "Enter" || e.key === " ") onSchulraeumeClick();
         }}
       >
-        <h3 className="text-sm font-semibold text-emerald-50">Schulräume</h3>
-        {scopeLabel && <p className="mt-0.5 text-xs font-medium text-emerald-100/90">{scopeLabel}</p>}
-        <p className="mt-2 text-xs font-medium text-emerald-50/95">Schulräume: {show(kpis.schulraeume)}</p>
-        <p className="text-xs font-medium text-emerald-50/95">davon eLis Schulräume: {show(kpis.elisSchulraeume)}</p>
+        <h3 className="text-sm font-semibold text-white">Schulräume</h3>
+        {scopeLabel && <p className="mt-0.5 text-xs font-medium text-white">{scopeLabel}</p>}
+        <p className="mt-2 text-xs font-medium text-white">Schulräume: {show(kpis.schulraeume)}</p>
+        <p className="text-xs font-medium text-white">davon eLis Schulräume: {show(kpis.elisSchulraeume)}</p>
       </section>
-      <section className={panelClass}>
-        <h3 className="text-sm font-semibold text-emerald-50">eLis</h3>
-        {scopeLabel && <p className="mt-0.5 text-xs font-medium text-emerald-100/90">{scopeLabel}</p>}
-        <p className="mt-2 text-xs font-medium text-emerald-50/95">Lernplätze: {show(kpis.elisLernplaetze)}</p>
-        <p className="text-xs font-medium text-emerald-50/95">Mandantschaften: {show(kpis.elisMandantschaften)}</p>
-        <p className="text-xs font-medium text-emerald-50/95">Digitale Sozialräume: {show(kpis.elisDigitaleSozialraeume)}</p>
+      <section className={`${panelClass} border-(--justiz-gruen) bg-(--justiz-gruen)`}>
+        <h3 className="text-sm font-semibold text-white">eLis</h3>
+        {scopeLabel && <p className="mt-0.5 text-xs font-medium text-white">{scopeLabel}</p>}
+        <p className="mt-2 text-xs font-medium text-white">Lernplätze: {show(kpis.elisLernplaetze)}</p>
+        <p className="text-xs font-medium text-white">Mandantschaften: {show(kpis.elisMandantschaften)}</p>
+        <p className="text-xs font-medium text-white">Digitale Sozialräume: {show(kpis.elisDigitaleSozialraeume)}</p>
       </section>
     </div>
   );

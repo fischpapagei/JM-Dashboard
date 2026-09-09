@@ -9,30 +9,30 @@ interface JvaComparisonTableProps {
 
 export function JvaComparisonTable({ rows, onSelectJva }: JvaComparisonTableProps) {
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
-      <div className="border-b border-slate-100 px-4 py-3">
-        <h3 className="text-sm font-semibold text-(--color-ink)">Alle Anstalten</h3>
-        <p className="text-xs text-slate-500">Klick auf Zeile öffnet JVA-Stammdatenblatt</p>
+    <section className="kern-card kern-card--hug dashboard-panel overflow-hidden">
+      <div className="border-b-2 border-(--color-border) px-4 py-3">
+        <h3 className="kern-heading-small text-(--color-ink)">Alle Anstalten</h3>
+        <p className="kern-body kern-body--small text-(--color-muted)">Klick auf Zeile öffnet JVA-Stammdatenblatt</p>
       </div>
-      <div className="overflow-x-auto max-h-[280px]">
-        <table className="min-w-full text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-            <tr>
-              <th className="px-3 py-2">JVA</th>
-              <th className="px-3 py-2">Überkategorien</th>
-              <th className="px-3 py-2">Grundbezeichnungen</th>
-              <th className="px-3 py-2">Teilnehmende</th>
-              <th className="px-3 py-2">Soll-Plätze</th>
-              <th className="px-3 py-2">Auslastung</th>
-              <th className="px-3 py-2">Freie Plätze</th>
-              <th className="px-3 py-2">Beendigungen</th>
-              <th className="px-3 py-2">Datenstand</th>
+      <div className="kern-table-responsive max-h-[280px] overflow-x-auto">
+        <table className="kern-table kern-table--small kern-table--striped dashboard-table">
+          <thead>
+            <tr className="kern-table__row">
+              <th className="kern-table__header">JVA</th>
+              <th className="kern-table__header">Überkategorien</th>
+              <th className="kern-table__header">Grundbezeichnungen</th>
+              <th className="kern-table__header">Teilnehmende</th>
+              <th className="kern-table__header">Soll-Plätze</th>
+              <th className="kern-table__header">Auslastung</th>
+              <th className="kern-table__header">Freie Plätze</th>
+              <th className="kern-table__header">Beendigungen</th>
+              <th className="kern-table__header">Datenstand</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="kern-table__body">
             {rows.length === 0 ? (
-              <tr>
-                <td colSpan={9} className="p-3">
+              <tr className="kern-table__row">
+                <td className="kern-table__cell" colSpan={9}>
                   <EmptyState description="Noch keine Kennzahlendaten geladen — Daten aus BASIS-Web" />
                 </td>
               </tr>
@@ -40,18 +40,18 @@ export function JvaComparisonTable({ rows, onSelectJva }: JvaComparisonTableProp
               rows.map((r) => (
                 <tr
                   key={r.jvaId}
-                  className={`border-t border-slate-100 ${onSelectJva ? "cursor-pointer hover:bg-blue-50" : ""}`}
+                  className={`kern-table__row ${onSelectJva ? "cursor-pointer hover:bg-[#dceae6]" : ""}`}
                   onClick={() => onSelectJva?.(r.jvaId)}
                 >
-                  <td className="px-3 py-2 font-medium text-(--color-accent)">{r.jvaName}</td>
-                  <td className="px-3 py-2">{r.courseCategory}</td>
-                  <td className="px-3 py-2">{r.courseType}</td>
-                  <td className="px-3 py-2">{formatNumber(r.participants)}</td>
-                  <td className="px-3 py-2">{formatNumber(r.targetPlaces)}</td>
-                  <td className="px-3 py-2">{formatPercent(r.utilization)}</td>
-                  <td className="px-3 py-2">{formatNumber(r.freePlaces)}</td>
-                  <td className="px-3 py-2">{formatNumber(r.terminations)}</td>
-                  <td className="px-3 py-2 text-slate-500">{r.dataStatus}</td>
+                  <td className="kern-table__cell font-semibold text-(--color-ink)">{r.jvaName}</td>
+                  <td className="kern-table__cell">{r.courseCategory}</td>
+                  <td className="kern-table__cell">{r.courseType}</td>
+                  <td className="kern-table__cell">{formatNumber(r.participants)}</td>
+                  <td className="kern-table__cell">{formatNumber(r.targetPlaces)}</td>
+                  <td className="kern-table__cell">{formatPercent(r.utilization)}</td>
+                  <td className="kern-table__cell">{formatNumber(r.freePlaces)}</td>
+                  <td className="kern-table__cell">{formatNumber(r.terminations)}</td>
+                  <td className="kern-table__cell">{r.dataStatus}</td>
                 </tr>
               ))
             )}

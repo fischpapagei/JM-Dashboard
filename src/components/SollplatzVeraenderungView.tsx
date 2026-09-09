@@ -3,7 +3,9 @@ import { demoRecords } from '../data/demoData';
 import { generateKurzberichtPdf } from '../utils/generateKurzberichtPdf';
 import { formatReportingPeriodDisplay } from '../utils/periods';
 import { buildSollplatzVeraenderungTable } from '../utils/sollplatzVeraenderung';
+import { exportSollplatzVeraenderungExcel } from '../utils/exportBerichteExcel';
 import { EmptyState } from './EmptyState';
+import { ExcelExportButton } from './ExcelExportButton';
 import { KurzberichtButton } from './KurzberichtButton';
 import { SollplatzVeraenderungTableView } from './SollplatzVeraenderungTables';
 
@@ -36,6 +38,22 @@ export function SollplatzVeraenderungView({
     });
   };
 
+  const handleExcel = () => {
+    if (!table || table.rows.length === 0) {
+      throw new Error('Keine Kursänderungen zum Excel-Export.');
+    }
+    exportSollplatzVeraenderungExcel({
+      meta: {
+        reportLabel: 'Bericht 8',
+        title: 'Veränderung der Schulkurse und deren Soll-Plätze',
+        berichtszeitpunkt,
+        extra: `${table.previousMonthLabel} → ${table.currentMonthLabel}`,
+        filenameBase: `Sollplaetze_Veraenderung_${table.currentMonthKey}`,
+      },
+      table,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -57,6 +75,7 @@ export function SollplatzVeraenderungView({
           >
             Zurück zur Konfiguration
           </button>
+          <ExcelExportButton onExport={handleExcel} disabled={!demoMode} label="Excel erzeugen" />
           <KurzberichtButton onGenerate={handlePdf} disabled={!demoMode} label="PDF erzeugen" />
         </div>
       </div>

@@ -2,9 +2,9 @@ import type { LandesweitReportVariant } from "../types/app";
 import type { EntwicklungZeitraum } from "../utils/periods";
 import type { DashboardAreaKey, DashboardFilters } from "../types/domain";
 import { getDashboardArea } from "../data/dashboardAreas";
-import { EmptyState } from "./EmptyState";
 import { FilterBar } from "./FilterBar";
 import { NrwOverview } from "./NrwOverview";
+import { KernAlert } from "../ui/kern";
 
 interface AreaNrwDashboardProps {
   areaKey: DashboardAreaKey;
@@ -46,10 +46,10 @@ export function AreaNrwDashboard({
   return (
     <>
       <FilterBar filters={filters} onChange={onFiltersChange} role="ministry" />
-      <EmptyState
-        title={area.title}
-        description={`Das Landesdashboard für ${area.sidebarLabel} wird vorbereitet. Wählen Sie im Menü „JVA-Stammdatenblatt“ für anstaltsbezogene Auswertungen.`}
-      />
+      <KernAlert title={area.title} variant="info">
+        Das Landesdashboard für {area.sidebarLabel} wird vorbereitet. Wählen Sie im Menü
+        „JVA-Stammdatenblatt“ für anstaltsbezogene Auswertungen.
+      </KernAlert>
     </>
   );
 }

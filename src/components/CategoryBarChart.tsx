@@ -9,6 +9,7 @@ import {
   YAxis,
   type LabelProps,
 } from "recharts";
+import { CHART_BAR, CHART_GRID, CHART_MUTED, CHART_TICK } from "../ui/chartTheme";
 import { formatNumber } from "../utils/format";
 import type { CategoryChartDatum } from "../utils/aggregations";
 
@@ -66,7 +67,7 @@ function CategoryAxisTick({
   const lineHeight = pdfExportMode ? 12 : 13;
 
   return (
-    <text x={x} y={y + 14} textAnchor="middle" fill="#475569" fontSize={pdfExportMode ? 10 : 11}>
+    <text x={x} y={y + 14} textAnchor="middle" fill={CHART_TICK} fontSize={pdfExportMode ? 10 : 11}>
       {lines.map((line, index) => (
         <tspan key={`${line}-${index}`} x={x} dy={index === 0 ? 0 : lineHeight}>
           {line}
@@ -108,7 +109,7 @@ function renderBarTopLabel(
         x={centerX}
         y={barTop - percentOffset}
         fontSize={percentFontSize}
-        fill="#64748b"
+        fill={CHART_MUTED}
         fontWeight={500}
       >
         {percent.toFixed(1)} %
@@ -135,17 +136,17 @@ export function CategoryBarChart({ data, height, pdfExportMode = false }: Catego
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ top: topMargin, right: 12, left: leftMargin, bottom: bottomMargin }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={CHART_GRID} />
         <XAxis
           dataKey={labelKey}
           interval={0}
-          tick={expanded ? <CategoryAxisTick pdfExportMode={pdfExportMode} /> : { fontSize: 9, fill: "#475569" }}
+          tick={expanded ? <CategoryAxisTick pdfExportMode={pdfExportMode} /> : { fontSize: 9, fill: CHART_TICK }}
           angle={expanded ? 0 : -22}
           textAnchor={expanded ? "middle" : "end"}
           height={pdfExportMode ? 96 : expanded ? 84 : 52}
         />
         <YAxis
-          tick={{ fontSize: 11, fill: "#64748b" }}
+          tick={{ fontSize: 11, fill: CHART_TICK }}
           width={48}
           domain={[0, maxY]}
           tickFormatter={(value) => formatNumber(Number(value))}
@@ -155,7 +156,7 @@ export function CategoryBarChart({ data, height, pdfExportMode = false }: Catego
             angle={-90}
             position="insideLeft"
             offset={expanded ? 4 : 0}
-            style={{ fill: "#475569", fontSize: expanded ? 11 : 9, fontWeight: 600, textAnchor: "middle" }}
+            style={{ fill: CHART_TICK, fontSize: expanded ? 11 : 9, fontWeight: 600, textAnchor: "middle" }}
           />
         </YAxis>
         <Tooltip
@@ -168,7 +169,7 @@ export function CategoryBarChart({ data, height, pdfExportMode = false }: Catego
         />
         <Bar
           dataKey="value"
-          fill="var(--color-accent)"
+          fill={CHART_BAR}
           radius={[4, 4, 0, 0]}
           maxBarSize={pdfExportMode ? 88 : expanded ? 72 : 48}
           label={(props) => renderBarTopLabel(props, total, !expanded, pdfExportMode)}
