@@ -20,29 +20,29 @@ import {
   type EntwicklungZeitraum,
   type TrendGranularity,
 } from "../utils/periods";
-import { CHART_GRID, CHART_LINE, CHART_TICK, CHART_TREND } from "../ui/chartTheme";
+import { CHART_FONT, CHART_GRID, CHART_LINE, CHART_TICK, CHART_TREND, chartDensity } from "../ui/chartTheme";
 
-const GRANULARITIES: TrendGranularity[] = ["week", "month", "quarter", "year"];
+const GRANULARITIES: TrendGranularity[] = ["month", "quarter", "year"];
 
 function renderValueLabel(
   props: LabelProps,
-  compact: boolean,
+  density: ReturnType<typeof chartDensity>,
   granularity: TrendGranularity,
   showAllValueLabels: boolean,
 ) {
   const { x, y, value, index = 0 } = props;
   if (value == null || x == null || y == null) return null;
-  if (!showAllValueLabels && granularity === "week" && compact && index % 4 !== 0) return null;
+  if (!showAllValueLabels && granularity === "week" && density === "compact" && index % 4 !== 0) return null;
 
   const numericValue = typeof value === "number" ? value : Number(value);
-  const fontSize = showAllValueLabels ? 11 : compact ? 8 : 10;
+  const font = CHART_FONT[density];
   return (
     <text
       x={Number(x)}
-      y={Number(y) - 10}
+      y={Number(y) - font.valueOffset}
       textAnchor="middle"
       fill={CHART_LINE}
-      fontSize={fontSize}
+      fontSize={font.value}
       fontWeight={600}
     >
       {numericValue.toFixed(1)} %
@@ -60,6 +60,7 @@ interface UtilizationTrendChartProps {
   filters: DashboardFilters;
   forcedJvaId?: string;
   height: number;
+  width?: number;
   defaultGranularity?: TrendGranularity;
   entwicklungZeitraum?: EntwicklungZeitraum;
   berichtszeitpunkt?: string;
@@ -72,6 +73,7 @@ export function UtilizationTrendChart({
   filters,
   forcedJvaId,
   height,
+  width,
   defaultGranularity = "month",
   entwicklungZeitraum,
   berichtszeitpunkt,
@@ -106,20 +108,21 @@ export function UtilizationTrendChart({
     }));
   }, [records, filters, forcedJvaId, effectiveGranularity, entwicklungZeitraum, berichtszeitpunkt]);
 
-  const compact = !pdfExportMode && height <= 250;
-  const expanded = !compact;
-  const controlsHeight = hideControls ? 0 : compact ? 36 : 40;
-  const showAllValueLabels = pdfExportMode;
+  const density = chartDensity(height, pdfExportMode);
+  const compact = density === "compact";
+  const expanded = density !== "compact";
+  const font = CHART_FONT[density];
+  const controlsHeight = hideControls ? 0 : density === "modal" ? 48 : compact ? 36 : 40;
+  const showAllValueLabels = pdfExportMode || density === "modal";
   const tickAngle = pdfExportMode ? 0 : effectiveGranularity === "week" ? -55 : effectiveGranularity === "month" && compact ? -40 : 0;
-  const bottomMargin = pdfExportMode ? 32 : effectiveGranularity === "week" ? (compact ? 36 : 48) : compact ? 20 : 24;
-  const topMargin = pdfExportMode ? 36 : compact ? 20 : 24;
-  const tickFontSize = pdfExportMode ? 11 : compact ? 8 : 10;
+  const bottomMargin = pdfExportMode ? 32 : effectiveGranularity === "week" ? (compact ? 36 : 56) : density === "modal" ? 36 : compact ? 20 : 24;
+  const topMargin = pdfExportMode ? 36 : density === "modal" ? 36 : compact ? 20 : 24;
   const tickInterval = pdfExportMode ? 0 : effectiveGranularity === "week" ? (compact ? 7 : 3) : 0;
-  const leftMargin = expanded ? 28 : 18;
+  const leftMargin = density === "modal" ? 36 : expanded ? 28 : 18;
   const maxY = yAxisMax(data);
 
   return (
-    <div className="flex h-full flex-col gap-3">
+    <div className="flex h-full w-full min-h-0 flex-col gap-3">
       {!hideControls && !entwicklungZeitraum && (
       <div
         className="flex flex-wrap items-center gap-1 pointer-events-auto"
@@ -160,25 +163,30 @@ export function UtilizationTrendChart({
       </div>
       )}
 
-      <div className="min-h-0 flex-1 pointer-events-none">
-        <ResponsiveContainer width="100%" height={height - controlsHeight}>
+      <div className="min-h-0 w-full flex-1 pointer-events-none">
+        <ResponsiveContainer
+          width={width && width > 0 ? width : "100%"}
+          height={Math.max(height - controlsHeight, 160)}
+          minWidth={1}
+          minHeight={1}
+        >
           <LineChart data={data} margin={{ top: topMargin, right: 12, left: leftMargin, bottom: bottomMargin }}>
             <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
             <XAxis
               dataKey="name"
-              tick={{ fontSize: tickFontSize, fill: CHART_TICK }}
+              tick={{ fontSize: font.tick, fill: CHART_TICK }}
               interval={tickInterval}
               angle={tickAngle}
               textAnchor={tickAngle ? "end" : "middle"}
-              height={tickAngle ? (compact ? 48 : 56) : 28}
+              height={tickAngle ? (compact ? 48 : 64) : density === "modal" ? 40 : 28}
             />
-            <YAxis tick={{ fontSize: 11, fill: CHART_TICK }} domain={[0, maxY]} width={48}>
+            <YAxis tick={{ fontSize: font.tick, fill: CHART_TICK }} domain={[0, maxY]} width={font.yWidth}>
               <Label
                 value="Auslastungsquote in %"
                 angle={-90}
                 position="insideLeft"
-                offset={expanded ? 4 : 0}
-                style={{ fill: CHART_TICK, fontSize: expanded ? 11 : 9, fontWeight: 600, textAnchor: "middle" }}
+                offset={density === "modal" ? 8 : expanded ? 4 : 0}
+                style={{ fill: CHART_TICK, fontSize: font.axis, fontWeight: 600, textAnchor: "middle" }}
               />
             </YAxis>
             <Tooltip
@@ -192,15 +200,15 @@ export function UtilizationTrendChart({
               dataKey="value"
               name="value"
               stroke={CHART_LINE}
-              strokeWidth={pdfExportMode ? 2.5 : compact ? 2 : 2.5}
+              strokeWidth={density === "modal" ? 3.5 : pdfExportMode ? 2.5 : compact ? 2 : 2.5}
               isAnimationActive={!pdfExportMode}
               dot={
                 showAllValueLabels || !(effectiveGranularity === "week" && compact)
-                  ? { r: pdfExportMode ? 5 : compact ? 3 : 4, fill: CHART_LINE, strokeWidth: 0 }
+                  ? { r: density === "modal" ? 6 : pdfExportMode ? 5 : compact ? 3 : 4, fill: CHART_LINE, strokeWidth: 0 }
                   : false
               }
-              activeDot={{ r: 5 }}
-              label={(props) => renderValueLabel(props, compact, effectiveGranularity, showAllValueLabels)}
+              activeDot={{ r: density === "modal" ? 7 : 5 }}
+              label={(props) => renderValueLabel(props, density, effectiveGranularity, showAllValueLabels)}
             />
             {showTrendLine && (
               <Line
@@ -208,7 +216,7 @@ export function UtilizationTrendChart({
                 dataKey="trend"
                 name="trend"
                 stroke={CHART_TREND}
-                strokeWidth={pdfExportMode ? 2 : compact ? 1.5 : 2}
+                strokeWidth={density === "modal" ? 3 : pdfExportMode ? 2 : compact ? 1.5 : 2}
                 isAnimationActive={!pdfExportMode}
                 dot={false}
                 strokeDasharray="6 4"

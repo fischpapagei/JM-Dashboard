@@ -146,17 +146,16 @@ export function NrwOverview({
             </div>
           </section>
         ) : (
-        <section className="kern-card kern-card--hug dashboard-panel space-y-4 p-4">
+        <>
           <div data-pdf-block className={pdfBlockClass}>
-            <div className="flex items-center gap-2 text-(--color-ink)">
-              <BarChart3 className="h-5 w-5" aria-hidden />
-              <h2 className="kern-heading-small">Ausgewertete Daten</h2>
-            </div>
-
-            <div className="mt-4 space-y-3">
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-3">
+            <div
+              className={
+                pdfExportMode
+                  ? "grid grid-cols-2 gap-4 sm:grid-cols-3"
+                  : "grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6"
+              }
+            >
               <KpiCard
-                surface="inset"
                 exportMode={pdfExportMode}
                 title="Teilnehmende / Soll-Plätze"
                 value={kpis.teilnehmende}
@@ -168,7 +167,6 @@ export function NrwOverview({
                 showNotLoadedBadge={!demoMode}
               />
               <KpiCard
-                surface="inset"
                 accent="purple"
                 exportMode={pdfExportMode}
                 title="Beschäftigungsquote gesamt"
@@ -187,7 +185,6 @@ export function NrwOverview({
                 onClick={onNavigateDashboard ? () => onNavigateDashboard("beschaeftigungsquote") : undefined}
               />
               <KpiCard
-                surface="inset"
                 exportMode={pdfExportMode}
                 title="Beschäftigungsquote schulische Bildung"
                 value={kpis.schulischeBildung}
@@ -197,11 +194,7 @@ export function NrwOverview({
                 badge={demoBadge}
                 showNotLoadedBadge={!demoMode}
               />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-3">
               <KpiCard
-                surface="inset"
                 exportMode={pdfExportMode}
                 title="Auslastungsquote schulische Maßnahmen"
                 value={kpis.auslastung}
@@ -212,7 +205,6 @@ export function NrwOverview({
                 showNotLoadedBadge={!demoMode}
               />
               <KpiCard
-                surface="inset"
                 exportMode={pdfExportMode}
                 title="Erreichte Schulabschlüsse"
                 value={kpis.abschluesse}
@@ -223,7 +215,6 @@ export function NrwOverview({
                 onClick={completionsClick}
               />
               <KpiCard
-                surface="inset"
                 exportMode={pdfExportMode}
                 title="Beendigungen nach Art"
                 valueLabel="Vorzeitige Beendigung"
@@ -242,86 +233,84 @@ export function NrwOverview({
               />
             </div>
           </div>
-          </div>
 
-          <div className="space-y-4 border-t-2 border-(--color-border) pt-4">
-            <div className={pdfExportMode ? "space-y-4" : "grid grid-cols-1 gap-4 lg:grid-cols-2"}>
-              <div {...(pdfExportMode ? { "data-pdf-block": true } : {})} className={pdfBlockClass}>
-                <ChartShell
-                  surface="inset"
-                  pdfExportMode={pdfExportMode}
-                  title="Kursangebote nach Hauptkategorie"
-                  subtitle="Teilnehmende nach BASIS-Kurskatalog"
-                  hasData={categoryChart.length > 0}
-                  emptyDescription={hasData ? undefined : emptyChartMsg}
-                  expandable
-                  expandedHeight={pdfExportMode ? 420 : 420}
-                  expandedChart={(height) => (
-                    <CategoryBarChart data={categoryChart} height={height} pdfExportMode={pdfExportMode} />
-                  )}
-                />
-              </div>
-
-              <div {...(pdfExportMode ? { "data-pdf-block": true } : {})} className={pdfBlockClass}>
-                <ChartShell
-                  surface="inset"
-                  pdfExportMode={pdfExportMode}
-                  title="Entwicklung Auslastungsquote der schulischen Maßnahme(n)"
-                  infoDescription="Die Auslastungsquote = besetzte Plätze durch Soll-Plätze"
-                  subtitle="Zeitverlauf nach gewählter Granularität"
-                  hasData={utilizationTrend.some((d) => d.value > 0)}
-                  emptyDescription={hasData ? undefined : emptyChartMsg}
-                  expandable
-                  interactiveChart
-                  expandedHeight={pdfExportMode ? 380 : 280}
-                  expandedChart={(height) => (
-                    <UtilizationTrendChart
-                      records={trendRecords}
-                      filters={filters}
-                      height={height}
-                      hideControls={pdfExportMode || Boolean(entwicklungZeitraum)}
-                      entwicklungZeitraum={entwicklungZeitraum}
-                      berichtszeitpunkt={berichtszeitpunkt}
-                      pdfExportMode={pdfExportMode}
-                    />
-                  )}
-                />
-              </div>
+          <div className={pdfExportMode ? "space-y-4" : "grid grid-cols-1 gap-4 lg:grid-cols-2"}>
+            <div {...(pdfExportMode ? { "data-pdf-block": true } : {})} className={pdfBlockClass}>
+              <ChartShell
+                pdfExportMode={pdfExportMode}
+                title="Kursangebote nach Hauptkategorie"
+                subtitle="Teilnehmende nach BASIS-Kurskatalog"
+                hasData={categoryChart.length > 0}
+                emptyDescription={hasData ? undefined : emptyChartMsg}
+                expandable
+                expandedHeight={pdfExportMode ? 420 : 420}
+                expandedChart={(height, width) => (
+                  <CategoryBarChart data={categoryChart} height={height} width={width} pdfExportMode={pdfExportMode} />
+                )}
+              />
             </div>
 
             <div {...(pdfExportMode ? { "data-pdf-block": true } : {})} className={pdfBlockClass}>
               <ChartShell
-                surface="inset"
                 pdfExportMode={pdfExportMode}
-                title="Beendigungsgründe"
-                subtitle="Auswertung nach BASIS-Beendigungsgrund"
-                hasData={terminationChart.length > 0}
+                title="Entwicklung Auslastungsquote der schulischen Maßnahme(n)"
+                infoDescription="Die Auslastungsquote = besetzte Plätze durch Soll-Plätze"
+                subtitle="Zeitverlauf nach gewählter Granularität"
+                hasData={utilizationTrend.some((d) => d.value > 0)}
                 emptyDescription={hasData ? undefined : emptyChartMsg}
                 expandable
                 interactiveChart
-                previewHeight={340}
-                expandedHeight={520}
-                expandedChart={(height) => (
-                  <TerminationBarChart data={terminationChart} height={height} pdfExportMode={pdfExportMode} />
+                expandedHeight={pdfExportMode ? 380 : 280}
+                expandedChart={(height, width) => (
+                  <UtilizationTrendChart
+                    records={trendRecords}
+                    filters={filters}
+                    height={height}
+                    width={width}
+                    hideControls={pdfExportMode || Boolean(entwicklungZeitraum)}
+                    entwicklungZeitraum={entwicklungZeitraum}
+                    berichtszeitpunkt={berichtszeitpunkt}
+                    pdfExportMode={pdfExportMode}
+                  />
                 )}
               />
             </div>
           </div>
 
-          {!pdfExportMode && (
-            <div className="border-t-2 border-(--color-border) pt-4">
-              <OperationalSummaryPanels
-                kpis={kpis}
-                demoMode={demoMode}
-                scopeLabel="Landesweit summiert · alle JVAen"
-                onPersonalClick={personalClick}
-                onSchulraeumeClick={schoolRoomsClick}
-              />
-            </div>
-          )}
-        </section>
+          <div {...(pdfExportMode ? { "data-pdf-block": true } : {})} className={pdfBlockClass}>
+            <ChartShell
+              pdfExportMode={pdfExportMode}
+              title="Beendigungsgründe"
+              subtitle="Auswertung nach BASIS-Beendigungsgrund"
+              hasData={terminationChart.length > 0}
+              emptyDescription={hasData ? undefined : emptyChartMsg}
+              expandable
+              interactiveChart
+              previewHeight={340}
+              expandedHeight={520}
+              expandedChart={(height, width) => (
+                <TerminationBarChart
+                  data={terminationChart}
+                  height={height}
+                  width={width}
+                  pdfExportMode={pdfExportMode}
+                />
+              )}
+            />
+          </div>
+        </>
         )}
       </div>
+
+      {!pdfExportMode && !isJahresbericht && (
+        <OperationalSummaryPanels
+          kpis={kpis}
+          demoMode={demoMode}
+          scopeLabel="Landesweit summiert · alle JVAen"
+          onPersonalClick={personalClick}
+          onSchulraeumeClick={schoolRoomsClick}
+        />
+      )}
 
       <PaedPersonalDetailModal
         open={personalOpen}

@@ -11,7 +11,7 @@ import {
   type LabelProps,
 } from "recharts";
 import { formatNumber } from "../utils/format";
-import { CHART_SERIES, CHART_GRID, CHART_TICK } from "../ui/chartTheme";
+import { CHART_FONT, CHART_SERIES, CHART_GRID, CHART_TICK, chartDensity } from "../ui/chartTheme";
 import { terminationReasons } from "../data/catalog";
 
 const CATALOG_TERMINATION_ORDER = new Map(
@@ -29,6 +29,7 @@ export interface TerminationChartDatum {
 interface TerminationBarChartProps {
   data: TerminationChartDatum[];
   height: number;
+  width?: number;
   pdfExportMode?: boolean;
 }
 
@@ -41,7 +42,7 @@ interface AxisTickProps {
 type LayoutMode = "preview" | "modal";
 
 function getLayoutMode(height: number): LayoutMode {
-  return height >= 380 ? "modal" : "preview";
+  return chartDensity(height) === "modal" ? "modal" : "preview";
 }
 
 function wrapLabel(text: string, maxChars: number): string[] {
@@ -69,10 +70,10 @@ function getLabelLines(name: string, mode: LayoutMode): string[] {
 
 function computeRowHeight(name: string, mode: LayoutMode, rowGap: number): number {
   const lines = getLabelLines(name, mode);
-  const lineHeight = mode === "modal" ? 14 : 10;
-  const labelHeight = lines.length * lineHeight + (mode === "modal" ? 10 : 4);
-  const barHeight = mode === "modal" ? 22 : 11;
-  const minRow = mode === "modal" ? 52 : 26;
+  const lineHeight = mode === "modal" ? 18 : 10;
+  const labelHeight = lines.length * lineHeight + (mode === "modal" ? 12 : 4);
+  const barHeight = mode === "modal" ? 28 : 11;
+  const minRow = mode === "modal" ? 64 : 26;
   return Math.max(minRow, labelHeight, barHeight) + rowGap;
 }
 
@@ -86,9 +87,9 @@ function computeYAxisWidth(names: string[], mode: LayoutMode): number {
     }
   }
 
-  const charWidth = mode === "modal" ? 6.5 : 5.8;
-  const minWidth = mode === "modal" ? 140 : 120;
-  const maxWidth = mode === "modal" ? 400 : 280;
+  const charWidth = mode === "modal" ? 8.5 : 5.8;
+  const minWidth = mode === "modal" ? 180 : 120;
+  const maxWidth = mode === "modal" ? 420 : 280;
   return Math.min(maxWidth, Math.max(minWidth, Math.ceil(longestLine * charWidth) + 14));
 }
 
@@ -96,8 +97,9 @@ function ReasonAxisTick({ x = 0, y = 0, payload, mode }: AxisTickProps & { mode:
   const label = payload?.value ?? "";
   const lines = getLabelLines(label, mode);
   const xPos = Number(x) - 8;
-  const lineHeight = mode === "modal" ? 14 : 10;
+  const lineHeight = mode === "modal" ? 18 : 10;
   const startDy = -((lines.length - 1) * lineHeight) / 2;
+  const fontSize = mode === "modal" ? CHART_FONT.modal.tick : 9;
 
   return (
     <text
@@ -106,7 +108,7 @@ function ReasonAxisTick({ x = 0, y = 0, payload, mode }: AxisTickProps & { mode:
       textAnchor="end"
       dominantBaseline="middle"
       fill={CHART_TICK}
-      fontSize={mode === "modal" ? 11 : 9}
+      fontSize={fontSize}
     >
       {lines.map((line, index) => (
         <tspan key={`${line}-${index}`} x={xPos} dy={index === 0 ? startDy : lineHeight}>
@@ -125,6 +127,7 @@ function renderBarValueLabel(props: LabelProps, total: number, compact: boolean)
   const percent = total > 0 ? ((count / total) * 100).toFixed(1) : "0";
   const barWidth = Number(width);
   const inside = barWidth > (compact ? 56 : 80);
+  const fontSize = compact ? 9 : CHART_FONT.modal.value;
 
   return (
     <text
@@ -133,7 +136,7 @@ function renderBarValueLabel(props: LabelProps, total: number, compact: boolean)
       textAnchor={inside ? "end" : "start"}
       dominantBaseline="middle"
       fill={inside ? "#ffffff" : "var(--color-ink)"}
-      fontSize={compact ? 9 : 10}
+      fontSize={fontSize}
       fontWeight={600}
     >
       {formatNumber(count)} ({percent} %)
@@ -146,9 +149,15 @@ function xAxisMax(data: TerminationChartDatum[]): number {
   return Math.ceil(peak * 1.12) || 1;
 }
 
-export function TerminationBarChart({ data, height, pdfExportMode = false }: TerminationBarChartProps) {
+export function TerminationBarChart({
+  data,
+  height,
+  width,
+  pdfExportMode = false,
+}: TerminationBarChartProps) {
   const mode = getLayoutMode(height);
   const isPreview = mode === "preview";
+  const fillParent = Boolean(width && width > 0);
 
   const chartData = useMemo(
     () =>
@@ -170,30 +179,41 @@ export function TerminationBarChart({ data, height, pdfExportMode = false }: Ter
   const rowHeights = chartData.map((item) => computeRowHeight(item.name, mode, rowGap));
   const maxRowHeight = Math.max(...rowHeights, isPreview ? 26 : 52);
   const minContentHeight = chartData.length * maxRowHeight + 36;
-  const contentHeight = Math.max(height, minContentHeight);
+  const contentHeight = fillParent ? height : Math.max(height, minContentHeight);
   const maxBarSize = Math.max(isPreview ? 10 : 22, maxRowHeight - rowGap - 2);
 
   return (
     <div
       className={
-        pdfExportMode
-          ? "h-full w-full overflow-visible"
+        pdfExportMode || fillParent
+          ? "h-full w-full overflow-hidden"
           : "h-full w-full overflow-y-auto overflow-x-hidden"
       }
-      style={pdfExportMode ? undefined : { maxHeight: height }}
+      style={
+        fillParent
+          ? { width, height }
+          : pdfExportMode
+            ? undefined
+            : { maxHeight: height }
+      }
       onClick={(event) => event.stopPropagation()}
       onKeyDown={(event) => event.stopPropagation()}
       onWheel={(event) => event.stopPropagation()}
     >
-      <ResponsiveContainer width="100%" height={contentHeight}>
+      <ResponsiveContainer
+        width={fillParent ? width : "100%"}
+        height={contentHeight}
+        minWidth={1}
+        minHeight={1}
+      >
         <BarChart
           data={chartData}
           layout="vertical"
           margin={{
             top: 8,
-            right: isPreview ? 72 : 88,
+            right: isPreview ? 72 : 112,
             left: isPreview ? 6 : 10,
-            bottom: isPreview ? 8 : 24,
+            bottom: isPreview ? 8 : 28,
           }}
           barCategoryGap={rowGap}
         >
@@ -201,7 +221,7 @@ export function TerminationBarChart({ data, height, pdfExportMode = false }: Ter
           <XAxis
             type="number"
             domain={[0, maxX]}
-            tick={{ fontSize: 10, fill: CHART_TICK }}
+            tick={{ fontSize: isPreview ? 10 : CHART_FONT.modal.tick, fill: CHART_TICK }}
             tickFormatter={(value) => formatNumber(Number(value))}
             hide={isPreview}
           />

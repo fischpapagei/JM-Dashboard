@@ -7,6 +7,21 @@ export const CHART_LINE = '#003064';
 export const CHART_BAR = '#175E54';
 export const CHART_TREND = '#C40016';
 
+export type ChartDensity = 'compact' | 'default' | 'modal';
+
+export function chartDensity(height: number, pdfExportMode = false): ChartDensity {
+  if (pdfExportMode) return 'default';
+  if (height >= 450) return 'modal';
+  if (height <= 250) return 'compact';
+  return 'default';
+}
+
+export const CHART_FONT = {
+  compact: { tick: 8, axis: 9, value: 8, valueOffset: 10, yWidth: 48 },
+  default: { tick: 11, axis: 12, value: 11, valueOffset: 12, yWidth: 56 },
+  modal: { tick: 16, axis: 18, value: 16, valueOffset: 18, yWidth: 84 },
+} as const;
+
 /** Unterscheidbare Serien mit Kontrast auf weißem Grund (kein Pastell). */
 export const CHART_SERIES = [
   '#003064',

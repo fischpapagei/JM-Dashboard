@@ -11,7 +11,7 @@ import {
   type LabelProps,
 } from "recharts";
 import { formatPercent } from "../utils/format";
-import { CHART_BAR, CHART_GRID, CHART_TICK } from "../ui/chartTheme";
+import { CHART_BAR, CHART_FONT, CHART_GRID, CHART_TICK, chartDensity } from "../ui/chartTheme";
 
 export interface CourseUtilizationChartDatum {
   name: string;
@@ -21,6 +21,7 @@ export interface CourseUtilizationChartDatum {
 interface CourseUtilizationBarChartProps {
   data: CourseUtilizationChartDatum[];
   height: number;
+  width?: number;
   pdfExportMode?: boolean;
 }
 
@@ -49,7 +50,8 @@ function wrapLabel(text: string, maxChars: number): string[] {
   return lines.length > 0 ? lines : [text];
 }
 
-function computeYAxisWidth(names: string[], expanded: boolean): number {
+function computeYAxisWidth(names: string[], density: ReturnType<typeof chartDensity>): number {
+  const expanded = density !== "compact";
   const maxCharsPerLine = expanded ? 32 : 14;
   let longestLine = 0;
 
@@ -59,21 +61,28 @@ function computeYAxisWidth(names: string[], expanded: boolean): number {
     }
   }
 
-  const charWidth = expanded ? 6.2 : 5.2;
-  const minWidth = expanded ? 64 : 44;
-  const maxWidth = expanded ? 280 : 118;
+  const charWidth = density === "modal" ? 8.4 : expanded ? 6.2 : 5.2;
+  const minWidth = density === "modal" ? 96 : expanded ? 64 : 44;
+  const maxWidth = density === "modal" ? 360 : expanded ? 280 : 118;
   return Math.min(maxWidth, Math.max(minWidth, Math.ceil(longestLine * charWidth) + 8));
 }
 
-function CourseAxisTick({ x = 0, y = 0, payload, expanded }: AxisTickProps & { expanded: boolean }) {
+function CourseAxisTick({
+  x = 0,
+  y = 0,
+  payload,
+  expanded,
+  density,
+}: AxisTickProps & { expanded: boolean; density: ReturnType<typeof chartDensity> }) {
   const label = payload?.value ?? "";
   const lines = wrapLabel(label, expanded ? 32 : 14);
   const xPos = Number(x) - 4;
+  const fontSize = CHART_FONT[density].tick;
 
   return (
-    <text x={xPos} y={Number(y)} textAnchor="end" dominantBaseline="middle" fill={CHART_TICK} fontSize={expanded ? 11 : 8}>
+    <text x={xPos} y={Number(y)} textAnchor="end" dominantBaseline="middle" fill={CHART_TICK} fontSize={fontSize}>
       {lines.map((line, index) => (
-        <tspan key={`${line}-${index}`} x={xPos} dy={index === 0 ? 0 : 11}>
+        <tspan key={`${line}-${index}`} x={xPos} dy={index === 0 ? 0 : fontSize + 2}>
           {line}
         </tspan>
       ))}
@@ -81,12 +90,13 @@ function CourseAxisTick({ x = 0, y = 0, payload, expanded }: AxisTickProps & { e
   );
 }
 
-function renderBarPercentLabel(props: LabelProps, compact: boolean) {
+function renderBarPercentLabel(props: LabelProps, density: ReturnType<typeof chartDensity>) {
   const { x = 0, y = 0, width = 0, height = 0, value } = props;
   const percent = typeof value === "number" ? value : Number(value ?? 0);
   if (!percent) return null;
 
   const barWidth = Number(width);
+  const compact = density === "compact";
   const inside = barWidth > (compact ? 40 : 52);
   const label = formatPercent(percent);
 
@@ -97,7 +107,7 @@ function renderBarPercentLabel(props: LabelProps, compact: boolean) {
       textAnchor={inside ? "end" : "start"}
       dominantBaseline="middle"
       fill={inside ? "#ffffff" : "var(--color-ink)"}
-      fontSize={compact ? 8 : 10}
+      fontSize={CHART_FONT[density].value}
       fontWeight={600}
     >
       {label}
@@ -108,10 +118,13 @@ function renderBarPercentLabel(props: LabelProps, compact: boolean) {
 export function CourseUtilizationBarChart({
   data,
   height,
+  width,
   pdfExportMode = false,
 }: CourseUtilizationBarChartProps) {
-  const expanded = pdfExportMode || height > 250;
+  const density = chartDensity(height, pdfExportMode);
+  const expanded = density !== "compact";
   const compact = !expanded;
+  const fillParent = Boolean(width && width > 0);
 
   const sorted = useMemo(
     () => [...data].sort((a, b) => b.value - a.value),
@@ -120,25 +133,31 @@ export function CourseUtilizationBarChart({
 
   const yAxisWidth = computeYAxisWidth(
     sorted.map((item) => item.name),
-    expanded,
+    density,
   );
   const rowGap = compact ? 6 : 10;
-  const minRowHeight = compact ? 22 : 28;
+  const minRowHeight = compact ? 22 : density === "modal" ? 36 : 28;
   const minContentHeight = sorted.length * (minRowHeight + rowGap) + (expanded ? 36 : 32);
-  const contentHeight = Math.max(height, minContentHeight);
-  const maxBarSize = Math.max(minRowHeight, Math.floor((contentHeight - 36) / sorted.length) - rowGap);
-  const bottomMargin = expanded ? 28 : 22;
+  const contentHeight = fillParent ? height : Math.max(height, minContentHeight);
+  const maxBarSize = Math.max(minRowHeight, Math.floor((contentHeight - 36) / Math.max(sorted.length, 1)) - rowGap);
+  const bottomMargin = density === "modal" ? 36 : expanded ? 28 : 22;
+  const font = CHART_FONT[density];
 
   return (
     <div
       className={
-        pdfExportMode
-          ? "h-full w-full overflow-visible"
+        pdfExportMode || fillParent
+          ? "h-full w-full overflow-hidden"
           : "h-full w-full overflow-y-auto overflow-x-hidden"
       }
-      style={pdfExportMode ? undefined : { maxHeight: height }}
+      style={fillParent ? { width, height } : pdfExportMode ? undefined : { maxHeight: height }}
     >
-      <ResponsiveContainer width="100%" height={contentHeight}>
+      <ResponsiveContainer
+        width={fillParent ? width : "100%"}
+        height={contentHeight}
+        minWidth={1}
+        minHeight={1}
+      >
         <BarChart
           data={sorted}
           layout="vertical"
@@ -149,20 +168,20 @@ export function CourseUtilizationBarChart({
           <XAxis
             type="number"
             domain={[0, 100]}
-            tick={{ fontSize: compact ? 9 : 10, fill: CHART_TICK }}
+            tick={{ fontSize: font.tick, fill: CHART_TICK }}
           >
             <Label
               value="Auslastung in %"
               position="insideBottom"
               offset={compact ? -2 : -4}
-              style={{ fill: CHART_TICK, fontSize: compact ? 9 : 11, fontWeight: 600 }}
+              style={{ fill: CHART_TICK, fontSize: font.axis, fontWeight: 600 }}
             />
           </XAxis>
           <YAxis
             type="category"
             dataKey="name"
             width={yAxisWidth}
-            tick={(props) => <CourseAxisTick {...props} expanded={expanded} />}
+            tick={(props) => <CourseAxisTick {...props} expanded={expanded} density={density} />}
           />
           <Tooltip formatter={(value) => [formatPercent(typeof value === "number" ? value : Number(value ?? 0)), "Auslastung"]} />
           <Bar
@@ -170,7 +189,7 @@ export function CourseUtilizationBarChart({
             fill={CHART_BAR}
             radius={[0, 4, 4, 0]}
             maxBarSize={maxBarSize}
-            label={(props) => renderBarPercentLabel(props, compact)}
+            label={(props) => renderBarPercentLabel(props, density)}
           />
         </BarChart>
       </ResponsiveContainer>

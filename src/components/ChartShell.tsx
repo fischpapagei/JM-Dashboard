@@ -12,7 +12,7 @@ interface ChartShellProps {
   emptyDescription?: string;
   expandable?: boolean;
   interactiveChart?: boolean;
-  expandedChart?: (height: number) => ReactNode;
+  expandedChart?: (height: number, width?: number) => ReactNode;
   className?: string;
   previewHeight?: number;
   expandedHeight?: number;
@@ -203,7 +203,14 @@ export function ChartShell({
           emptyDescription={emptyDescription}
           onClose={() => setOpen(false)}
         >
-          {expandedChart?.(expandedHeight)}
+          {(size) => (
+            <div
+              className="relative overflow-hidden"
+              style={{ width: size.width, height: size.height }}
+            >
+              {expandedChart?.(size.height, size.width)}
+            </div>
+          )}
         </ChartExpandModal>
       )}
     </>

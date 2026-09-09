@@ -261,10 +261,11 @@ export function JvaDetail({
               emptyDescription={hasData ? undefined : emptyChartMsg}
               expandable
               expandedHeight={pdfExportMode ? 420 : 420}
-              expandedChart={(height) => (
+              expandedChart={(height, width) => (
                 <CourseUtilizationBarChart
                   data={courseUtilizationChart}
                   height={height}
+                  width={width}
                   pdfExportMode={pdfExportMode}
                 />
               )}
@@ -280,12 +281,13 @@ export function JvaDetail({
               expandable
               interactiveChart
               expandedHeight={pdfExportMode ? 380 : 280}
-              expandedChart={(height) => (
+              expandedChart={(height, width) => (
                 <UtilizationTrendChart
                   records={trendRecords}
                   filters={filters}
                   forcedJvaId={jvaId}
                   height={height}
+                  width={width}
                   hideControls={pdfExportMode}
                   pdfExportMode={pdfExportMode}
                 />
@@ -328,8 +330,8 @@ export function JvaDetail({
               previewHeight={320}
               expandedHeight={520}
               className={pdfExportMode ? undefined : "min-w-0 flex-1"}
-              expandedChart={(height) => (
-                <TerminationBarChart data={terminationChart} height={height} pdfExportMode={pdfExportMode} />
+              expandedChart={(height, width) => (
+                <TerminationBarChart data={terminationChart} height={height} width={width} pdfExportMode={pdfExportMode} />
               )}
             />
           </div>

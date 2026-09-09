@@ -9,13 +9,14 @@ import {
   YAxis,
   type LabelProps,
 } from "recharts";
-import { CHART_BAR, CHART_GRID, CHART_MUTED, CHART_TICK } from "../ui/chartTheme";
+import { CHART_BAR, CHART_FONT, CHART_GRID, CHART_MUTED, CHART_TICK, chartDensity } from "../ui/chartTheme";
 import { formatNumber } from "../utils/format";
 import type { CategoryChartDatum } from "../utils/aggregations";
 
 interface CategoryBarChartProps {
   data: CategoryChartDatum[];
   height: number;
+  width?: number;
   pdfExportMode?: boolean;
 }
 
@@ -61,13 +62,15 @@ function CategoryAxisTick({
   y = 0,
   payload,
   pdfExportMode = false,
-}: AxisTickProps & { pdfExportMode?: boolean }) {
+  density = "default",
+}: AxisTickProps & { pdfExportMode?: boolean; density?: ReturnType<typeof chartDensity> }) {
   const label = payload?.value ?? "";
   const lines = formatCategoryAxisLabel(label, pdfExportMode);
-  const lineHeight = pdfExportMode ? 12 : 13;
+  const font = CHART_FONT[density];
+  const lineHeight = pdfExportMode ? 12 : font.tick + 4;
 
   return (
-    <text x={x} y={y + 14} textAnchor="middle" fill={CHART_TICK} fontSize={pdfExportMode ? 10 : 11}>
+    <text x={x} y={y + 14} textAnchor="middle" fill={CHART_TICK} fontSize={pdfExportMode ? 10 : font.tick}>
       {lines.map((line, index) => (
         <tspan key={`${line}-${index}`} x={x} dy={index === 0 ? 0 : lineHeight}>
           {line}
@@ -80,7 +83,7 @@ function CategoryAxisTick({
 function renderBarTopLabel(
   props: LabelProps,
   total: number,
-  compact: boolean,
+  density: ReturnType<typeof chartDensity>,
   pdfExportMode: boolean,
 ) {
   const { x = 0, y = 0, width = 0, value } = props;
@@ -90,10 +93,11 @@ function renderBarTopLabel(
   const percent = total > 0 ? (numericValue / total) * 100 : 0;
   const centerX = Number(x) + Number(width) / 2;
   const barTop = Number(y);
-  const valueOffset = pdfExportMode ? 30 : compact ? 22 : 28;
-  const percentOffset = pdfExportMode ? 14 : compact ? 10 : 12;
-  const valueFontSize = pdfExportMode ? 12 : compact ? 9 : 12;
-  const percentFontSize = pdfExportMode ? 10 : compact ? 8 : 10;
+  const font = CHART_FONT[pdfExportMode ? "default" : density];
+  const valueOffset = pdfExportMode ? 30 : font.valueOffset + 16;
+  const percentOffset = pdfExportMode ? 14 : font.valueOffset;
+  const valueFontSize = pdfExportMode ? 12 : font.value;
+  const percentFontSize = pdfExportMode ? 10 : Math.max(font.value - 2, 10);
 
   return (
     <text textAnchor="middle" fill="var(--color-ink)">
@@ -123,31 +127,33 @@ function yAxisMax(data: CategoryChartDatum[]): number {
   return Math.ceil(peak * 1.22) || 1;
 }
 
-export function CategoryBarChart({ data, height, pdfExportMode = false }: CategoryBarChartProps) {
-  const expanded = pdfExportMode || height > 250;
+export function CategoryBarChart({ data, height, width, pdfExportMode = false }: CategoryBarChartProps) {
+  const density = chartDensity(height, pdfExportMode);
+  const expanded = density !== "compact";
+  const font = CHART_FONT[density];
   const total = data.reduce((sum, item) => sum + item.value, 0);
   const labelKey = expanded ? "fullName" : "name";
-  const bottomMargin = pdfExportMode ? 108 : expanded ? 88 : 56;
-  const topMargin = pdfExportMode ? 32 : expanded ? 20 : 16;
+  const bottomMargin = pdfExportMode ? 108 : density === "modal" ? 110 : expanded ? 88 : 56;
+  const topMargin = pdfExportMode ? 32 : density === "modal" ? 36 : expanded ? 20 : 16;
   const maxY = yAxisMax(data);
 
-  const leftMargin = expanded ? 28 : 18;
+  const leftMargin = density === "modal" ? 36 : expanded ? 28 : 18;
 
   return (
-    <ResponsiveContainer width="100%" height={height}>
+    <ResponsiveContainer width={width && width > 0 ? width : "100%"} height={height} minWidth={1} minHeight={1}>
       <BarChart data={data} margin={{ top: topMargin, right: 12, left: leftMargin, bottom: bottomMargin }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={CHART_GRID} />
         <XAxis
           dataKey={labelKey}
           interval={0}
-          tick={expanded ? <CategoryAxisTick pdfExportMode={pdfExportMode} /> : { fontSize: 9, fill: CHART_TICK }}
+          tick={expanded ? <CategoryAxisTick pdfExportMode={pdfExportMode} density={density} /> : { fontSize: 9, fill: CHART_TICK }}
           angle={expanded ? 0 : -22}
           textAnchor={expanded ? "middle" : "end"}
-          height={pdfExportMode ? 96 : expanded ? 84 : 52}
+          height={pdfExportMode ? 96 : density === "modal" ? 100 : expanded ? 84 : 52}
         />
         <YAxis
-          tick={{ fontSize: 11, fill: CHART_TICK }}
-          width={48}
+          tick={{ fontSize: font.tick, fill: CHART_TICK }}
+          width={font.yWidth}
           domain={[0, maxY]}
           tickFormatter={(value) => formatNumber(Number(value))}
         >
@@ -155,8 +161,8 @@ export function CategoryBarChart({ data, height, pdfExportMode = false }: Catego
             value="Absolute Zahl der Teilnehmenden"
             angle={-90}
             position="insideLeft"
-            offset={expanded ? 4 : 0}
-            style={{ fill: CHART_TICK, fontSize: expanded ? 11 : 9, fontWeight: 600, textAnchor: "middle" }}
+            offset={density === "modal" ? 8 : expanded ? 4 : 0}
+            style={{ fill: CHART_TICK, fontSize: font.axis, fontWeight: 600, textAnchor: "middle" }}
           />
         </YAxis>
         <Tooltip
@@ -172,7 +178,7 @@ export function CategoryBarChart({ data, height, pdfExportMode = false }: Catego
           fill={CHART_BAR}
           radius={[4, 4, 0, 0]}
           maxBarSize={pdfExportMode ? 88 : expanded ? 72 : 48}
-          label={(props) => renderBarTopLabel(props, total, !expanded, pdfExportMode)}
+          label={(props) => renderBarTopLabel(props, total, density, pdfExportMode)}
         />
       </BarChart>
     </ResponsiveContainer>
