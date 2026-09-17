@@ -530,6 +530,7 @@ export function isYearCompleteAsOf(year: number, asOfQuarter: string): boolean {
 }
 
 export function getCompletedYearAsOf(asOfQuarter: string): number | null {
+  if (/^\d{4}$/.test(asOfQuarter)) return parseInt(asOfQuarter, 10);
   const parts = parseQuarterParts(asOfQuarter);
   if (!parts) return null;
   return parts.quarter === 4 ? parts.year : parts.year - 1;
@@ -548,6 +549,34 @@ export function getCompletedQuarterOptions(): ReportingPeriodOption[] {
       value: quarter,
       label: formatReportingPeriodDisplay(quarter),
     }));
+}
+
+export function getDefaultCompletedYear(): string {
+  return String(
+    getCompletedYearAsOf(LATEST_COMPLETED_QUARTER) ?? getYearFromPeriod(LATEST_COMPLETED_QUARTER),
+  );
+}
+
+export function getCompletedYearOptions(): ReportingPeriodOption[] {
+  const latest = parseInt(getDefaultCompletedYear(), 10);
+  const years: ReportingPeriodOption[] = [];
+  for (let year = latest; year >= 2016; year -= 1) {
+    years.push({ value: String(year), label: String(year) });
+  }
+  return years;
+}
+
+export function berichtszeitpunktForReport(current: string, yearOnly: boolean): string {
+  if (yearOnly) {
+    if (/^\d{4}$/.test(current)) return current;
+    const completed = getCompletedYearAsOf(current);
+    if (completed != null) return String(completed);
+    const year = getYearFromPeriod(current);
+    return Number.isFinite(year) ? String(year) : getDefaultCompletedYear();
+  }
+  if (/^\d{4}-Q[1-4]$/.test(current)) return current;
+  if (/^\d{4}$/.test(current)) return `${current}-Q4`;
+  return LATEST_COMPLETED_QUARTER;
 }
 
 export function quarterToLastMonthKey(quarterKey: string): string {

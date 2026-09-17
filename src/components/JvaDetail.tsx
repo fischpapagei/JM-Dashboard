@@ -13,6 +13,7 @@ import { KurzberichtButton } from "./KurzberichtButton";
 import { KpiCard } from "./KpiCard";
 import { OperationalSummaryPanels } from "./OperationalSummaryPanels";
 import { PeriodContextHeading } from "./PeriodContextHeading";
+import { ReportScrollTable } from "./ReportScrollTable";
 import { RegulaereTerminationReasonsCard } from "./RegulaereTerminationReasonsCard";
 import { PaedPersonalDetailModal } from "./PaedPersonalDetailModal";
 import { SchoolCompletionsDetailModal } from "./SchoolCompletionsDetailModal";
@@ -88,7 +89,7 @@ export function JvaDetail({
     await new Promise<void>((resolve) => {
       requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
     });
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
     try {
       if (!exportRef.current) {
@@ -321,7 +322,10 @@ export function JvaDetail({
               <h3 className="kern-heading-small text-(--color-ink)">Kursangebot der JVA</h3>
               <p className="kern-body kern-body--small mt-0.5 text-(--color-muted)">Soll-Plätze gemäß BASIS-Katalog (Mindest-Soll Erwachsene)</p>
             </div>
-            <div className={pdfExportMode ? "overflow-visible px-2 pb-2" : "overflow-x-auto max-h-[320px] overflow-y-auto"}>
+            <ReportScrollTable
+              className={pdfExportMode ? "overflow-visible px-2 pb-2" : "max-h-[320px] overflow-y-auto"}
+              scroll={!pdfExportMode}
+            >
               <table
                 className={
                   pdfExportMode
@@ -331,10 +335,10 @@ export function JvaDetail({
               >
                 <thead>
                   <tr className="kern-table__row">
-                    <th className="kern-table__header" rowSpan={2}>
+                    <th className="kern-table__header report-sticky-1" rowSpan={2}>
                       Überkategorie
                     </th>
-                    <th className="kern-table__header" rowSpan={2}>
+                    <th className="kern-table__header report-sticky-2 report-sticky-edge" rowSpan={2}>
                       Kursgrundbezeichnung
                     </th>
                     <th className="kern-table__header text-center" colSpan={2}>
@@ -368,8 +372,8 @@ export function JvaDetail({
                   {courseRows.length > 0 ? (
                     courseRows.map((row) => (
                       <tr key={row.courseTypeKey} className="kern-table__row">
-                        <td className="kern-table__cell">{row.courseCategory}</td>
-                        <td className="kern-table__cell">{row.courseType}</td>
+                        <td className="kern-table__cell report-sticky-1">{row.courseCategory}</td>
+                        <td className="kern-table__cell report-sticky-2 report-sticky-edge">{row.courseType}</td>
                         <td className="kern-table__cell">{row.zielgruppeGeschlecht}</td>
                         <td className="kern-table__cell">{row.zielgruppeAltersgruppe}</td>
                         <td className="kern-table__cell">{formatKursleitung(row.kursleitung)}</td>
@@ -391,7 +395,7 @@ export function JvaDetail({
                   )}
                 </tbody>
               </table>
-            </div>
+            </ReportScrollTable>
           </section>
         </div>
       </div>

@@ -5,11 +5,13 @@ import type {
   UtilizationYearRow,
 } from '../utils/auslastungsquote';
 import { formatNumber, formatPercent } from '../utils/format';
+import { ReportScrollTable } from './ReportScrollTable';
 import {
   REPORT_DATA_CELL,
   REPORT_HEADER_CELL,
   REPORT_LABEL_CELL,
   REPORT_TABLE_CLASS,
+  reportStickyCell,
 } from './reportTableStyles';
 
 function ChangeCell({ value }: { value: number | null }) {
@@ -47,14 +49,17 @@ export function AuslastungsquoteQuarterTable({
       <div className="border-b border-nachtblau-30 bg-nachtblau-15 px-4 py-3">
         <h3 className="text-sm font-semibold text-(--color-ink)">{title}</h3>
       </div>
-      <div className="w-full overflow-x-auto">
+      <ReportScrollTable>
         <table className={`${REPORT_TABLE_CLASS} text-[11px]`}>
           <thead>
             <tr className="bg-nachtblau-30 text-[10px] uppercase tracking-wide text-nachtblau">
-              <th className={`${HEADER_CELL} border-nachtblau-30`} rowSpan={2}>
+              <th className={`${HEADER_CELL} border-nachtblau-30 ${reportStickyCell(1, 'bg-nachtblau-30')}`} rowSpan={2}>
                 Hauptkategorie
               </th>
-              <th className={`${HEADER_CELL} border-nachtblau-30`} rowSpan={2}>
+              <th
+                className={`${HEADER_CELL} border-nachtblau-30 ${reportStickyCell(2, 'bg-nachtblau-30', { edge: true })}`}
+                rowSpan={2}
+              >
                 Maßnahmenkategorie
               </th>
               <th className={`${HEADER_CELL} border-nachtblau-30 text-center`} colSpan={bothSpan}>
@@ -125,17 +130,23 @@ export function AuslastungsquoteQuarterTable({
               const showCategory = !prev || prev.categoryKey !== row.categoryKey;
               const span = rows.filter((item) => item.categoryKey === row.categoryKey).length;
               const genders = [row.weiblich, row.maennlich];
+              const stickyBg = row.isCategorySum ? 'bg-nachtblau-15' : 'bg-white';
               return (
                 <tr
                   key={`${row.categoryKey}-${row.courseTypeKey ?? 'sum'}`}
                   className={row.isCategorySum ? 'bg-nachtblau-15/80 font-medium' : 'bg-white'}
                 >
                   {showCategory && (
-                    <td className={`${LABEL_CELL} border-slate-200 text-(--color-ink)`} rowSpan={span}>
+                    <td
+                      className={`${LABEL_CELL} border-slate-200 text-(--color-ink) ${reportStickyCell(1, stickyBg)}`}
+                      rowSpan={span}
+                    >
                       {row.categoryLabel}
                     </td>
                   )}
-                  <td className={`${LABEL_CELL} border-slate-200`}>{row.courseTypeLabel}</td>
+                  <td className={`${LABEL_CELL} border-slate-200 ${reportStickyCell(2, stickyBg, { edge: true })}`}>
+                    {row.courseTypeLabel}
+                  </td>
                   <td className={DATA_CELL}>{formatPercent(row.occupancyBoth)}</td>
                   {showNrwComparison && (
                     <>
@@ -186,7 +197,7 @@ export function AuslastungsquoteQuarterTable({
             })}
           </tbody>
         </table>
-      </div>
+      </ReportScrollTable>
     </section>
   );
 }
@@ -211,14 +222,17 @@ export function AuslastungsquoteYearTable({
       <div className="border-b border-nachtblau-50 bg-nachtblau-30 px-4 py-3">
         <h3 className="text-sm font-semibold text-(--color-ink)">{title}</h3>
       </div>
-      <div className="w-full overflow-x-auto">
+      <ReportScrollTable>
         <table className={`${REPORT_TABLE_CLASS} text-[11px]`}>
           <thead>
             <tr className="bg-nachtblau-50 text-[10px] uppercase tracking-wide text-nachtblau">
-              <th className={`${HEADER_CELL} border-nachtblau-50`} rowSpan={2}>
+              <th className={`${HEADER_CELL} border-nachtblau-50 ${reportStickyCell(1, 'bg-nachtblau-50')}`} rowSpan={2}>
                 Hauptkategorie
               </th>
-              <th className={`${HEADER_CELL} border-nachtblau-50`} rowSpan={2}>
+              <th
+                className={`${HEADER_CELL} border-nachtblau-50 ${reportStickyCell(2, 'bg-nachtblau-50', { edge: true })}`}
+                rowSpan={2}
+              >
                 Maßnahmenkategorie
               </th>
               <th
@@ -287,17 +301,23 @@ export function AuslastungsquoteYearTable({
               const showCategory = !prev || prev.categoryKey !== row.categoryKey;
               const span = rows.filter((item) => item.categoryKey === row.categoryKey).length;
               const genders = [row.weiblich, row.maennlich];
+              const stickyBg = row.isCategorySum ? 'bg-nachtblau-30' : 'bg-white';
               return (
                 <tr
                   key={`${row.categoryKey}-${row.courseTypeKey ?? 'sum'}`}
                   className={row.isCategorySum ? 'bg-nachtblau-30/80 font-medium' : 'bg-white'}
                 >
                   {showCategory && (
-                    <td className={`${LABEL_CELL} border-slate-200 text-(--color-ink)`} rowSpan={span}>
+                    <td
+                      className={`${LABEL_CELL} border-slate-200 text-(--color-ink) ${reportStickyCell(1, stickyBg)}`}
+                      rowSpan={span}
+                    >
                       {row.categoryLabel}
                     </td>
                   )}
-                  <td className={`${LABEL_CELL} border-slate-200`}>{row.courseTypeLabel}</td>
+                  <td className={`${LABEL_CELL} border-slate-200 ${reportStickyCell(2, stickyBg, { edge: true })}`}>
+                    {row.courseTypeLabel}
+                  </td>
                   {showNrwComparison ? (
                     <>
                       <td className={DATA_CELL}>{formatPercent(row.occupancyBoth)}</td>
@@ -344,7 +364,7 @@ export function AuslastungsquoteYearTable({
             })}
           </tbody>
         </table>
-      </div>
+      </ReportScrollTable>
     </section>
   );
 }

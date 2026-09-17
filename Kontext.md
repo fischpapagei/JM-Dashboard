@@ -6,12 +6,12 @@
 - `npm run build` erfolgreich
 
 ## UI-Struktur
-- **Auth:** `ministerium`/`jm2026` (Landesübersicht), `jva-<slug>`/`jva2026` (nur eigene JVA)
+- **Auth:** `ministerium`/`jm2026` (Landesübersicht, Anzeigename **Ministerium der Justiz NRW**), `jva-<slug>`/`jva2026` (nur eigene JVA)
 - **Startseite:** drei App-Kacheln (Kennzahlensystem, Berichte, Web-Erfassung) plus zwei Portalkacheln darunter: **Beschäftigungsportal Justizvollzug** und **Bildungsangebote in den Justizvollzugsanstalten des Landes Nordrhein-Westfalen** (`data/landingPortals.ts`). Ohne hinterlegte URL öffnet `AppPortalView` („Portal folgt“). Über allen Bereichen außer Login liegt die **Hauptbereichsleiste** (`AppAreaBar` / `data/appAreas.ts`): Kennzahlensystem, Berichte, Web-Erfassung, Beschäftigungsportal; der aktive Bereich ist farblich hinterlegt. Bildungsangebote bleiben nur Startkachel, nicht in der Leiste. **Brotkrumen** (`AppBreadcrumb`) auf jeder Seite: Startseite → Hauptbereich → Abschnitt → aktuelle Ansicht; Zwischenstationen sind anwählbar.
-- **Berichte:** `BerichteApp` — **Sidebar-Layout** (`JustizSidebar`) unter der Hauptbereichsleiste mit Berichtsebenen (JVA vs. Ministerium) und Berichtstypen. Die ersten beiden Einträge heißen **Schulischer Kurzbericht JVA** bzw. **Schulischer Kurzbericht landesweit**. Konfiguration mit KERN-Formularen; Ausgabeformat zeigt PDF und bei den Berichten 3–10 sowie 12 zusätzlich Excel. Anstaltsrolle sieht nur Ebenen mit verfügbaren Berichten. Inline-Vorschauen bleiben im Hauptbereich, die Navigation in der Seitenleiste. Startkachel „Berichte“: PDF und Excel.
-- **Kennzahlensystem:** ProtectedApp + SidebarLayout (`JustizSidebar`) unter der Hauptbereichsleiste. Filter, KPI-Karten, Tabellen und Auswertungsflächen in KERN (Karten, Formulare, Tabellen, Badges); Charts mit NRW-Nachtblau (`ui/chartTheme.ts`). **JVA-Stammdatenblatt (Ministerium):** JVA-Auswahl direkt unter der Seitenüberschrift (`Layout.titleMeta`), nicht mehr unter den Filtern. **NRW gesamt:** KPI-Raster und Chart-Karten wie JVA-Stammdatenblatt (weiße `dashboard-kpi`, eine Reihe mit 6 Kacheln ab `lg`, ohne mintgrünes Inset-Panel). Aktiver Sidebar-Eintrag in Nachtblau 50 % mit weißem Randstreifen, Kartenflächen weiß. Diagramm-Vergrößerung füllt die Fensterfläche (`ChartExpandModal`); Kategorie-Achsen im Modal schräg, damit Labels nicht überlappen.
-- **Tabellen in Berichten:** Spaltenbreite nach Inhalt (`table-auto`); Kennzahlen bleiben in der Zelle, breite Tabellen horizontal scrollbar
-- **PDF-Export:** `generateKurzberichtPdf` speichert Abschnitte als JPEG (~120 dpi, Qualität 0,72) statt PNG, damit Dateien im Megabyte-Bereich bleiben
+- **Berichte:** `BerichteApp` — **Sidebar-Layout** (`JustizSidebar`) unter der Hauptbereichsleiste mit Berichtsebenen (JVA vs. Ministerium) und Berichtstypen. JVA-Navigation: **Schulischer Kurzbericht JVA** und **Ergänzende Berichte JVA** (3b–6b im Dropdown). Ministeriums-Navigation: **Schulischer Kurzbericht landesweit** und **Ergänzende landesweite Berichte** (3a–12 im Dropdown). In der Konfiguration: Berichtstyp, JVA wo nötig, Berichtszeitpunkt (bei Schulabschlüssen, Kursangeboten, Schulräumen und eLis-Räumen nur abgeschlossene Jahre), Altersgruppe bei den ersten sechs ergänzenden Berichten, Ausgabeformat erst in der Vorschau. Konfiguration mit KERN-Formularen. Anstaltsrolle sieht nur Ebenen mit verfügbaren Berichten. Inline-Vorschauen bleiben im Hauptbereich. Startkachel „Berichte“: PDF und Excel.
+- **Kennzahlensystem:** ProtectedApp + SidebarLayout (`JustizSidebar`) unter der Hauptbereichsleiste. Filter, KPI-Karten, Tabellen und Auswertungsflächen in KERN (Karten, Formulare, Tabellen, Badges); Charts mit NRW-Nachtblau (`ui/chartTheme.ts`). **Beendigungsgründe:** reguläre Gründe (RB) Petrolgrün, alle übrigen Grau. **JVA-Stammdatenblatt (Ministerium):** JVA-Auswahl direkt unter der Seitenüberschrift (`Layout.titleMeta`), nicht mehr unter den Filtern. **NRW gesamt:** KPI-Raster und Chart-Karten wie JVA-Stammdatenblatt (weiße `dashboard-kpi`, eine Reihe mit 6 Kacheln ab `lg`, ohne mintgrünes Inset-Panel). Aktiver Sidebar-Eintrag in Nachtblau 50 % mit weißem Randstreifen, Kartenflächen weiß. Diagramm-Vergrößerung füllt die Fensterfläche (`ChartExpandModal`); Kategorie-Achsen schräg (Dashboard, Modal und Kurzbericht-PDF), damit lange Bezeichnungen nicht überlappen.
+- **Tabellen in Berichten:** Spaltenbreite nach Inhalt (`table-auto`); Kennzahlen bleiben in der Zelle, breite Tabellen horizontal scrollbar. Die **ersten beiden Spalten** bleiben beim horizontalen Scrollen sichtbar (`ReportScrollTable`).
+- **PDF-Export:** `generateKurzberichtPdf` speichert KPI-Karten und Diagramme als PNG mit verlustfreier Flate-Kompression (kein JPEG auf Nachtblau). KPI-Text 2,5-fach, Diagramme 1,5-fach (höhere SVG-Skalierung leert Balken). Große Querformat-Tabellen weiter JPEG. Animation aus.
 - **Excel-Export Berichte 3–10 und 12:** Button „Excel erzeugen“ neben PDF (nur Demo-Modus); formatierte Workbooks via `utils/excelWorkbook.ts` + `utils/exportBerichteExcel.ts` (Justiz-Kopfzeilen, Summenzeilen, Prozentpunkte, negative Werte rot). **Native Excel-Diagramme** (OOXML, injiziert mit `fflate`, weil `xlsx-js-style` keine Charts kann): Berichte 3–6 dieselben Zeitreihen wie die Vorschau (Blätter „Diag …“), Berichte 7–10 Säulendiagramme aus den Tabellen (Blatt „Diagramme“). Bericht 11 ohne Excel, Bericht 12 Kontaktliste ohne Diagrammblatt.
 - **Sidebar (Ministerium):** vier aufklappbare Bereiche in `data/dashboardAreas.ts`:
   1. **Schulische Bildung:** Hub → „NRW gesamt“, „Landesweit freie Plätze“, „JVA-Stammdatenblatt“
@@ -54,6 +54,9 @@
 
 ## Bericht 3b — Schulteilnehmende einer JVA
 - Kachel `schulteilnehmende-jva`: Ministerium (beliebige JVA) und Anstaltsrolle (nur eigene JVA)
+- Navigation unter **Ergänzende Berichte JVA**; Berichtstyp, JVA, Stichtag und Altersgruppe in der Konfiguration
+- Vorschau und Export nur für die gewählte Altersgruppe und vorhandene Angebote
+- Unterzeile ohne Berichtsnummer und JVA-Namen (stehen in der Überschrift); nur Berichtszeitpunkt und Jahresdaten
 - Gleiche Grafiken/Tabellen wie 3a, aber nur Kurse/Kategorien/Altersgruppen, die in der Anstalt vorkommen
 - Landesweiter Vergleich als **NRW-Durchschnitt je Anstalt** (gestrichelte Linien; Tabellenspalten NRW-Ø und % zu NRW-Ø)
 
@@ -68,6 +71,7 @@
 
 ## Bericht 4b — Auslastungsquote einer JVA
 - Kachel `auslastungsquote-jva`: Ministerium (beliebige JVA) und Anstaltsrolle (nur eigene JVA)
+- Unterzeile wie 3b ohne Berichtsnummer und JVA-Namen
 - Gleiche Grafiken/Tabellen wie 4a, aber nur Kurse/Kategorien/Altersgruppen, die in der Anstalt vorkommen
 - Landesweiter Vergleich als **NRW-Auslastung der jeweiligen Vergleichsgruppe** (gleiche Kurstypen; gestrichelte Linien; Tabellenspalten NRW-Ø und % zu NRW-Ø)
 
@@ -79,6 +83,7 @@
 
 ## Bericht 5b — Beendigungsgründe einer JVA
 - Kachel `beendigungsgruende-jva`: Ministerium (beliebige JVA) und Anstaltsrolle (nur eigene JVA)
+- Unterzeile wie 3b ohne Berichtsnummer und JVA-Namen
 - Gleiche Grafiken/Tabellen wie 5a, aber nur Altersgruppen, Geschlechter und Gründe, die in der Anstalt vorkommen
 - Landesweiter Vergleich als **NRW-Durchschnitt je Anstalt** (gestrichelte Linien; Tabellenspalten NRW-Ø und % zu NRW-Ø)
 
@@ -90,6 +95,7 @@
 
 ## Bericht 6b — Erreichte Schulabschlüsse einer JVA
 - Kachel `schulabschluesse-jva`: Ministerium (beliebige JVA) und Anstaltsrolle (nur eigene JVA)
+- Unterzeile wie 3b ohne Berichtsnummer und JVA-Namen
 - Gleiche Grafiken/Tabelle wie 6a, aber nur Altersgruppen, Geschlechter und Abschlussarten, die in der Anstalt vorkommen
 - Landesweiter Vergleich als **NRW-Durchschnitt je Anstalt** (gestrichelte Linien; Tabellenspalten NRW-Ø und % zu NRW-Ø)
 

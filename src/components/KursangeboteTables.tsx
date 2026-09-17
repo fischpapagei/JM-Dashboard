@@ -1,11 +1,13 @@
 import type { KursangebotTable } from '../utils/kursangebote';
 import { EMPTY_VALUE_LABEL, formatNumber } from '../utils/format';
+import { ReportScrollTable } from './ReportScrollTable';
 import {
   REPORT_DATA_CELL,
   REPORT_HEADER_CELL,
   REPORT_LABEL_CELL,
   REPORT_TABLE_CLASS,
   REPORT_TEXT_CELL,
+  reportStickyCell,
 } from './reportTableStyles';
 
 const LABEL_CELL = `${REPORT_LABEL_CELL} border-slate-300 text-[11px] text-(--color-ink)`;
@@ -29,12 +31,12 @@ export function KursangeboteOfferTable({ table, showExternalColumn }: Kursangebo
           {` im ${table.agePhrase}`}
         </h3>
       </div>
-      <div className="w-full overflow-x-auto">
+      <ReportScrollTable>
         <table className={`${REPORT_TABLE_CLASS} text-[11px]`}>
           <thead>
             <tr className="bg-nachtblau">
-              <th className={HEADER_CELL}>Hauptkategorie</th>
-              <th className={HEADER_CELL}>Maßnahmenkategorie</th>
+              <th className={`${HEADER_CELL} ${reportStickyCell(1, 'bg-nachtblau')}`}>Hauptkategorie</th>
+              <th className={`${HEADER_CELL} ${reportStickyCell(2, 'bg-nachtblau', { edge: true })}`}>Maßnahmenkategorie</th>
               <th className={HEADER_CELL}>Name Kurs</th>
               <th className={HEADER_CELL}>SOLL Plätze</th>
               <th className={HEADER_CELL}>Dauer der Maßnahme in Monaten</th>
@@ -54,12 +56,18 @@ export function KursangeboteOfferTable({ table, showExternalColumn }: Kursangebo
                 className={row.groupStripe ? 'bg-slate-50' : 'bg-white'}
               >
                   {row.showCategory ? (
-                    <td className={`${LABEL_CELL} font-medium`} rowSpan={row.categorySpan}>
+                    <td
+                      className={`${LABEL_CELL} font-medium ${reportStickyCell(1, row.groupStripe ? 'bg-slate-50' : 'bg-white')}`}
+                      rowSpan={row.categorySpan}
+                    >
                       {row.categoryLabel}
                     </td>
                   ) : null}
                   {row.showType ? (
-                    <td className={LABEL_CELL} rowSpan={row.typeSpan}>
+                    <td
+                      className={`${LABEL_CELL} ${reportStickyCell(2, row.groupStripe ? 'bg-slate-50' : 'bg-white', { edge: true })}`}
+                      rowSpan={row.typeSpan}
+                    >
                       {row.typeLabel}
                     </td>
                   ) : null}
@@ -86,7 +94,7 @@ export function KursangeboteOfferTable({ table, showExternalColumn }: Kursangebo
             ) : null}
           </tbody>
         </table>
-      </div>
+      </ReportScrollTable>
     </section>
   );
 }

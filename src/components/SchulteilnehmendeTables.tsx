@@ -5,11 +5,13 @@ import type {
   YearTableColumnLabels,
 } from '../utils/schulteilnehmende';
 import { formatNumber, formatPercent } from '../utils/format';
+import { ReportScrollTable } from './ReportScrollTable';
 import {
   REPORT_DATA_CELL,
   REPORT_HEADER_CELL,
   REPORT_LABEL_CELL,
   REPORT_TABLE_CLASS,
+  reportStickyCell,
 } from './reportTableStyles';
 
 function ChangeCell({ value }: { value: number | null }) {
@@ -41,14 +43,17 @@ export function SchulteilnehmendeQuarterTable({
       <div className="border-b border-nachtblau-30 bg-nachtblau-15 px-4 py-3">
         <h3 className="text-sm font-semibold text-(--color-ink)">{title}</h3>
       </div>
-      <div className="w-full overflow-x-auto">
+      <ReportScrollTable>
         <table className={`${REPORT_TABLE_CLASS} text-xs`}>
           <thead>
             <tr className="bg-nachtblau-30 text-[11px] uppercase tracking-wide text-nachtblau">
-              <th className={`${HEADER_CELL} border-nachtblau-30`} rowSpan={2}>
+              <th className={`${HEADER_CELL} border-nachtblau-30 ${reportStickyCell(1, 'bg-nachtblau-30')}`} rowSpan={2}>
                 Hauptkategorie
               </th>
-              <th className={`${HEADER_CELL} border-nachtblau-30`} rowSpan={2}>
+              <th
+                className={`${HEADER_CELL} border-nachtblau-30 ${reportStickyCell(2, 'bg-nachtblau-30', { edge: true })}`}
+                rowSpan={2}
+              >
                 Maßnahmenkategorie
               </th>
               <th className={`${HEADER_CELL} border-nachtblau-30 text-center`} colSpan={genderColSpan}>
@@ -94,17 +99,23 @@ export function SchulteilnehmendeQuarterTable({
               const showCategory = !prev || prev.categoryKey !== row.categoryKey;
               const span = rows.filter((item) => item.categoryKey === row.categoryKey).length;
               const genders = [row.weiblich, row.maennlich];
+              const stickyBg = row.isCategorySum ? 'bg-nachtblau-15' : 'bg-white';
               return (
                 <tr
                   key={`${row.categoryKey}-${row.courseTypeKey ?? 'sum'}`}
                   className={row.isCategorySum ? 'bg-nachtblau-15/80 font-medium' : 'bg-white'}
                 >
                   {showCategory && (
-                    <td className={`${LABEL_CELL} border-slate-200 text-(--color-ink)`} rowSpan={span}>
+                    <td
+                      className={`${LABEL_CELL} border-slate-200 text-(--color-ink) ${reportStickyCell(1, stickyBg)}`}
+                      rowSpan={span}
+                    >
                       {row.categoryLabel}
                     </td>
                   )}
-                  <td className={`${LABEL_CELL} border-slate-200`}>{row.courseTypeLabel}</td>
+                  <td className={`${LABEL_CELL} border-slate-200 ${reportStickyCell(2, stickyBg, { edge: true })}`}>
+                    {row.courseTypeLabel}
+                  </td>
                   {genders.flatMap((metric, genderIndex) => [
                     <td key={`${genderIndex}-c`} className={DATA_CELL}>
                       {formatNumber(metric.current)}
@@ -137,7 +148,7 @@ export function SchulteilnehmendeQuarterTable({
             })}
           </tbody>
         </table>
-      </div>
+      </ReportScrollTable>
     </section>
   );
 }
@@ -161,14 +172,17 @@ export function SchulteilnehmendeYearTable({
       <div className="border-b border-nachtblau-50 bg-nachtblau-30 px-4 py-3">
         <h3 className="text-sm font-semibold text-(--color-ink)">{title}</h3>
       </div>
-      <div className="w-full overflow-x-auto">
+      <ReportScrollTable>
         <table className={`${REPORT_TABLE_CLASS} text-xs`}>
           <thead>
             <tr className="bg-nachtblau-50 text-[11px] uppercase tracking-wide text-nachtblau">
-              <th className={`${HEADER_CELL} border-nachtblau-50`} rowSpan={2}>
+              <th className={`${HEADER_CELL} border-nachtblau-50 ${reportStickyCell(1, 'bg-nachtblau-50')}`} rowSpan={2}>
                 Hauptkategorie
               </th>
-              <th className={`${HEADER_CELL} border-nachtblau-50`} rowSpan={2}>
+              <th
+                className={`${HEADER_CELL} border-nachtblau-50 ${reportStickyCell(2, 'bg-nachtblau-50', { edge: true })}`}
+                rowSpan={2}
+              >
                 Maßnahmenkategorie
               </th>
               <th className={`${HEADER_CELL} border-nachtblau-50 text-center`} colSpan={genderColSpan}>
@@ -211,17 +225,23 @@ export function SchulteilnehmendeYearTable({
               const showCategory = !prev || prev.categoryKey !== row.categoryKey;
               const span = rows.filter((item) => item.categoryKey === row.categoryKey).length;
               const genders = [row.weiblich, row.maennlich];
+              const stickyBg = row.isCategorySum ? 'bg-nachtblau-30' : 'bg-white';
               return (
                 <tr
                   key={`${row.categoryKey}-${row.courseTypeKey ?? 'sum'}`}
                   className={row.isCategorySum ? 'bg-nachtblau-30/80 font-medium' : 'bg-white'}
                 >
                   {showCategory && (
-                    <td className={`${LABEL_CELL} border-slate-200 text-(--color-ink)`} rowSpan={span}>
+                    <td
+                      className={`${LABEL_CELL} border-slate-200 text-(--color-ink) ${reportStickyCell(1, stickyBg)}`}
+                      rowSpan={span}
+                    >
                       {row.categoryLabel}
                     </td>
                   )}
-                  <td className={`${LABEL_CELL} border-slate-200`}>{row.courseTypeLabel}</td>
+                  <td className={`${LABEL_CELL} border-slate-200 ${reportStickyCell(2, stickyBg, { edge: true })}`}>
+                    {row.courseTypeLabel}
+                  </td>
                   {genders.flatMap((metric, genderIndex) => [
                     <td key={`${genderIndex}-c`} className={DATA_CELL}>
                       {formatNumber(metric.current)}
@@ -251,7 +271,7 @@ export function SchulteilnehmendeYearTable({
             })}
           </tbody>
         </table>
-      </div>
+      </ReportScrollTable>
     </section>
   );
 }

@@ -176,7 +176,7 @@ export function KpiCard({
         compact ? "py-0.5 text-xl" : exportMode ? "py-1 text-xl" : "py-1 text-2xl",
       ].join(" ")}>{display}</p>
       {previousDisplay !== undefined && (
-        <p className={compact ? `text-center text-xs ${metaClass}` : exportMode ? `text-center text-[11px] leading-snug ${metaClass}` : `text-center text-sm ${metaClass}`}>
+        <p className={compact ? `text-center text-xs ${metaClass}` : exportMode ? `text-center text-xs font-medium leading-snug ${metaClass}` : `text-center text-sm ${metaClass}`}>
           {previousPeriodLabel}: {previousDisplay}
         </p>
       )}
@@ -187,7 +187,7 @@ export function KpiCard({
           </p>
           <p className={`text-center font-semibold ${valueClass} ${exportMode ? "text-base" : "text-lg"}`}>{secondaryDisplay}</p>
           {secondaryPreviousDisplay !== undefined && (
-            <p className={`text-center leading-snug ${exportMode ? "text-[10px]" : "text-xs"} ${metaClass}`}>
+            <p className={`text-center font-medium leading-snug text-xs ${metaClass}`}>
               {previousPeriodLabel}: {secondaryPreviousDisplay}
             </p>
           )}

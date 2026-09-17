@@ -2,17 +2,19 @@ import { domToCanvas } from 'modern-screenshot';
 import { jsPDF } from 'jspdf';
 
 const MUTED: [number, number, number] = [100, 116, 139];
-/** 120 dpi — lesbar in Druck und Bildschirm, ohne PNG-Riesenauflösung. */
-const CAPTURE_SCALE = 1.25;
-const JPEG_QUALITY = 0.72;
+/** Diagramme: nicht höher, sonst bleiben Recharts-Balken leer. */
+const CHART_CAPTURE_SCALE = 1.5;
+/** KPI-Karten und Fließtext: höhere Auflösung, damit weiße Schrift auf Nachtblau scharf bleibt. */
+const TEXT_CAPTURE_SCALE = 2.5;
+const TABLE_CAPTURE_SCALE = 1.4;
+const JPEG_QUALITY = 0.92;
 const BLOCK_GAP_MM = 4;
 const MARGIN_MM = 8;
 const FOOTER_SPACE_MM = 6;
-/** CSS-Pixel der Querformat-Tabellen vor dem Skalieren — reicht für A4-quer. */
 const LANDSCAPE_TABLE_CAPTURE_WIDTH_PX = 1600;
-/** Obere Grenze für eingebettete Pixelbreite (A4-quer ~150 dpi). */
-const MAX_EMBED_WIDTH_PX = 1600;
-const MAX_CAPTURE_WIDTH_PX = 1600;
+const MAX_JPEG_WIDTH_PX = 1800;
+const MAX_PNG_WIDTH_PX = 2800;
+const MAX_CAPTURE_WIDTH_PX = 2400;
 
 export interface KurzberichtCaptureInput {
   root: HTMLElement;
@@ -20,9 +22,11 @@ export interface KurzberichtCaptureInput {
 }
 
 type PageOrientation = 'portrait' | 'landscape';
+type ImageFormat = 'PNG' | 'JPEG';
 
 interface CaptureOptions {
   width?: number;
+  scale?: number;
 }
 
 function buildFilename(suffix = 'Schulische-Bildung'): string {
@@ -52,6 +56,16 @@ function isNewPageBlock(block: HTMLElement): boolean {
   return block.hasAttribute('data-pdf-new-page');
 }
 
+function usesJpeg(block: HTMLElement): boolean {
+  return isTableBlock(block) && (isLandscapeBlock(block) || isMultipageBlock(block));
+}
+
+function getCaptureScale(block: HTMLElement): number {
+  if (usesJpeg(block)) return TABLE_CAPTURE_SCALE;
+  if (block.querySelector('svg')) return CHART_CAPTURE_SCALE;
+  return TEXT_CAPTURE_SCALE;
+}
+
 function capCaptureWidth(width: number): number {
   return Math.min(width, MAX_CAPTURE_WIDTH_PX);
 }
@@ -68,12 +82,11 @@ function getCaptureOptions(block: HTMLElement): CaptureOptions {
   return {};
 }
 
-function canvasToJpegDataUrl(canvas: HTMLCanvasElement): string {
-  const source = downsampleCanvas(canvas, MAX_EMBED_WIDTH_PX);
-  return source.toDataURL('image/jpeg', JPEG_QUALITY);
-}
-
-function downsampleCanvas(canvas: HTMLCanvasElement, maxWidth: number): HTMLCanvasElement {
+function downsampleCanvas(
+  canvas: HTMLCanvasElement,
+  maxWidth: number,
+  smooth: boolean,
+): HTMLCanvasElement {
   const scale = canvas.width > maxWidth ? maxWidth / canvas.width : 1;
   if (scale === 1) {
     return canvas;
@@ -88,21 +101,35 @@ function downsampleCanvas(canvas: HTMLCanvasElement, maxWidth: number): HTMLCanv
   }
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, output.width, output.height);
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
+  ctx.imageSmoothingEnabled = smooth;
+  if (smooth) {
+    ctx.imageSmoothingQuality = 'high';
+  }
   ctx.drawImage(canvas, 0, 0, output.width, output.height);
   return output;
 }
 
-function addJpegImage(
+function canvasToDataUrl(canvas: HTMLCanvasElement, format: ImageFormat): string {
+  if (format === 'JPEG') {
+    const source = downsampleCanvas(canvas, MAX_JPEG_WIDTH_PX, true);
+    return source.toDataURL('image/jpeg', JPEG_QUALITY);
+  }
+  const source = downsampleCanvas(canvas, MAX_PNG_WIDTH_PX, true);
+  return source.toDataURL('image/png');
+}
+
+function addCapturedImage(
   pdf: jsPDF,
   canvas: HTMLCanvasElement,
   x: number,
   y: number,
   widthMm: number,
   heightMm: number,
+  format: ImageFormat,
 ): void {
-  pdf.addImage(canvasToJpegDataUrl(canvas), 'JPEG', x, y, widthMm, heightMm, undefined, 'FAST');
+  // JPEG: verlustbehaftet für große Tabellen. PNG: Flate (FAST) bleibt verlustfrei.
+  const compression = 'FAST';
+  pdf.addImage(canvasToDataUrl(canvas, format), format, x, y, widthMm, heightMm, undefined, compression);
 }
 
 function clearOverflowConstraints(el: HTMLElement): void {
@@ -184,8 +211,8 @@ async function captureElementAsCanvas(
 ): Promise<HTMLCanvasElement> {
   const targetWidth = options.width;
   return domToCanvas(element, {
-    scale: CAPTURE_SCALE,
-    backgroundColor: '#f3f6f5',
+    scale: options.scale ?? TEXT_CAPTURE_SCALE,
+    backgroundColor: '#ffffff',
     timeout: 60_000,
     maximumCanvasSize: 16_384,
     features: {
@@ -262,6 +289,7 @@ function drawCanvasMultipage(
   canvas: HTMLCanvasElement,
   startCursorY: number,
   addPage: () => void,
+  format: ImageFormat,
 ): number {
   const { contentWidth, contentHeight } = getContentSize(pdf);
   const widthMm = contentWidth;
@@ -300,7 +328,7 @@ function drawCanvasMultipage(
     ctx.drawImage(canvas, 0, sourceY, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
 
     const sliceHeightMm = sliceHeightPx / pxPerMm;
-    addJpegImage(pdf, sliceCanvas, MARGIN_MM, cursorY, widthMm, sliceHeightMm);
+    addCapturedImage(pdf, sliceCanvas, MARGIN_MM, cursorY, widthMm, sliceHeightMm, format);
 
     sourceY += sliceHeightPx;
     cursorY += sliceHeightMm;
@@ -328,7 +356,11 @@ export async function generateKurzberichtPdf(input: KurzberichtCaptureInput): Pr
 
   for (const block of blocks) {
     const targetOrientation: PageOrientation = isLandscapeBlock(block) ? 'landscape' : 'portrait';
-    const canvas = await captureElementAsCanvas(block, getCaptureOptions(block));
+    const imageFormat: ImageFormat = usesJpeg(block) ? 'JPEG' : 'PNG';
+    const canvas = await captureElementAsCanvas(block, {
+      ...getCaptureOptions(block),
+      scale: getCaptureScale(block),
+    });
     if (canvas.width === 0 || canvas.height === 0) continue;
 
     if (!pageStarted) {
@@ -355,9 +387,15 @@ export async function generateKurzberichtPdf(input: KurzberichtCaptureInput): Pr
         cursorY = MARGIN_MM;
       }
 
-      cursorY = drawCanvasMultipage(pdf, canvas, cursorY, () => {
-        pdf.addPage('a4', toJsPdfOrientation(currentOrientation));
-      });
+      cursorY = drawCanvasMultipage(
+        pdf,
+        canvas,
+        cursorY,
+        () => {
+          pdf.addPage('a4', toJsPdfOrientation(currentOrientation));
+        },
+        imageFormat,
+      );
       continue;
     }
 
@@ -369,7 +407,7 @@ export async function generateKurzberichtPdf(input: KurzberichtCaptureInput): Pr
     }
 
     const x = MARGIN_MM + (contentWidth - widthMm) / 2;
-    addJpegImage(pdf, canvas, x, cursorY, widthMm, heightMm);
+    addCapturedImage(pdf, canvas, x, cursorY, widthMm, heightMm, imageFormat);
     cursorY += heightMm + BLOCK_GAP_MM;
   }
 

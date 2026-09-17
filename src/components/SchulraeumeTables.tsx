@@ -1,10 +1,12 @@
 import type { SchulraumTable } from '../utils/schulraeume';
 import { formatNumber } from '../utils/format';
+import { ReportScrollTable } from './ReportScrollTable';
 import {
   REPORT_DATA_CELL,
   REPORT_HEADER_CELL,
   REPORT_LABEL_CELL,
   REPORT_TABLE_CLASS,
+  reportStickyCell,
 } from './reportTableStyles';
 
 const LABEL_CELL = `${REPORT_LABEL_CELL} border-slate-300 text-[11px] text-(--color-ink)`;
@@ -21,12 +23,12 @@ export function SchulraeumeTable({ table }: SchulraeumeTableProps) {
       <div className="border-b border-nachtblau-30 bg-nachtblau-15 px-4 py-3 text-center">
         <h3 className="text-sm font-semibold text-(--color-ink)">Übersicht der Schulräume</h3>
       </div>
-      <div className="w-full overflow-x-auto">
+      <ReportScrollTable>
         <table className={`${REPORT_TABLE_CLASS} text-[11px]`}>
           <thead>
             <tr>
-              <th className={HEADER_CELL}>JVA</th>
-              <th className={HEADER_CELL}>Raumbezeichnung</th>
+              <th className={`${HEADER_CELL} ${reportStickyCell(1, 'bg-nachtblau-15')}`}>JVA</th>
+              <th className={`${HEADER_CELL} ${reportStickyCell(2, 'bg-nachtblau-15', { edge: true })}`}>Raumbezeichnung</th>
               <th className={HEADER_CELL}>Anzahl Räume</th>
               <th className={HEADER_CELL}>Größe in qm</th>
               <th className={HEADER_CELL}>Elis? (1 = ja, 0 = nein)</th>
@@ -38,7 +40,7 @@ export function SchulraeumeTable({ table }: SchulraeumeTableProps) {
               if (row.kind !== 'room') {
                 return (
                   <tr key={row.key} className="bg-nachtblau-15 font-semibold">
-                    <td className={LABEL_CELL} colSpan={2}>
+                    <td className={`${LABEL_CELL} ${reportStickyCell(1, 'bg-nachtblau-15')}`} colSpan={2}>
                       {row.designation}
                     </td>
                     <td className={DATA_CELL}>{formatNumber(row.roomCount)}</td>
@@ -51,11 +53,11 @@ export function SchulraeumeTable({ table }: SchulraeumeTableProps) {
               return (
                 <tr key={row.key} className="bg-white">
                   {row.showJva ? (
-                    <td className={`${LABEL_CELL} font-medium`} rowSpan={row.jvaSpan}>
+                    <td className={`${LABEL_CELL} font-medium ${reportStickyCell(1, 'bg-white')}`} rowSpan={row.jvaSpan}>
                       {row.jvaName}
                     </td>
                   ) : null}
-                  <td className={LABEL_CELL}>{row.designation}</td>
+                  <td className={`${LABEL_CELL} ${reportStickyCell(2, 'bg-white', { edge: true })}`}>{row.designation}</td>
                   <td className={DATA_CELL}>{formatNumber(row.roomCount)}</td>
                   <td className={DATA_CELL}>{formatNumber(row.squareMeters)}</td>
                   <td className={`${DATA_CELL} text-center`}>{formatNumber(row.elisFlag)}</td>
@@ -65,7 +67,7 @@ export function SchulraeumeTable({ table }: SchulraeumeTableProps) {
             })}
           </tbody>
         </table>
-      </div>
+      </ReportScrollTable>
     </section>
   );
 }

@@ -26,6 +26,13 @@ export const SCHULTEILNEHMENDE_ALTERSGRUPPEN: {
   { key: 'Jugendvollzug', label: 'Jugendliche', adjective: 'Jugendliche' },
 ];
 
+export function selectedAltersgruppen(
+  selected?: SchulteilnehmendeAltersgruppe,
+): typeof SCHULTEILNEHMENDE_ALTERSGRUPPEN {
+  if (!selected) return SCHULTEILNEHMENDE_ALTERSGRUPPEN;
+  return SCHULTEILNEHMENDE_ALTERSGRUPPEN.filter((group) => group.key === selected);
+}
+
 export const NRW_SERIES_SUFFIX = '__nrw';
 export const NRW_JVA_COUNT = JVAS.length;
 

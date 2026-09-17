@@ -11,14 +11,17 @@ import {
   type LabelProps,
 } from "recharts";
 import { formatNumber } from "../utils/format";
-import { CHART_FONT, CHART_SERIES, CHART_GRID, CHART_TICK, chartDensity } from "../ui/chartTheme";
-import { terminationReasons } from "../data/catalog";
+import { CHART_FONT, CHART_GRID, CHART_TERMINATION_OTHER, CHART_TERMINATION_REGULAR, CHART_TICK, chartDensity } from "../ui/chartTheme";
+import { TERMINATION_REASON_BY_KEY, terminationReasons } from "../data/catalog";
 
 const CATALOG_TERMINATION_ORDER = new Map(
   terminationReasons.map((reason, index) => [reason.key, index]),
 );
 
-const COLORS = [...CHART_SERIES];
+function terminationBarFill(entry: TerminationChartDatum): string {
+  const reason = entry.key ? TERMINATION_REASON_BY_KEY[entry.key] : undefined;
+  return reason?.level1 === "reguläre Beendigung" ? CHART_TERMINATION_REGULAR : CHART_TERMINATION_OTHER;
+}
 
 export interface TerminationChartDatum {
   name: string;
@@ -245,10 +248,11 @@ export function TerminationBarChart({
             dataKey="value"
             radius={[0, 4, 4, 0]}
             maxBarSize={maxBarSize}
+            isAnimationActive={!pdfExportMode}
             label={(props) => renderBarValueLabel(props, total, isPreview)}
           >
             {chartData.map((entry, index) => (
-              <Cell key={entry.key ?? index} fill={COLORS[index % COLORS.length]} />
+              <Cell key={entry.key ?? index} fill={terminationBarFill(entry)} />
             ))}
           </Bar>
         </BarChart>

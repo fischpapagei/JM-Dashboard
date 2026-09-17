@@ -1,10 +1,12 @@
 import type { SollplatzChangeKind, SollplatzVeraenderungTable } from '../utils/sollplatzVeraenderung';
 import { formatNumber } from '../utils/format';
+import { ReportScrollTable } from './ReportScrollTable';
 import {
   REPORT_DATA_CELL,
   REPORT_HEADER_CELL,
   REPORT_LABEL_CELL,
   REPORT_TABLE_CLASS,
+  reportStickyCell,
 } from './reportTableStyles';
 
 const LABEL_CELL = `${REPORT_LABEL_CELL} border-slate-300`;
@@ -35,12 +37,12 @@ export function SollplatzVeraenderungTableView({ table }: SollplatzVeraenderungT
           Vergleich {table.previousMonthLabel} → {table.currentMonthLabel}
         </p>
       </div>
-      <div className="w-full overflow-x-auto">
+      <ReportScrollTable>
         <table className={`${REPORT_TABLE_CLASS} text-[11px]`}>
           <thead>
             <tr>
-              <th className={HEADER_CELL}>JVA</th>
-              <th className={HEADER_CELL}>Hauptkategorie</th>
+              <th className={`${HEADER_CELL} ${reportStickyCell(1, 'bg-nachtblau')}`}>JVA</th>
+              <th className={`${HEADER_CELL} ${reportStickyCell(2, 'bg-nachtblau', { edge: true })}`}>Hauptkategorie</th>
               <th className={HEADER_CELL}>Maßnahmenkategorie</th>
               <th className={HEADER_CELL}>Name Kurs</th>
               <th className={HEADER_CELL}>Soll-Plätze Vormonat</th>
@@ -54,11 +56,11 @@ export function SollplatzVeraenderungTableView({ table }: SollplatzVeraenderungT
               return (
                 <tr key={row.key} className={tone}>
                   {row.showJva ? (
-                    <td className={`${LABEL_CELL} font-medium`} rowSpan={row.jvaSpan}>
+                    <td className={`${LABEL_CELL} font-medium ${reportStickyCell(1, 'bg-white')}`} rowSpan={row.jvaSpan}>
                       {row.jvaName}
                     </td>
                   ) : null}
-                  <td className={LABEL_CELL}>{row.categoryLabel}</td>
+                  <td className={`${LABEL_CELL} ${reportStickyCell(2, 'bg-white', { edge: true })}`}>{row.categoryLabel}</td>
                   <td className={LABEL_CELL}>{row.typeLabel}</td>
                   <td className={LABEL_CELL}>{row.courseName}</td>
                   <td className={DATA_CELL}>{formatNumber(row.previousPlaces)}</td>
@@ -68,7 +70,7 @@ export function SollplatzVeraenderungTableView({ table }: SollplatzVeraenderungT
               );
             })}
             <tr className="bg-slate-50 font-semibold text-(--color-ink)">
-              <td className={LABEL_CELL} colSpan={4}>
+              <td className={`${LABEL_CELL} ${reportStickyCell(1, 'bg-slate-50')}`} colSpan={4}>
                 Gesamtsumme
               </td>
               <td className={DATA_CELL}>{formatNumber(table.totals.previousPlaces)}</td>
@@ -77,7 +79,7 @@ export function SollplatzVeraenderungTableView({ table }: SollplatzVeraenderungT
             </tr>
           </tbody>
         </table>
-      </div>
+      </ReportScrollTable>
     </section>
   );
 }

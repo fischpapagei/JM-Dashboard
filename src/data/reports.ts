@@ -326,6 +326,87 @@ export function getReportByKey(key: ReportKey): ReportDefinition | undefined {
   return REPORT_DEFINITIONS.find((report) => report.key === key);
 }
 
+export const ERGAENZENDE_JVA_REPORT_KEYS: ReportKey[] = [
+  'schulteilnehmende-jva',
+  'auslastungsquote-jva',
+  'beendigungsgruende-jva',
+  'schulabschluesse-jva',
+];
+
+export const ERGAENZENDE_JVA_NAV_LABEL = 'Ergänzende Berichte JVA';
+
+export const ERGAENZENDE_LANDESWEIT_REPORT_KEYS: ReportKey[] = [
+  'schulteilnehmende-landesweit',
+  'auslastungsquote-landesweit',
+  'beendigungsgruende-landesweit',
+  'schulabschluesse-landesweit',
+  'kursangebote-landesweit',
+  'sollplaetze-veraenderung',
+  'schulraeume-landesweit',
+  'stellen-landesweit',
+  'elis-raeume-mandantschaften',
+  'elis-ansprechpersonen',
+];
+
+export const ERGAENZENDE_LANDESWEIT_NAV_LABEL = 'Ergänzende landesweite Berichte';
+
+export const LANDESWEIT_ALTERSGRUPPE_REPORT_KEYS: ReportKey[] = [
+  'schulteilnehmende-landesweit',
+  'auslastungsquote-landesweit',
+  'beendigungsgruende-landesweit',
+  'schulabschluesse-landesweit',
+  'kursangebote-landesweit',
+  'sollplaetze-veraenderung',
+];
+
+export const LANDESWEIT_YEAR_REPORT_KEYS: ReportKey[] = [
+  'schulabschluesse-landesweit',
+  'kursangebote-landesweit',
+  'schulraeume-landesweit',
+  'elis-raeume-mandantschaften',
+];
+
+export function isErgaenzenderJvaReport(key: ReportKey): boolean {
+  return ERGAENZENDE_JVA_REPORT_KEYS.includes(key);
+}
+
+export function isErgaenzenderLandesweitReport(key: ReportKey): boolean {
+  return ERGAENZENDE_LANDESWEIT_REPORT_KEYS.includes(key);
+}
+
+export function isErgaenzenderBericht(key: ReportKey): boolean {
+  return isErgaenzenderJvaReport(key) || isErgaenzenderLandesweitReport(key);
+}
+
+export function hasBerichtAltersgruppe(key: ReportKey): boolean {
+  return isErgaenzenderJvaReport(key) || LANDESWEIT_ALTERSGRUPPE_REPORT_KEYS.includes(key);
+}
+
+export function isYearOnlyBericht(key: ReportKey): boolean {
+  return LANDESWEIT_YEAR_REPORT_KEYS.includes(key);
+}
+
+export function complementaryReportLabel(report: ReportDefinition): string {
+  return report.title.replace(/ einer JVA$/, '').replace(/ \(landesweit\)$/, '');
+}
+
+export const JVA_BERICHT_ALTERSGRUPPE_OPTIONS: {
+  value: 'Erwachsenenvollzug' | 'Jugendvollzug';
+  label: string;
+}[] = [
+  { value: 'Erwachsenenvollzug', label: 'Erwachsene' },
+  { value: 'Jugendvollzug', label: 'Jugendliche' },
+];
+
+export function getAvailableJvaBerichtAltersgruppen(
+  jvaAltersgruppe: 'Erwachsenenvollzug' | 'Jugendvollzug' | 'beides' | undefined,
+): typeof JVA_BERICHT_ALTERSGRUPPE_OPTIONS {
+  if (!jvaAltersgruppe || jvaAltersgruppe === 'beides') {
+    return JVA_BERICHT_ALTERSGRUPPE_OPTIONS;
+  }
+  return JVA_BERICHT_ALTERSGRUPPE_OPTIONS.filter((option) => option.value === jvaAltersgruppe);
+}
+
 export function isInlinePreviewReport(key: ReportKey): boolean {
   return (
     key === 'schulteilnehmende-landesweit' ||

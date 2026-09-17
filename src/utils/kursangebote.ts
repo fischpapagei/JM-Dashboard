@@ -278,6 +278,7 @@ export function brochureYearFromBerichtszeitpunkt(berichtszeitpunkt: string): nu
 export function buildKursangeboteSections(
   records: EducationMeasureRecord[],
   berichtszeitpunkt: string,
+  options?: { altersgruppe?: SchulteilnehmendeAltersgruppe },
 ): KursangebotJvaSection[] {
   const year = brochureYearFromBerichtszeitpunkt(berichtszeitpunkt);
   const snapshots = collectSnapshots(records, year);
@@ -287,10 +288,13 @@ export function buildKursangeboteSections(
     list.push(snapshot);
     byJva.set(snapshot.jvaId, list);
   }
+  const ageGroups = options?.altersgruppe
+    ? AGE_ORDER.filter((altersgruppe) => altersgruppe === options.altersgruppe)
+    : AGE_ORDER;
 
   return JVAS.flatMap((jva) => {
     const jvaSnapshots = byJva.get(jva.id) ?? [];
-    const tables = AGE_ORDER.flatMap((altersgruppe) => {
+    const tables = ageGroups.flatMap((altersgruppe) => {
       if (jva.altersgruppe !== 'beides' && jva.altersgruppe !== altersgruppe) return [];
       return GENDER_ORDER.flatMap((geschlecht) => {
         if (jva.geschlecht !== 'gemischt' && jva.geschlecht !== geschlecht) return [];

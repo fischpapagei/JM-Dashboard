@@ -1,10 +1,12 @@
 import type { SchulabschlussYearLabels, SchulabschlussYearRow } from '../utils/schulabschluesse';
 import { formatNumber, formatPercent } from '../utils/format';
+import { ReportScrollTable } from './ReportScrollTable';
 import {
   REPORT_DATA_CELL,
   REPORT_HEADER_CELL,
   REPORT_LABEL_CELL,
   REPORT_TABLE_CLASS,
+  reportStickyCell,
 } from './reportTableStyles';
 
 function ChangeCell({ value }: { value: number | null }) {
@@ -45,15 +47,15 @@ export function SchulabschluesseYearTable({
       <div className="border-b border-nachtblau-50 bg-nachtblau-30 px-4 py-3">
         <h3 className="text-sm font-semibold text-(--color-ink)">{title}</h3>
       </div>
-      <div className="w-full overflow-x-auto">
+      <ReportScrollTable>
         <table className={`${REPORT_TABLE_CLASS} text-[11px]`}>
           <thead>
             <tr className="bg-nachtblau-50 text-[10px] uppercase tracking-wide text-nachtblau">
-              <th className={`${HEADER_CELL} border-nachtblau-50`} rowSpan={2}>
+              <th className={`${HEADER_CELL} border-nachtblau-50 ${reportStickyCell(1, 'bg-nachtblau-50')}`} rowSpan={2}>
                 Abschlussart
               </th>
               <th
-                className={`${HEADER_CELL} border-nachtblau-50 text-center`}
+                className={`${HEADER_CELL} border-nachtblau-50 text-center ${showNrwComparison ? '' : reportStickyCell(2, 'bg-nachtblau-50', { edge: true })}`}
                 colSpan={bothSpan}
                 rowSpan={showNrwComparison ? 1 : 2}
               >
@@ -68,7 +70,9 @@ export function SchulabschluesseYearTable({
             <tr className="bg-nachtblau-30 text-[9px] leading-tight text-nachtblau">
               {showNrwComparison && (
                 <>
-                  <th className={`${HEADER_CELL} border-nachtblau-50`}>Aktuelles Jahr ({labels.current})</th>
+                  <th className={`${HEADER_CELL} border-nachtblau-50 ${reportStickyCell(2, 'bg-nachtblau-30', { edge: true })}`}>
+                    Aktuelles Jahr ({labels.current})
+                  </th>
                   <th className={`${HEADER_CELL} border-nachtblau-50`}>NRW-Ø ({labels.current})</th>
                   <th className={`${HEADER_CELL} border-nachtblau-50`}>% zu NRW-Ø</th>
                 </>
@@ -110,17 +114,25 @@ export function SchulabschluesseYearTable({
                   key={row.groupKey}
                   className={row.isSum ? 'bg-nachtblau-30/80 font-medium' : 'bg-white'}
                 >
-                  <td className={`${LABEL_CELL} border-slate-200 text-(--color-ink)`}>{row.groupLabel}</td>
+                  <td
+                    className={`${LABEL_CELL} border-slate-200 text-(--color-ink) ${reportStickyCell(1, row.isSum ? 'bg-nachtblau-30' : 'bg-white')}`}
+                  >
+                    {row.groupLabel}
+                  </td>
                   {showNrwComparison ? (
                     <>
-                      <td className={DATA_CELL}>{formatNumber(row.both)}</td>
+                      <td className={`${DATA_CELL} ${reportStickyCell(2, row.isSum ? 'bg-nachtblau-30' : 'bg-white', { edge: true })}`}>
+                        {formatNumber(row.both)}
+                      </td>
                       <td className={DATA_CELL}>{formatNumber(row.bothNrw)}</td>
                       <td className={DATA_CELL}>
                         <ChangeCell value={row.bothVsNrw ?? null} />
                       </td>
                     </>
                   ) : (
-                    <td className={DATA_CELL}>{formatNumber(row.both)}</td>
+                    <td className={`${DATA_CELL} ${reportStickyCell(2, row.isSum ? 'bg-nachtblau-30' : 'bg-white', { edge: true })}`}>
+                      {formatNumber(row.both)}
+                    </td>
                   )}
                   {genderMetrics.flatMap((metric, genderIndex) => [
                     <td key={`${genderIndex}-c`} className={DATA_CELL}>
@@ -151,7 +163,7 @@ export function SchulabschluesseYearTable({
             })}
           </tbody>
         </table>
-      </div>
+      </ReportScrollTable>
     </section>
   );
 }

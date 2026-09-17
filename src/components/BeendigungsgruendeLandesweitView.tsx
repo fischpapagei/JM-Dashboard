@@ -19,7 +19,7 @@ import {
   REGULAR_LEVEL,
   scopeJvaTerminationRecords,
 } from '../utils/beendigungsgruende';
-import { SCHULTEILNEHMENDE_ALTERSGRUPPEN } from '../utils/schulteilnehmende';
+import { selectedAltersgruppen, type SchulteilnehmendeAltersgruppe } from '../utils/schulteilnehmende';
 import {
   BeendigungsgruendeQuarterTable,
   BeendigungsgruendeYearTable,
@@ -36,6 +36,7 @@ interface BeendigungsgruendeLandesweitViewProps {
   exportRef: RefObject<HTMLDivElement | null>;
   onBack: () => void;
   jvaId?: string;
+  altersgruppe?: SchulteilnehmendeAltersgruppe;
 }
 
 export function BeendigungsgruendeLandesweitView({
@@ -44,6 +45,7 @@ export function BeendigungsgruendeLandesweitView({
   exportRef,
   onBack,
   jvaId,
+  altersgruppe,
 }: BeendigungsgruendeLandesweitViewProps) {
   const isJvaReport = Boolean(jvaId);
   const jvaName = jvaId ? (JVAS.find((jva) => jva.id === jvaId)?.name ?? jvaId) : null;
@@ -53,7 +55,7 @@ export function BeendigungsgruendeLandesweitView({
 
   const ageSections = useMemo(() => {
     if (!demoMode) return [];
-    return SCHULTEILNEHMENDE_ALTERSGRUPPEN.flatMap((ageGroup) => {
+    return selectedAltersgruppen(altersgruppe).flatMap((ageGroup) => {
       const present = isJvaReport ? getPresentTerminationAspects(records, ageGroup.key) : undefined;
       if (isJvaReport && (!present || present.reasonKeys.length === 0 || present.genders.length === 0)) {
         return [];
@@ -143,7 +145,7 @@ export function BeendigungsgruendeLandesweitView({
         },
       ];
     });
-  }, [berichtszeitpunkt, demoMode, isJvaReport, nrwRecords, records]);
+  }, [altersgruppe, berichtszeitpunkt, demoMode, isJvaReport, nrwRecords, records]);
 
   const freeTextEntries = useMemo(() => {
     if (!demoMode || completedYear == null) return [];
@@ -207,10 +209,13 @@ export function BeendigungsgruendeLandesweitView({
         <div>
           <h2 className="text-xl font-semibold text-(--color-ink)">{title}</h2>
           <p className="mt-1 text-sm text-slate-600">
-            {reportLabel}
-            {jvaName ? ` · ${jvaName}` : ''}
-            {' · '}Berichtszeitpunkt {formatReportingPeriodDisplay(berichtszeitpunkt)}
-            {completedYear != null ? ` · Jahresdaten ${completedYear}` : ''}
+            {[
+              isJvaReport ? null : reportLabel,
+              `Berichtszeitpunkt ${formatReportingPeriodDisplay(berichtszeitpunkt)}`,
+              completedYear != null ? `Jahresdaten ${completedYear}` : null,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
           </p>
         </div>
         <div className="flex items-center gap-2">

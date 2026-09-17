@@ -5,11 +5,13 @@ import type {
   TerminationYearRow,
 } from '../utils/beendigungsgruende';
 import { formatNumber, formatPercent } from '../utils/format';
+import { ReportScrollTable } from './ReportScrollTable';
 import {
   REPORT_DATA_CELL,
   REPORT_HEADER_CELL,
   REPORT_LABEL_CELL,
   REPORT_TABLE_CLASS,
+  reportStickyCell,
 } from './reportTableStyles';
 
 function ChangeCell({ value }: { value: number | null }) {
@@ -55,14 +57,17 @@ export function BeendigungsgruendeQuarterTable({
       <div className="border-b border-nachtblau-30 bg-nachtblau-15 px-4 py-3">
         <h3 className="text-sm font-semibold text-(--color-ink)">{title}</h3>
       </div>
-      <div className="w-full overflow-x-auto">
+      <ReportScrollTable>
         <table className={`${REPORT_TABLE_CLASS} text-[11px]`}>
           <thead>
             <tr className="bg-nachtblau-30 text-[10px] uppercase tracking-wide text-nachtblau">
-              <th className={`${HEADER_CELL} border-nachtblau-30`} rowSpan={2}>
+              <th className={`${HEADER_CELL} border-nachtblau-30 ${reportStickyCell(1, 'bg-nachtblau-30')}`} rowSpan={2}>
                 Beendigung
               </th>
-              <th className={`${HEADER_CELL} border-nachtblau-30`} rowSpan={2}>
+              <th
+                className={`${HEADER_CELL} border-nachtblau-30 ${reportStickyCell(2, 'bg-nachtblau-30', { edge: true })}`}
+                rowSpan={2}
+              >
                 Beendigungsgrund
               </th>
               <th
@@ -124,17 +129,23 @@ export function BeendigungsgruendeQuarterTable({
                 ...(showWeiblich ? [row.weiblich] : []),
                 ...(showMaennlich ? [row.maennlich] : []),
               ];
+              const stickyBg = row.isLevelSum ? 'bg-nachtblau-15' : 'bg-white';
               return (
                 <tr
                   key={`${row.levelKey}-${row.reasonKey ?? 'sum'}`}
                   className={row.isLevelSum ? 'bg-nachtblau-15/80 font-medium' : 'bg-white'}
                 >
                   {showLevel && (
-                    <td className={`${LABEL_CELL} border-slate-200 text-(--color-ink)`} rowSpan={span}>
+                    <td
+                      className={`${LABEL_CELL} border-slate-200 text-(--color-ink) ${reportStickyCell(1, stickyBg)}`}
+                      rowSpan={span}
+                    >
                       {row.levelLabel}
                     </td>
                   )}
-                  <td className={`${LABEL_CELL} border-slate-200`}>{row.reasonLabel}</td>
+                  <td className={`${LABEL_CELL} border-slate-200 ${reportStickyCell(2, stickyBg, { edge: true })}`}>
+                    {row.reasonLabel}
+                  </td>
                   <td className={DATA_CELL}>{formatNumber(row.both)}</td>
                   {showNrwComparison && (
                     <>
@@ -176,7 +187,7 @@ export function BeendigungsgruendeQuarterTable({
             })}
           </tbody>
         </table>
-      </div>
+      </ReportScrollTable>
     </section>
   );
 }
@@ -209,14 +220,17 @@ export function BeendigungsgruendeYearTable({
       <div className="border-b border-nachtblau-50 bg-nachtblau-30 px-4 py-3">
         <h3 className="text-sm font-semibold text-(--color-ink)">{title}</h3>
       </div>
-      <div className="w-full overflow-x-auto">
+      <ReportScrollTable>
         <table className={`${REPORT_TABLE_CLASS} text-[11px]`}>
           <thead>
             <tr className="bg-nachtblau-50 text-[10px] uppercase tracking-wide text-nachtblau">
-              <th className={`${HEADER_CELL} border-nachtblau-50`} rowSpan={2}>
+              <th className={`${HEADER_CELL} border-nachtblau-50 ${reportStickyCell(1, 'bg-nachtblau-50')}`} rowSpan={2}>
                 Beendigung
               </th>
-              <th className={`${HEADER_CELL} border-nachtblau-50`} rowSpan={2}>
+              <th
+                className={`${HEADER_CELL} border-nachtblau-50 ${reportStickyCell(2, 'bg-nachtblau-50', { edge: true })}`}
+                rowSpan={2}
+              >
                 Beendigungsgrund
               </th>
               <th
@@ -272,17 +286,23 @@ export function BeendigungsgruendeYearTable({
                 ...(showWeiblich ? [row.weiblich] : []),
                 ...(showMaennlich ? [row.maennlich] : []),
               ];
+              const stickyBg = row.isLevelSum ? 'bg-nachtblau-30' : 'bg-white';
               return (
                 <tr
                   key={`${row.levelKey}-${row.reasonKey ?? 'sum'}`}
                   className={row.isLevelSum ? 'bg-nachtblau-30/80 font-medium' : 'bg-white'}
                 >
                   {showLevel && (
-                    <td className={`${LABEL_CELL} border-slate-200 text-(--color-ink)`} rowSpan={span}>
+                    <td
+                      className={`${LABEL_CELL} border-slate-200 text-(--color-ink) ${reportStickyCell(1, stickyBg)}`}
+                      rowSpan={span}
+                    >
                       {row.levelLabel}
                     </td>
                   )}
-                  <td className={`${LABEL_CELL} border-slate-200`}>{row.reasonLabel}</td>
+                  <td className={`${LABEL_CELL} border-slate-200 ${reportStickyCell(2, stickyBg, { edge: true })}`}>
+                    {row.reasonLabel}
+                  </td>
                   {showNrwComparison ? (
                     <>
                       <td className={DATA_CELL}>{formatNumber(row.both)}</td>
@@ -320,7 +340,7 @@ export function BeendigungsgruendeYearTable({
             })}
           </tbody>
         </table>
-      </div>
+      </ReportScrollTable>
     </section>
   );
 }

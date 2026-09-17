@@ -21,6 +21,9 @@ export const CHART_GRID = NRW.nachtblau30;
 export const CHART_LINE = NRW.nachtblau;
 export const CHART_BAR = NRW.nachtblau;
 export const CHART_TREND = NRW.rot;
+/** Beendigungsgründe: regulär = Petrolgrün, alle übrigen = Grau. */
+export const CHART_TERMINATION_REGULAR = NRW.petrolgruen;
+export const CHART_TERMINATION_OTHER = NRW.schwarz50;
 
 export const CHART_GENDER = {
   weiblich: NRW.nachtblau,

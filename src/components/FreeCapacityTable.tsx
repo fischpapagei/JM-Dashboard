@@ -1,6 +1,7 @@
 import type { FreeCapacityRow } from "../types/domain";
 import { formatNumber } from "../utils/format";
 import { EmptyState } from "./EmptyState";
+import { ReportScrollTable } from "./ReportScrollTable";
 
 interface FreeCapacityTableProps {
   rows: FreeCapacityRow[];
@@ -12,12 +13,12 @@ export function FreeCapacityTable({ rows }: FreeCapacityTableProps) {
       <div className="border-b-2 border-(--color-border) px-4 py-3">
         <h3 className="kern-heading-small text-(--color-ink)">Tagesaktuell freie Plätze</h3>
       </div>
-      <div className="kern-table-responsive max-h-[280px] overflow-x-auto">
+      <ReportScrollTable className="kern-table-responsive max-h-[280px] overflow-y-auto">
         <table className="kern-table kern-table--small kern-table--striped dashboard-table">
           <thead>
             <tr className="kern-table__row">
-              <th className="kern-table__header">JVA</th>
-              <th className="kern-table__header">Maßnahmenkategorie</th>
+              <th className="kern-table__header report-sticky-1">JVA</th>
+              <th className="kern-table__header report-sticky-2 report-sticky-edge">Maßnahmenkategorie</th>
               <th className="kern-table__header">Geschlecht</th>
               <th className="kern-table__header">Haftform</th>
               <th className="kern-table__header">Altersgruppe</th>
@@ -36,8 +37,8 @@ export function FreeCapacityTable({ rows }: FreeCapacityTableProps) {
             ) : (
               rows.map((r, i) => (
                 <tr key={`${r.jvaId}-${i}`} className="kern-table__row">
-                  <td className="kern-table__cell">{r.jvaName}</td>
-                  <td className="kern-table__cell">{r.courseType}</td>
+                  <td className="kern-table__cell report-sticky-1">{r.jvaName}</td>
+                  <td className="kern-table__cell report-sticky-2 report-sticky-edge">{r.courseType}</td>
                   <td className="kern-table__cell">{r.geschlecht}</td>
                   <td className="kern-table__cell">{r.haftform}</td>
                   <td className="kern-table__cell">{r.altersgruppe ?? "—"}</td>
@@ -49,7 +50,7 @@ export function FreeCapacityTable({ rows }: FreeCapacityTableProps) {
             )}
           </tbody>
         </table>
-      </div>
+      </ReportScrollTable>
     </section>
   );
 }

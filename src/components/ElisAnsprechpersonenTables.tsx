@@ -4,11 +4,13 @@ import {
   ELIS_SICHERHEITSRAHMEN_COLUMNS,
 } from '../utils/elisAnsprechpersonen';
 import { EMPTY_VALUE_LABEL } from '../utils/format';
+import { ReportScrollTable } from './ReportScrollTable';
 import {
   REPORT_HEADER_CELL,
   REPORT_LABEL_CELL,
   REPORT_TABLE_CLASS,
   REPORT_TEXT_CELL,
+  reportStickyCell,
 } from './reportTableStyles';
 
 const LABEL_CELL = `${REPORT_LABEL_CELL} border-slate-300 text-[10px] text-(--color-ink)`;
@@ -29,14 +31,14 @@ export function ElisAnsprechpersonenTableView({ table }: ElisAnsprechpersonenTab
       <div className="border-b border-nachtblau-30 bg-nachtblau-15 px-4 py-3 text-center">
         <h3 className="text-sm font-semibold text-(--color-ink)">Elis (Stand {table.standLabel})</h3>
       </div>
-      <div className="w-full overflow-x-auto">
+      <ReportScrollTable>
         <table className={`${REPORT_TABLE_CLASS} text-[10px]`}>
           <thead>
             <tr>
-              <th className={HEADER_CELL} rowSpan={2}>
+              <th className={`${HEADER_CELL} ${reportStickyCell(1, 'bg-nachtblau-15')}`} rowSpan={2}>
                 Name der JVA (elis Verbünde)
               </th>
-              <th className={HEADER_CELL} rowSpan={2}>
+              <th className={`${HEADER_CELL} ${reportStickyCell(2, 'bg-nachtblau-15', { edge: true })}`} rowSpan={2}>
                 Name der Rektorin/ des Rektors
               </th>
               <th className={`${HEADER_CELL} text-center`} colSpan={ELIS_SICHERHEITSRAHMEN_COLUMNS.length}>
@@ -65,8 +67,12 @@ export function ElisAnsprechpersonenTableView({ table }: ElisAnsprechpersonenTab
           <tbody>
             {table.rows.map((row, index) => (
               <tr key={row.key} className={index % 2 === 1 ? 'bg-slate-100' : 'bg-white'}>
-                <td className={`${LABEL_CELL} font-medium`}>{row.jvaLabel}</td>
-                <td className={TEXT_CELL}>{blank(row.rektor)}</td>
+                <td className={`${LABEL_CELL} font-medium ${reportStickyCell(1, index % 2 === 1 ? 'bg-slate-100' : 'bg-white')}`}>
+                  {row.jvaLabel}
+                </td>
+                <td className={`${TEXT_CELL} ${reportStickyCell(2, index % 2 === 1 ? 'bg-slate-100' : 'bg-white', { edge: true })}`}>
+                  {blank(row.rektor)}
+                </td>
                 {ELIS_SICHERHEITSRAHMEN_COLUMNS.map((column) => (
                   <td key={`${row.key}-rahmen-${column.key}`} className={TEXT_CELL}>
                     {blank(row.sicherheitsrahmen[column.key])}
@@ -82,7 +88,7 @@ export function ElisAnsprechpersonenTableView({ table }: ElisAnsprechpersonenTab
             ))}
           </tbody>
         </table>
-      </div>
+      </ReportScrollTable>
     </section>
   );
 }

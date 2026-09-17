@@ -15,7 +15,8 @@ import {
   buildYearComparisonTable,
   filterRecordsByJva,
   getPresentCourseTypeKeys,
-  SCHULTEILNEHMENDE_ALTERSGRUPPEN,
+  selectedAltersgruppen,
+  type SchulteilnehmendeAltersgruppe,
 } from '../utils/schulteilnehmende';
 import { exportSchulteilnehmendeExcel } from '../utils/exportBerichteExcel';
 import { EmptyState } from './EmptyState';
@@ -31,6 +32,7 @@ interface SchulteilnehmendeLandesweitViewProps {
   exportRef: RefObject<HTMLDivElement | null>;
   onBack: () => void;
   jvaId?: string;
+  altersgruppe?: SchulteilnehmendeAltersgruppe;
 }
 
 export function SchulteilnehmendeLandesweitView({
@@ -39,6 +41,7 @@ export function SchulteilnehmendeLandesweitView({
   exportRef,
   onBack,
   jvaId,
+  altersgruppe,
 }: SchulteilnehmendeLandesweitViewProps) {
   const isJvaReport = Boolean(jvaId);
   const jvaName = jvaId ? (JVAS.find((jva) => jva.id === jvaId)?.name ?? jvaId) : null;
@@ -49,7 +52,7 @@ export function SchulteilnehmendeLandesweitView({
 
   const ageSections = useMemo(() => {
     if (!demoMode) return [];
-    return SCHULTEILNEHMENDE_ALTERSGRUPPEN.flatMap((ageGroup) => {
+    return selectedAltersgruppen(altersgruppe).flatMap((ageGroup) => {
       const presentCourseKeys = isJvaReport
         ? getPresentCourseTypeKeys(records, ageGroup.key)
         : undefined;
@@ -121,7 +124,7 @@ export function SchulteilnehmendeLandesweitView({
         },
       ];
     });
-  }, [berichtszeitpunkt, demoMode, endYear, isJvaReport, nrwRecords, records]);
+  }, [altersgruppe, berichtszeitpunkt, demoMode, endYear, isJvaReport, nrwRecords, records]);
 
   const handlePdf = async () => {
     if (!exportRef.current) {
@@ -176,10 +179,13 @@ export function SchulteilnehmendeLandesweitView({
         <div>
           <h2 className="text-xl font-semibold text-(--color-ink)">{title}</h2>
           <p className="mt-1 text-sm text-slate-600">
-            {reportLabel}
-            {jvaName ? ` · ${jvaName}` : ''}
-            {' · '}Berichtszeitpunkt {formatReportingPeriodDisplay(berichtszeitpunkt)}
-            {completedYear != null ? ` · Jahresdaten ${completedYear}` : ''}
+            {[
+              isJvaReport ? null : reportLabel,
+              `Berichtszeitpunkt ${formatReportingPeriodDisplay(berichtszeitpunkt)}`,
+              completedYear != null ? `Jahresdaten ${completedYear}` : null,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
           </p>
         </div>
         <div className="flex items-center gap-2">

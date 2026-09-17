@@ -2,6 +2,7 @@ import type { JvaTableRow } from '../types/domain';
 import type { SchulischeBildungKpis } from '../utils/aggregations';
 import { formatNumber, formatPercent } from '../utils/format';
 import { EmptyState } from './EmptyState';
+import { ReportScrollTable } from './ReportScrollTable';
 
 interface NrwJahresberichtViewProps {
   kpis: SchulischeBildungKpis;
@@ -71,12 +72,12 @@ export function NrwJahresberichtView({ kpis, jvaRows, demoMode }: NrwJahresberic
           <h3 className="kern-heading-small text-(--color-ink)">Vergleich nach JVA</h3>
           <p className="kern-body kern-body--small text-(--color-muted)">Tabellarische Aufschlüsselung aller Anstalten</p>
         </div>
-        <div className="overflow-x-auto max-h-[420px] overflow-y-auto">
+        <ReportScrollTable className="max-h-[420px] overflow-y-auto">
           <table className="kern-table kern-table--small kern-table--striped dashboard-table">
             <thead>
               <tr className="kern-table__row">
-                <th className="kern-table__header">JVA</th>
-                <th className="kern-table__header">Teilnehmende</th>
+                <th className="kern-table__header report-sticky-1">JVA</th>
+                <th className="kern-table__header report-sticky-2 report-sticky-edge">Teilnehmende</th>
                 <th className="kern-table__header">Soll-Plätze</th>
                 <th className="kern-table__header">Auslastung</th>
                 <th className="kern-table__header">Freie Plätze</th>
@@ -99,8 +100,8 @@ export function NrwJahresberichtView({ kpis, jvaRows, demoMode }: NrwJahresberic
               ) : (
                 jvaRows.map((row) => (
                   <tr key={row.jvaId} className="kern-table__row">
-                    <td className="kern-table__cell">{row.jvaName}</td>
-                    <td className="kern-table__cell">{formatNumber(row.participants)}</td>
+                    <td className="kern-table__cell report-sticky-1">{row.jvaName}</td>
+                    <td className="kern-table__cell report-sticky-2 report-sticky-edge">{formatNumber(row.participants)}</td>
                     <td className="kern-table__cell">{formatNumber(row.targetPlaces)}</td>
                     <td className="kern-table__cell">{formatPercent(row.utilization)}</td>
                     <td className="kern-table__cell">{formatNumber(row.freePlaces)}</td>
@@ -110,7 +111,7 @@ export function NrwJahresberichtView({ kpis, jvaRows, demoMode }: NrwJahresberic
               )}
             </tbody>
           </table>
-        </div>
+        </ReportScrollTable>
       </section>
     </div>
   );

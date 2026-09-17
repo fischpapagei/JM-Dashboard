@@ -7,6 +7,7 @@ import {
   buildKursangeboteSections,
 } from '../utils/kursangebote';
 import { exportKursangeboteExcel } from '../utils/exportBerichteExcel';
+import type { SchulteilnehmendeAltersgruppe } from '../utils/schulteilnehmende';
 import { EmptyState } from './EmptyState';
 import { ExcelExportButton } from './ExcelExportButton';
 import { KurzberichtButton } from './KurzberichtButton';
@@ -18,6 +19,7 @@ interface KursangeboteLandesweitViewProps {
   exportRef: RefObject<HTMLDivElement | null>;
   onBack: () => void;
   showExternalColumn: boolean;
+  altersgruppe?: SchulteilnehmendeAltersgruppe;
 }
 
 export function KursangeboteLandesweitView({
@@ -26,11 +28,12 @@ export function KursangeboteLandesweitView({
   exportRef,
   onBack,
   showExternalColumn,
+  altersgruppe,
 }: KursangeboteLandesweitViewProps) {
   const year = brochureYearFromBerichtszeitpunkt(berichtszeitpunkt);
   const sections = useMemo(
-    () => (demoMode ? buildKursangeboteSections(demoRecords, berichtszeitpunkt) : []),
-    [berichtszeitpunkt, demoMode],
+    () => (demoMode ? buildKursangeboteSections(demoRecords, berichtszeitpunkt, { altersgruppe }) : []),
+    [altersgruppe, berichtszeitpunkt, demoMode],
   );
 
   const handlePdf = async () => {

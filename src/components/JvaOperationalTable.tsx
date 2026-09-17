@@ -1,6 +1,7 @@
 import type { JvaOperationalRow } from "../utils/aggregations";
 import { formatNumber } from "../utils/format";
 import { EmptyState } from "./EmptyState";
+import { ReportScrollTable } from "./ReportScrollTable";
 
 interface JvaOperationalTableProps {
   rows: JvaOperationalRow[];
@@ -14,12 +15,12 @@ export function JvaOperationalTable({ rows, onSelectJva }: JvaOperationalTablePr
         <h3 className="kern-heading-small text-(--color-ink)">Personal & eLis nach Anstalt</h3>
         <p className="kern-body kern-body--small text-(--color-muted)">Landesweite Aufschlüsselung aller JVAen</p>
       </div>
-      <div className="kern-table-responsive max-h-[280px] overflow-x-auto overflow-y-auto">
+      <ReportScrollTable className="kern-table-responsive max-h-[280px] overflow-y-auto">
         <table className="kern-table kern-table--small kern-table--striped dashboard-table">
           <thead>
             <tr className="kern-table__row">
-              <th className="kern-table__header">JVA</th>
-              <th className="kern-table__header">Stellen</th>
+              <th className="kern-table__header report-sticky-1">JVA</th>
+              <th className="kern-table__header report-sticky-2 report-sticky-edge">Stellen</th>
               <th className="kern-table__header">Besetzt</th>
               <th className="kern-table__header">Extern</th>
               <th className="kern-table__header">eLis Lernplätze</th>
@@ -42,8 +43,8 @@ export function JvaOperationalTable({ rows, onSelectJva }: JvaOperationalTablePr
                   className={`kern-table__row ${onSelectJva ? "cursor-pointer hover:bg-nachtblau-15" : ""}`}
                   onClick={() => onSelectJva?.(row.jvaId)}
                 >
-                  <td className="kern-table__cell font-semibold text-(--color-ink)">{row.jvaName}</td>
-                  <td className="kern-table__cell">{formatNumber(row.paedStellen)}</td>
+                  <td className="kern-table__cell font-semibold text-(--color-ink) report-sticky-1">{row.jvaName}</td>
+                  <td className="kern-table__cell report-sticky-2 report-sticky-edge">{formatNumber(row.paedStellen)}</td>
                   <td className="kern-table__cell">{formatNumber(row.paedBesetzt)}</td>
                   <td className="kern-table__cell">{formatNumber(row.paedExtern)}</td>
                   <td className="kern-table__cell">{formatNumber(row.elisLernplaetze)}</td>
@@ -55,7 +56,7 @@ export function JvaOperationalTable({ rows, onSelectJva }: JvaOperationalTablePr
             )}
           </tbody>
         </table>
-      </div>
+      </ReportScrollTable>
     </section>
   );
 }

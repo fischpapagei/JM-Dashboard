@@ -2,27 +2,42 @@ import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
   audienceFromScope,
+  complementaryReportLabel,
+  ERGAENZENDE_JVA_NAV_LABEL,
+  ERGAENZENDE_LANDESWEIT_NAV_LABEL,
+  getAvailableJvaBerichtAltersgruppen,
   getReportByKey,
   getReportsForRoleAndAudience,
+  hasBerichtAltersgruppe,
+  isErgaenzenderBericht,
+  isErgaenzenderJvaReport,
+  isErgaenzenderLandesweitReport,
   isInlinePreviewReport,
+  isYearOnlyBericht,
+  JVA_BERICHT_ALTERSGRUPPE_OPTIONS,
   REPORT_FORMAT_LABELS,
   type ReportAudience,
   type ReportDefinition,
   type ReportKey,
 } from '../data/reports';
-import { JVAS } from '../data/jvas';
+import { getJvaById, JVAS } from '../data/jvas';
 import type { KennzahlenLaunchContext, LandesweitReportVariant, BerichtAltersgruppeFilter } from '../types/app';
 import { BERICHT_ALTERSGRUPPE_OPTIONS, LANDESWEIT_REPORT_VARIANT_LABELS } from '../types/app';
 import {
+  berichtszeitpunktForReport,
   ENTWICKLUNG_ZEITRAUM_OPTIONS,
   getBerichtszeitpunktOptions,
   getCompletedQuarterOptions,
+  getCompletedYearOptions,
   getDefaultBerichtszeitpunkt,
+  getDefaultCompletedYear,
   berichtszeitpunktToReportingPeriod,
   LATEST_COMPLETED_QUARTER,
+  LATEST_PERIOD,
+  REPORTING_PERIODS,
   type EntwicklungZeitraum,
 } from '../utils/periods';
-import { LATEST_PERIOD, REPORTING_PERIODS } from '../utils/periods';
+import type { SchulteilnehmendeAltersgruppe } from '../utils/schulteilnehmende';
 import { SchulteilnehmendeLandesweitView } from './SchulteilnehmendeLandesweitView';
 import { AuslastungsquoteLandesweitView } from './AuslastungsquoteLandesweitView';
 import { BeendigungsgruendeLandesweitView } from './BeendigungsgruendeLandesweitView';
@@ -74,7 +89,7 @@ const AUDIENCE_COPY: Record<
   },
   ministry: {
     title: 'Ministeriumsberichte',
-    description: 'Landesweite Berichte für das Justizministerium, FB Pädagogik und ZBI.',
+    description: 'Landesweite Berichte für das Ministerium der Justiz NRW, FB Pädagogik und ZBI.',
     hint: 'Zu den Ministeriumsberichten',
   },
 };
@@ -118,6 +133,18 @@ export function BerichteApp({ onBackToLanding, onLogout, onLaunchReport }: Beric
     return [];
   }, [audience, jvaReports, ministryReports]);
 
+  const complementaryJvaReports = useMemo(
+    () => jvaReports.filter((report) => isErgaenzenderJvaReport(report.key)),
+    [jvaReports],
+  );
+  const complementaryLandesweitReports = useMemo(
+    () => ministryReports.filter((report) => isErgaenzenderLandesweitReport(report.key)),
+    [ministryReports],
+  );
+
+  const isJvaRole = user?.role === 'jva';
+  const effectiveJvaId = isJvaRole && user?.jvaId ? user.jvaId : jvaId;
+
   useEffect(() => {
     if (!audience) {
       setSelectedKey(null);
@@ -127,12 +154,24 @@ export function BerichteApp({ onBackToLanding, onLogout, onLaunchReport }: Beric
     setSelectedKey(visibleReports[0]?.key ?? null);
   }, [audience, selectedKey, visibleReports]);
 
+  useEffect(() => {
+    if (!selectedKey || !hasBerichtAltersgruppe(selectedKey)) return;
+    if (isErgaenzenderJvaReport(selectedKey)) {
+      const jva = getJvaById(effectiveJvaId);
+      const available = getAvailableJvaBerichtAltersgruppen(jva?.altersgruppe);
+      if (!available.some((option) => option.value === altersgruppe)) {
+        setAltersgruppe(available[0]?.value ?? 'Erwachsenenvollzug');
+      }
+      return;
+    }
+    if (altersgruppe === 'alle') {
+      setAltersgruppe('Erwachsenenvollzug');
+    }
+  }, [altersgruppe, effectiveJvaId, selectedKey]);
+
   const selectedReport = selectedKey ? getReportByKey(selectedKey) : undefined;
 
   if (!user) return null;
-
-  const isJvaRole = user.role === 'jva';
-  const effectiveJvaId = isJvaRole && user.jvaId ? user.jvaId : jvaId;
 
   const selectAudience = (next: ReportAudience) => {
     setShowInlinePreview(false);
@@ -142,13 +181,52 @@ export function BerichteApp({ onBackToLanding, onLogout, onLaunchReport }: Beric
 
   const selectReport = (report: ReportDefinition) => {
     const nextAudience = audienceFromScope(report.scope);
+    const stayingInJva =
+      selectedKey != null &&
+      isErgaenzenderJvaReport(selectedKey) &&
+      isErgaenzenderJvaReport(report.key);
+    const stayingInLandesweit =
+      selectedKey != null &&
+      isErgaenzenderLandesweitReport(selectedKey) &&
+      isErgaenzenderLandesweitReport(report.key);
     setShowInlinePreview(false);
     setAudience(nextAudience);
     setExpandedAudiences((prev) => ({ ...prev, [nextAudience]: true }));
     setSelectedKey(report.key);
     if (isInlinePreviewReport(report.key)) {
-      setBerichtszeitpunkt(LATEST_COMPLETED_QUARTER);
+      setBerichtszeitpunkt((current) => {
+        if (stayingInJva || stayingInLandesweit) {
+          return berichtszeitpunktForReport(current, isYearOnlyBericht(report.key));
+        }
+        return isYearOnlyBericht(report.key)
+          ? getDefaultCompletedYear()
+          : LATEST_COMPLETED_QUARTER;
+      });
     }
+  };
+
+  const selectComplementaryJva = () => {
+    setShowInlinePreview(false);
+    setAudience('jva');
+    setExpandedAudiences((prev) => ({ ...prev, jva: true }));
+    if (selectedKey && isErgaenzenderJvaReport(selectedKey)) return;
+    const first = complementaryJvaReports[0];
+    if (!first) return;
+    setSelectedKey(first.key);
+    setBerichtszeitpunkt(LATEST_COMPLETED_QUARTER);
+  };
+
+  const selectComplementaryLandesweit = () => {
+    setShowInlinePreview(false);
+    setAudience('ministry');
+    setExpandedAudiences((prev) => ({ ...prev, ministry: true }));
+    if (selectedKey && isErgaenzenderLandesweitReport(selectedKey)) return;
+    const first = complementaryLandesweitReports[0];
+    if (!first) return;
+    setSelectedKey(first.key);
+    setBerichtszeitpunkt(
+      isYearOnlyBericht(first.key) ? getDefaultCompletedYear() : LATEST_COMPLETED_QUARTER,
+    );
   };
 
   const toggleAudience = (key: ReportAudience) => {
@@ -219,7 +297,11 @@ export function BerichteApp({ onBackToLanding, onLogout, onLaunchReport }: Beric
   if (audience && selectedReport) {
     breadcrumbItems.push({
       id: 'report',
-      label: selectedReport.title,
+      label: isErgaenzenderJvaReport(selectedReport.key)
+        ? ERGAENZENDE_JVA_NAV_LABEL
+        : isErgaenzenderLandesweitReport(selectedReport.key)
+          ? ERGAENZENDE_LANDESWEIT_NAV_LABEL
+          : selectedReport.title,
       onSelect: showInlinePreview ? () => setShowInlinePreview(false) : undefined,
     });
   }
@@ -284,17 +366,50 @@ export function BerichteApp({ onBackToLanding, onLogout, onLaunchReport }: Beric
               </div>
               {expanded ? (
                 <div className="mt-1 flex flex-col gap-1">
-                  {group.reports.map((report) => (
-                    <KernButton
-                      key={report.key}
-                      type="button"
-                      variant={selectedKey === report.key ? 'primary' : 'tertiary'}
-                      label={report.title}
-                      block
-                      className="justiz-sidebar__sub"
-                      onClick={() => selectReport(report)}
-                    />
-                  ))}
+                  {group.reports.map((report) => {
+                    if (group.key === 'jva' && isErgaenzenderJvaReport(report.key)) {
+                      if (report.key !== complementaryJvaReports[0]?.key) return null;
+                      const groupActive = selectedKey != null && isErgaenzenderJvaReport(selectedKey);
+                      return (
+                        <KernButton
+                          key="ergaenzende-jva"
+                          type="button"
+                          variant={groupActive ? 'primary' : 'tertiary'}
+                          label={ERGAENZENDE_JVA_NAV_LABEL}
+                          block
+                          className="justiz-sidebar__sub"
+                          onClick={selectComplementaryJva}
+                        />
+                      );
+                    }
+                    if (group.key === 'ministry' && isErgaenzenderLandesweitReport(report.key)) {
+                      if (report.key !== complementaryLandesweitReports[0]?.key) return null;
+                      const groupActive =
+                        selectedKey != null && isErgaenzenderLandesweitReport(selectedKey);
+                      return (
+                        <KernButton
+                          key="ergaenzende-landesweit"
+                          type="button"
+                          variant={groupActive ? 'primary' : 'tertiary'}
+                          label={ERGAENZENDE_LANDESWEIT_NAV_LABEL}
+                          block
+                          className="justiz-sidebar__sub"
+                          onClick={selectComplementaryLandesweit}
+                        />
+                      );
+                    }
+                    return (
+                      <KernButton
+                        key={report.key}
+                        type="button"
+                        variant={selectedKey === report.key ? 'primary' : 'tertiary'}
+                        label={report.title}
+                        block
+                        className="justiz-sidebar__sub"
+                        onClick={() => selectReport(report)}
+                      />
+                    );
+                  })}
                 </div>
               ) : null}
             </div>
@@ -313,6 +428,11 @@ export function BerichteApp({ onBackToLanding, onLogout, onLaunchReport }: Beric
               exportRef={inlineExportRef}
               effectiveJvaId={effectiveJvaId}
               showExternalColumn={user.role === 'ministry'}
+              altersgruppe={
+                selectedKey && hasBerichtAltersgruppe(selectedKey) && altersgruppe !== 'alle'
+                  ? altersgruppe
+                  : undefined
+              }
               onBack={() => setShowInlinePreview(false)}
             />
           </div>
@@ -343,6 +463,17 @@ export function BerichteApp({ onBackToLanding, onLogout, onLaunchReport }: Beric
                 onEntwicklungZeitraumChange={setEntwicklungZeitraum}
                 berichtszeitpunkt={berichtszeitpunkt}
                 onBerichtszeitpunktChange={setBerichtszeitpunkt}
+                complementaryReports={
+                  isErgaenzenderLandesweitReport(selectedReport.key)
+                    ? complementaryLandesweitReports
+                    : complementaryJvaReports
+                }
+                onComplementaryReportChange={(key) => {
+                  setSelectedKey(key);
+                  setBerichtszeitpunkt((current) =>
+                    berichtszeitpunktForReport(current, isYearOnlyBericht(key)),
+                  );
+                }}
                 onLaunch={handleLaunch}
                 onShowInlinePreview={() => {
                   setBerichtszeitpunkt((current) =>
@@ -373,6 +504,7 @@ function BerichteInlinePreview({
   exportRef,
   effectiveJvaId,
   showExternalColumn,
+  altersgruppe,
   onBack,
 }: {
   selectedKey: ReportKey;
@@ -381,6 +513,7 @@ function BerichteInlinePreview({
   exportRef: RefObject<HTMLDivElement | null>;
   effectiveJvaId: string;
   showExternalColumn: boolean;
+  altersgruppe?: SchulteilnehmendeAltersgruppe;
   onBack: () => void;
 }) {
   if (selectedKey === 'elis-ansprechpersonen') {
@@ -430,6 +563,7 @@ function BerichteInlinePreview({
         demoMode={demoMode}
         exportRef={exportRef}
         onBack={onBack}
+        altersgruppe={altersgruppe}
       />
     );
   }
@@ -441,6 +575,7 @@ function BerichteInlinePreview({
         exportRef={exportRef}
         onBack={onBack}
         showExternalColumn={showExternalColumn}
+        altersgruppe={altersgruppe}
       />
     );
   }
@@ -452,6 +587,7 @@ function BerichteInlinePreview({
         exportRef={exportRef}
         onBack={onBack}
         jvaId={selectedKey === 'schulabschluesse-jva' ? effectiveJvaId : undefined}
+        altersgruppe={hasBerichtAltersgruppe(selectedKey) ? altersgruppe : undefined}
       />
     );
   }
@@ -463,6 +599,7 @@ function BerichteInlinePreview({
         exportRef={exportRef}
         onBack={onBack}
         jvaId={selectedKey === 'beendigungsgruende-jva' ? effectiveJvaId : undefined}
+        altersgruppe={hasBerichtAltersgruppe(selectedKey) ? altersgruppe : undefined}
       />
     );
   }
@@ -474,6 +611,7 @@ function BerichteInlinePreview({
         exportRef={exportRef}
         onBack={onBack}
         jvaId={selectedKey === 'auslastungsquote-jva' ? effectiveJvaId : undefined}
+        altersgruppe={hasBerichtAltersgruppe(selectedKey) ? altersgruppe : undefined}
       />
     );
   }
@@ -484,6 +622,7 @@ function BerichteInlinePreview({
       exportRef={exportRef}
       onBack={onBack}
       jvaId={selectedKey === 'schulteilnehmende-jva' ? effectiveJvaId : undefined}
+      altersgruppe={hasBerichtAltersgruppe(selectedKey) ? altersgruppe : undefined}
     />
   );
 }
@@ -566,6 +705,8 @@ function ReportConfiguration({
   onEntwicklungZeitraumChange,
   berichtszeitpunkt,
   onBerichtszeitpunktChange,
+  complementaryReports,
+  onComplementaryReportChange,
   onLaunch,
   onShowInlinePreview,
 }: {
@@ -585,26 +726,45 @@ function ReportConfiguration({
   onEntwicklungZeitraumChange: (value: EntwicklungZeitraum) => void;
   berichtszeitpunkt: string;
   onBerichtszeitpunktChange: (value: string) => void;
+  complementaryReports: ReportDefinition[];
+  onComplementaryReportChange: (key: ReportKey) => void;
   onLaunch: () => void;
   onShowInlinePreview: () => void;
 }) {
   const isAvailable = report.status === 'available';
   const isLandesweitReport = report.key === 'schulischer-bildungsbericht-landesweit';
+  const isComplementaryJva = isErgaenzenderJvaReport(report.key);
+  const isComplementaryLandesweit = isErgaenzenderLandesweitReport(report.key);
+  const isComplementaryGroup = isErgaenzenderBericht(report.key);
+  const isYearOnly = isYearOnlyBericht(report.key);
+  const showAltersgruppe = hasBerichtAltersgruppe(report.key);
   const isInlinePreview = isInlinePreviewReport(report.key);
   const hasExcel = report.formats.includes('excel');
   const isEntwicklungReport = isLandesweitReport && landesweitReportVariant === 'entwicklung';
-  const berichtszeitpunktOptions = useMemo(
-    () =>
-      isInlinePreview
-        ? getCompletedQuarterOptions()
-        : getBerichtszeitpunktOptions(entwicklungZeitraum),
-    [entwicklungZeitraum, isInlinePreview],
-  );
+  const selectedJva = getJvaById(jvaId);
+  const availableAltersgruppen = isComplementaryJva
+    ? getAvailableJvaBerichtAltersgruppen(selectedJva?.altersgruppe)
+    : JVA_BERICHT_ALTERSGRUPPE_OPTIONS;
+  const effectiveAltersgruppe =
+    altersgruppe === 'alle'
+      ? (availableAltersgruppen[0]?.value ?? 'Erwachsenenvollzug')
+      : altersgruppe;
+  const selectedAltersgruppeLabel =
+    JVA_BERICHT_ALTERSGRUPPE_OPTIONS.find((option) => option.value === effectiveAltersgruppe)
+      ?.label ?? 'ausgewählte Altersgruppe';
+  const berichtszeitpunktOptions = useMemo(() => {
+    if (isInlinePreview) {
+      return isYearOnly ? getCompletedYearOptions() : getCompletedQuarterOptions();
+    }
+    return getBerichtszeitpunktOptions(entwicklungZeitraum);
+  }, [entwicklungZeitraum, isInlinePreview, isYearOnly]);
 
   useEffect(() => {
     if (!isEntwicklungReport && !isInlinePreview) return;
     const defaultValue = isInlinePreview
-      ? LATEST_COMPLETED_QUARTER
+      ? isYearOnly
+        ? getDefaultCompletedYear()
+        : LATEST_COMPLETED_QUARTER
       : getDefaultBerichtszeitpunkt(entwicklungZeitraum);
     const isValid = berichtszeitpunktOptions.some((option) => option.value === berichtszeitpunkt);
     if (!isValid) {
@@ -616,6 +776,7 @@ function ReportConfiguration({
     entwicklungZeitraum,
     isEntwicklungReport,
     isInlinePreview,
+    isYearOnly,
     onBerichtszeitpunktChange,
   ]);
   const jvaOptions = useMemo(
@@ -624,6 +785,19 @@ function ReportConfiguration({
   );
 
   const reportContents = useMemo(() => {
+    if (isComplementaryJva) {
+      return [
+        `Nur die ausgewählte Altersgruppe (${selectedAltersgruppeLabel}) sowie die in der Anstalt vorhandenen Angebote`,
+        ...report.contents.slice(1),
+      ];
+    }
+    if (isComplementaryLandesweit && showAltersgruppe) {
+      return [
+        `Nur die ausgewählte Altersgruppe (${selectedAltersgruppeLabel}) wird dargestellt`,
+        ...report.contents.slice(1),
+      ];
+    }
+    if (isComplementaryLandesweit) return report.contents;
     if (!isLandesweitReport) return report.contents;
 
     if (landesweitReportVariant === 'jahresbericht') {
@@ -641,12 +815,26 @@ function ReportConfiguration({
       'Entwicklung der Auslastungsquote',
       'Beendigungsgründe',
     ];
-  }, [isLandesweitReport, landesweitReportVariant, report.contents]);
+  }, [
+    isComplementaryJva,
+    isComplementaryLandesweit,
+    isLandesweitReport,
+    landesweitReportVariant,
+    report.contents,
+    selectedAltersgruppeLabel,
+    showAltersgruppe,
+  ]);
 
   return (
     <>
-      <KernHeading level={1}>{report.title}</KernHeading>
-      <KernText>{report.description}</KernText>
+      <KernHeading level={1}>
+        {isComplementaryJva
+          ? ERGAENZENDE_JVA_NAV_LABEL
+          : isComplementaryLandesweit
+            ? ERGAENZENDE_LANDESWEIT_NAV_LABEL
+            : report.title}
+      </KernHeading>
+      {isComplementaryGroup ? null : <KernText>{report.description}</KernText>}
       <KernSpace size="small" />
       {isAvailable ? (
         <KernBadge label="Verfügbar" variant="success" />
@@ -654,9 +842,34 @@ function ReportConfiguration({
         <KernBadge label="Geplant" variant="warning" />
       )}
       <KernSpace size="large" />
+      {isComplementaryGroup ? (
+        <>
+          <KernSelect
+            id="ergaenzender-bericht"
+            label="Bericht"
+            value={report.key}
+            onChange={(event) => onComplementaryReportChange(event.target.value as ReportKey)}
+          >
+            {complementaryReports.map((item) => (
+              <option key={item.key} value={item.key}>
+                {complementaryReportLabel(item)}
+              </option>
+            ))}
+          </KernSelect>
+          <KernSpace size="large" />
+        </>
+      ) : null}
       <KernCard
         title="Konfiguration"
-        subline="Zeitraum und Ausgabe"
+        subline={
+          isComplementaryJva
+            ? 'Anstalt, Zeitraum und Altersgruppe'
+            : isComplementaryLandesweit && showAltersgruppe
+              ? 'Zeitraum und Altersgruppe'
+              : isComplementaryLandesweit
+                ? 'Zeitraum'
+                : 'Zeitraum und Ausgabe'
+        }
         footer={
           isAvailable ? (
             <KernButton
@@ -669,6 +882,24 @@ function ReportConfiguration({
           ) : undefined
         }
       >
+        {isComplementaryJva && showJvaSelect ? (
+          <>
+            <KernSelect
+              id="jva"
+              label="Justizvollzugsanstalt"
+              value={jvaId}
+              onChange={(event) => onJvaIdChange(event.target.value)}
+            >
+              {jvaOptions.map((jva) => (
+                <option key={jva.id} value={jva.id}>
+                  {jva.name}
+                </option>
+              ))}
+            </KernSelect>
+            <KernSpace size="default" />
+          </>
+        ) : null}
+
         {isLandesweitReport ? (
           <>
             <KernSelect
@@ -711,7 +942,11 @@ function ReportConfiguration({
             <KernSelect
               id="berichtszeitpunkt"
               label="Berichtszeitpunkt"
-              hint="Nur abgeschlossene Quartale. Der Verlauf wird rückwärts ab diesem Stichtag ausgewertet."
+              hint={
+                isYearOnly
+                  ? 'Jährliche Abfrage. Es kann nur ein abgeschlossenes Kalenderjahr ausgewählt werden.'
+                  : 'Nur abgeschlossene Quartale. Der Verlauf wird rückwärts ab diesem Stichtag ausgewertet.'
+              }
               value={berichtszeitpunkt}
               onChange={(event) => onBerichtszeitpunktChange(event.target.value)}
             >
@@ -770,17 +1005,51 @@ function ReportConfiguration({
           </>
         )}
 
-        <div>
-          <p className="kern-label">Ausgabeformat</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {report.formats.map((format) => (
-              <KernBadge key={format} label={REPORT_FORMAT_LABELS[format]} variant="info" />
-            ))}
-          </div>
-        </div>
-        <KernSpace size="default" />
+        {showAltersgruppe ? (
+          <>
+            <KernSelect
+              id="altersgruppe-jva"
+              label="Altersgruppe"
+              hint={
+                isComplementaryJva &&
+                availableAltersgruppen.length < JVA_BERICHT_ALTERSGRUPPE_OPTIONS.length
+                  ? 'Nur Altersgruppen, die in der Anstalt vorkommen, sind auswählbar.'
+                  : undefined
+              }
+              value={altersgruppe === 'alle' ? (availableAltersgruppen[0]?.value ?? 'Erwachsenenvollzug') : altersgruppe}
+              onChange={(event) =>
+                onAltersgruppeChange(event.target.value as BerichtAltersgruppeFilter)
+              }
+            >
+              {JVA_BERICHT_ALTERSGRUPPE_OPTIONS.map((option) => (
+                <option
+                  key={option.value}
+                  value={option.value}
+                  disabled={!availableAltersgruppen.some((item) => item.value === option.value)}
+                >
+                  {option.label}
+                </option>
+              ))}
+            </KernSelect>
+            <KernSpace size="default" />
+          </>
+        ) : null}
 
-        {showJvaSelect ? (
+        {isComplementaryGroup ? null : (
+          <>
+            <div>
+              <p className="kern-label">Ausgabeformat</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {report.formats.map((format) => (
+                  <KernBadge key={format} label={REPORT_FORMAT_LABELS[format]} variant="info" />
+                ))}
+              </div>
+            </div>
+            <KernSpace size="default" />
+          </>
+        )}
+
+        {showJvaSelect && !isComplementaryJva ? (
           <>
             <KernSelect
               id="jva"

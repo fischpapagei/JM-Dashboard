@@ -4,6 +4,7 @@ import { generateKurzberichtPdf } from '../utils/generateKurzberichtPdf';
 import { formatReportingPeriodDisplay } from '../utils/periods';
 import { buildSollplatzVeraenderungTable } from '../utils/sollplatzVeraenderung';
 import { exportSollplatzVeraenderungExcel } from '../utils/exportBerichteExcel';
+import type { SchulteilnehmendeAltersgruppe } from '../utils/schulteilnehmende';
 import { EmptyState } from './EmptyState';
 import { ExcelExportButton } from './ExcelExportButton';
 import { KurzberichtButton } from './KurzberichtButton';
@@ -14,6 +15,7 @@ interface SollplatzVeraenderungViewProps {
   demoMode: boolean;
   exportRef: RefObject<HTMLDivElement | null>;
   onBack: () => void;
+  altersgruppe?: SchulteilnehmendeAltersgruppe;
 }
 
 export function SollplatzVeraenderungView({
@@ -21,10 +23,14 @@ export function SollplatzVeraenderungView({
   demoMode,
   exportRef,
   onBack,
+  altersgruppe,
 }: SollplatzVeraenderungViewProps) {
   const table = useMemo(
-    () => (demoMode ? buildSollplatzVeraenderungTable(demoRecords, berichtszeitpunkt) : null),
-    [berichtszeitpunkt, demoMode],
+    () =>
+      demoMode
+        ? buildSollplatzVeraenderungTable(demoRecords, berichtszeitpunkt, { altersgruppe })
+        : null,
+    [altersgruppe, berichtszeitpunkt, demoMode],
   );
 
   const handlePdf = async () => {

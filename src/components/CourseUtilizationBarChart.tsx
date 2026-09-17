@@ -189,6 +189,7 @@ export function CourseUtilizationBarChart({
             fill={CHART_BAR}
             radius={[0, 4, 4, 0]}
             maxBarSize={maxBarSize}
+            isAnimationActive={!pdfExportMode}
             label={(props) => renderBarPercentLabel(props, density)}
           />
         </BarChart>

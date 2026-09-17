@@ -1,10 +1,12 @@
 import type { ElisMandantRow, ElisRaumeTable } from '../utils/elisRaume';
 import { EMPTY_VALUE_LABEL, formatNumber } from '../utils/format';
+import { ReportScrollTable } from './ReportScrollTable';
 import {
   REPORT_DATA_CELL,
   REPORT_HEADER_CELL,
   REPORT_LABEL_CELL,
   REPORT_TABLE_CLASS,
+  reportStickyCell,
 } from './reportTableStyles';
 
 const LABEL_CELL = `${REPORT_LABEL_CELL} border-slate-300 text-[10px] text-(--color-ink)`;
@@ -52,11 +54,11 @@ export function ElisRaumeTableView({ table }: ElisRaumeTableProps) {
           Elis Räume und Mandantschaften (Stand {table.standLabel})
         </h3>
       </div>
-      <div className="w-full overflow-x-auto">
+      <ReportScrollTable>
         <table className={`${REPORT_TABLE_CLASS} text-[10px]`}>
           <thead>
             <tr>
-              <th className={HEADER_CELL} rowSpan={2}>
+              <th className={`${HEADER_CELL} ${reportStickyCell(1, 'bg-nachtblau-15')}`} rowSpan={2}>
                 Name der JVA (elis Verbünde)
               </th>
               <th className={`${HEADER_CELL} text-center`} colSpan={4}>
@@ -76,7 +78,7 @@ export function ElisRaumeTableView({ table }: ElisRaumeTableProps) {
               </th>
             </tr>
             <tr>
-              <th className={HEADER_CELL}>Name</th>
+              <th className={`${HEADER_CELL} ${reportStickyCell(2, 'bg-nachtblau-15', { edge: true })}`}>Name</th>
               <th className={HEADER_CELL}>Kürzel</th>
               <th className={HEADER_CELL}>Gemeldete Anzahl</th>
               <th className={HEADER_CELL}>Rabattierte Zählung</th>
@@ -91,7 +93,7 @@ export function ElisRaumeTableView({ table }: ElisRaumeTableProps) {
               if (row.kind !== 'mandant') {
                 return (
                   <tr key={row.key} className="bg-slate-100 font-semibold">
-                    <td className={LABEL_CELL} colSpan={3}>
+                    <td className={`${LABEL_CELL} ${reportStickyCell(1, 'bg-slate-100')}`} colSpan={3}>
                       {row.mandantName}
                     </td>
                     <td className={DATA_CELL}>{formatNumber(row.gemeldeteAnzahl)}</td>
@@ -108,11 +110,11 @@ export function ElisRaumeTableView({ table }: ElisRaumeTableProps) {
               return (
                 <tr key={row.key} className="bg-white">
                   {row.showJva ? (
-                    <td className={`${LABEL_CELL} font-medium`} rowSpan={row.jvaSpan}>
+                    <td className={`${LABEL_CELL} font-medium ${reportStickyCell(1, 'bg-white')}`} rowSpan={row.jvaSpan}>
                       {row.jvaLabel}
                     </td>
                   ) : null}
-                  <td className={LABEL_CELL}>{row.mandantName}</td>
+                  <td className={`${LABEL_CELL} ${reportStickyCell(2, 'bg-white', { edge: true })}`}>{row.mandantName}</td>
                   <td className={DATA_CELL}>{row.kuerzel}</td>
                   <td className={DATA_CELL}>{formatNumber(row.gemeldeteAnzahl)}</td>
                   <td className={DATA_CELL}>{formatNumber(row.rabattierteZaehlung)}</td>
@@ -122,7 +124,7 @@ export function ElisRaumeTableView({ table }: ElisRaumeTableProps) {
             })}
           </tbody>
         </table>
-      </div>
+      </ReportScrollTable>
     </section>
   );
 }

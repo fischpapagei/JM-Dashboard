@@ -7,6 +7,7 @@ import {
   getYearFromPeriod,
   monthToQuarterKey,
 } from './periods';
+import type { SchulteilnehmendeAltersgruppe } from './schulteilnehmende';
 
 const CATEGORY_ORDER = new Map(COURSE_CATEGORIES.map((category, index) => [category.key, index]));
 const TYPE_ORDER = COURSE_TYPES.map((type) => type.key);
@@ -92,10 +93,12 @@ function offeredTypes(
   records: EducationMeasureRecord[],
   jvaId: string,
   quarterKey: string,
+  altersgruppe?: SchulteilnehmendeAltersgruppe,
 ): Map<string, { categoryKey: string; targetPlaces: number }> {
   const result = new Map<string, { categoryKey: string; targetPlaces: number }>();
   for (const record of records) {
     if (record.jvaId !== jvaId || record.reportingPeriod !== quarterKey) continue;
+    if (altersgruppe && record.altersgruppe && record.altersgruppe !== altersgruppe) continue;
     if ((record.participants ?? 0) <= 0 && (record.targetPlaces ?? 0) <= 0) continue;
     const current = result.get(record.courseTypeKey);
     result.set(record.courseTypeKey, {
@@ -158,6 +161,7 @@ function withJvaSpans(rows: SollplatzVeraenderungRow[]): SollplatzVeraenderungRo
 export function buildSollplatzVeraenderungTable(
   records: EducationMeasureRecord[],
   berichtszeitpunkt: string,
+  options?: { altersgruppe?: SchulteilnehmendeAltersgruppe },
 ): SollplatzVeraenderungTable {
   const currentMonthKey = currentMonthFromBerichtszeitpunkt(berichtszeitpunkt);
   const prevMonthKey = previousMonthKey(currentMonthKey);
@@ -167,8 +171,8 @@ export function buildSollplatzVeraenderungTable(
   const rows: SollplatzVeraenderungRow[] = [];
 
   for (const jva of JVAS) {
-    const currentOffered = offeredTypes(records, jva.id, currentQuarter);
-    const previousOffered = offeredTypes(records, jva.id, previousQuarter);
+    const currentOffered = offeredTypes(records, jva.id, currentQuarter, options?.altersgruppe);
+    const previousOffered = offeredTypes(records, jva.id, previousQuarter, options?.altersgruppe);
     const typeKeys = TYPE_ORDER.filter(
       (typeKey) => currentOffered.has(typeKey) || previousOffered.has(typeKey),
     );

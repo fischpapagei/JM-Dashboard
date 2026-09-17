@@ -8,7 +8,7 @@ export const JVA_PASSWORD = 'jva2026';
 export const MINISTRY_USER: AuthUser = {
   username: MINISTRY_USERNAME,
   role: 'ministry',
-  displayName: 'Justizministerium NRW',
+  displayName: 'Ministerium der Justiz NRW',
 };
 
 export const JVA_USERS: AuthUser[] = JVAS.map((jva) => ({
@@ -41,7 +41,7 @@ export function authenticate(username: string, password: string): AuthUser | nul
 }
 export function getDemoCredentials(): { role: string; username: string; password: string }[] {
   return [
-    { role: 'Justizministerium', username: MINISTRY_USERNAME, password: MINISTRY_PASSWORD },
+    { role: 'Ministerium der Justiz NRW', username: MINISTRY_USERNAME, password: MINISTRY_PASSWORD },
     { role: 'JVA (Beispiel Aachen)', username: 'jva-aachen', password: JVA_PASSWORD },
     { role: 'JVA (alle)', username: 'jva-[slug]', password: JVA_PASSWORD },
   ];

@@ -1,7 +1,25 @@
 /** Gemeinsame Tabellenklassen für Berichte: Kennzahlen bleiben in der Zelle. */
 
 export const REPORT_TABLE_CLASS =
-  'w-max min-w-full table-auto border-collapse text-left';
+  'report-table w-max min-w-full table-auto border-separate border-spacing-0 text-left';
+
+export const REPORT_STICKY_COL_1 = 'report-sticky-1';
+export const REPORT_STICKY_COL_2 = 'report-sticky-2';
+export const REPORT_STICKY_EDGE = 'report-sticky-edge';
+
+export function reportStickyCell(
+  column: 1 | 2,
+  backgroundClass: string,
+  options?: { edge?: boolean },
+): string {
+  return [
+    column === 1 ? REPORT_STICKY_COL_1 : REPORT_STICKY_COL_2,
+    backgroundClass,
+    options?.edge ? REPORT_STICKY_EDGE : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+}
 
 export const REPORT_LABEL_CELL =
   'box-border border px-1.5 py-1.5 align-top break-words [overflow-wrap:anywhere] min-w-[8.5rem] max-w-[16rem] overflow-hidden';
