@@ -242,11 +242,11 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
     key: 'schulraeume-landesweit',
     title: 'Schulräume',
     description:
-      'Bericht 9 für das Ministerium (inkl. FB Päd.): Übersicht der Schulräume je Anstalt mit Flächen, eLis-Ausstattung und Schulplätzen.',
+      'Bericht 9 für das Ministerium (inkl. FB Päd.): Übersicht der Schulräume je Anstalt mit Flächen, eLis-Ausstattung und Schulplätzen. Zeigt das Datum der letzten Änderung aus der Web-Erfassung.',
     contents: [
       'Raumliste je JVA mit Bezeichnung, Anzahl, Größe, eLis und Schulplätzen',
       'Summenzeile je Anstalt und Gesamtsumme',
-      'Jährliche Prüfung der Daten durch die Anstalten im Webformular',
+      'Jährliche Prüfung der Daten durch die Anstalten im Webformular; letzte Änderung sichtbar',
     ],
     status: 'available',
     formats: ['pdf', 'excel'],
@@ -274,11 +274,12 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
     key: 'elis-raeume-mandantschaften',
     title: 'elis Räume und Mandantschaften',
     description:
-      'Bericht 11 für das Ministerium (inkl. FB Päd.): eLis-Mandantschaften, Schulräume und digitale Sozialräume je Anstalt.',
+      'Bericht 11 für das Ministerium (inkl. FB Päd.): eLis-Mandantschaften, Schulräume und digitale Sozialräume je Anstalt. Abruf nach aktuellem Stand, nicht nach Kalenderjahr.',
     contents: [
       'Mandantschaften mit Name, Kürzel, gemeldeter Anzahl und rabattierter Zählung',
       'Schulräume und digitale Sozialräume mit PC-Plätzen',
       'Rektorin/Rektor, Anmerkungen, Summe je JVA und Gesamtsumme',
+      'Aktueller Änderungsstand statt jährlichem Berichtszeitpunkt',
     ],
     status: 'available',
     formats: ['pdf'],
@@ -290,12 +291,12 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
     key: 'elis-ansprechpersonen',
     title: 'elis Ansprechpersonen',
     description:
-      'Bericht 12 für das Ministerium (inkl. FB Päd.): eLis-Ansprechpersonen je Anstalt, Sicherheitsrahmen und Sicherheitspartner.',
+      'Bericht 12 für das Ministerium (inkl. FB Päd.): eLis-Ansprechpersonen je Anstalt, Sicherheitsrahmen und Sicherheitspartner. Zeigt das Datum der letzten Änderung.',
     contents: [
       'Name der JVA (elis-Verbünde) und Rektorin/Rektor',
       'Elis Sicherheitsrahmen: AL/VL, Päd. D., Technisch, Sonstige',
       'Elis Sicherheitspartner: AL/VL, Päd. D., Päd. Vertreter, Technisch, Sonstige',
-      'Anmerkungen je Anstalt',
+      'Anmerkungen je Anstalt und Datum der letzten Änderung',
     ],
     status: 'available',
     formats: ['pdf', 'excel'],
@@ -363,8 +364,15 @@ export const LANDESWEIT_YEAR_REPORT_KEYS: ReportKey[] = [
   'schulabschluesse-landesweit',
   'kursangebote-landesweit',
   'schulraeume-landesweit',
-  'elis-raeume-mandantschaften',
 ];
+
+export function isYearOnlyBericht(key: ReportKey): boolean {
+  return LANDESWEIT_YEAR_REPORT_KEYS.includes(key);
+}
+
+export function isStandOnlyBericht(key: ReportKey): boolean {
+  return key === 'elis-raeume-mandantschaften';
+}
 
 export function isErgaenzenderJvaReport(key: ReportKey): boolean {
   return ERGAENZENDE_JVA_REPORT_KEYS.includes(key);
@@ -380,10 +388,6 @@ export function isErgaenzenderBericht(key: ReportKey): boolean {
 
 export function hasBerichtAltersgruppe(key: ReportKey): boolean {
   return isErgaenzenderJvaReport(key) || LANDESWEIT_ALTERSGRUPPE_REPORT_KEYS.includes(key);
-}
-
-export function isYearOnlyBericht(key: ReportKey): boolean {
-  return LANDESWEIT_YEAR_REPORT_KEYS.includes(key);
 }
 
 export function complementaryReportLabel(report: ReportDefinition): string {

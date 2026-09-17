@@ -6,6 +6,11 @@ import {
   brochureYearFromBerichtszeitpunkt,
   buildKursangeboteSections,
 } from '../utils/kursangebote';
+import {
+  getBildungsbroschuereRelease,
+  overlayStoredKursangebote,
+} from '../utils/angebotSchulischeMassnahmenForm';
+import { formatDate } from '../utils/format';
 import { exportKursangeboteExcel } from '../utils/exportBerichteExcel';
 import type { SchulteilnehmendeAltersgruppe } from '../utils/schulteilnehmende';
 import { EmptyState } from './EmptyState';
@@ -31,10 +36,12 @@ export function KursangeboteLandesweitView({
   altersgruppe,
 }: KursangeboteLandesweitViewProps) {
   const year = brochureYearFromBerichtszeitpunkt(berichtszeitpunkt);
-  const sections = useMemo(
-    () => (demoMode ? buildKursangeboteSections(demoRecords, berichtszeitpunkt, { altersgruppe }) : []),
-    [altersgruppe, berichtszeitpunkt, demoMode],
-  );
+  const release = getBildungsbroschuereRelease();
+  const sections = useMemo(() => {
+    if (!demoMode) return [];
+    const base = buildKursangeboteSections(demoRecords, berichtszeitpunkt, { altersgruppe });
+    return overlayStoredKursangebote(base, { requireRelease: true });
+  }, [altersgruppe, berichtszeitpunkt, demoMode, release?.at]);
 
   const handlePdf = async () => {
     if (!exportRef.current) {
@@ -55,7 +62,9 @@ export function KursangeboteLandesweitView({
         reportLabel: 'Bericht 7',
         title: 'Kursangebote (landesweit)',
         berichtszeitpunkt,
-        extra: `Bildungsbroschüre Teil 2 · Stand ${year}`,
+        extra: `Bildungsbroschüre Teil 2 · Stand ${year}${
+          release ? ` · Freigegeben ${formatDate(release.at.slice(0, 10))}` : ''
+        }`,
         filenameBase: `Kursangebote_landesweit_${year}`,
       },
       year,
@@ -72,6 +81,9 @@ export function KursangeboteLandesweitView({
           <p className="mt-1 text-sm text-slate-600">
             Bericht 7 · Bildungsbroschüre Teil 2 · Stand {year}
             {' · '}Berichtszeitpunkt {formatReportingPeriodDisplay(berichtszeitpunkt)}
+            {release
+              ? ` · Freigegeben ${formatDate(release.at.slice(0, 10))}`
+              : ' · aktuelle Web-Erfassung noch nicht freigegeben'}
           </p>
         </div>
         <div className="flex items-center gap-2">

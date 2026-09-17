@@ -13,6 +13,7 @@ import {
   isErgaenzenderJvaReport,
   isErgaenzenderLandesweitReport,
   isInlinePreviewReport,
+  isStandOnlyBericht,
   isYearOnlyBericht,
   JVA_BERICHT_ALTERSGRUPPE_OPTIONS,
   REPORT_FORMAT_LABELS,
@@ -48,6 +49,7 @@ import { SchulraeumeLandesweitView } from './SchulraeumeLandesweitView';
 import { StellenLandesweitView } from './StellenLandesweitView';
 import { ElisRaumeLandesweitView } from './ElisRaumeLandesweitView';
 import { ElisAnsprechpersonenLandesweitView } from './ElisAnsprechpersonenLandesweitView';
+import { elisLastChangeLabel, formatElisStand, getElisLastChange } from '../utils/elisLastChange';
 import { JustizSidebar } from '../ui/JustizSidebar';
 import { AppBreadcrumb, type AppBreadcrumbItem } from '../ui/AppBreadcrumb';
 import {
@@ -737,6 +739,7 @@ function ReportConfiguration({
   const isComplementaryLandesweit = isErgaenzenderLandesweitReport(report.key);
   const isComplementaryGroup = isErgaenzenderBericht(report.key);
   const isYearOnly = isYearOnlyBericht(report.key);
+  const isStandOnly = isStandOnlyBericht(report.key);
   const showAltersgruppe = hasBerichtAltersgruppe(report.key);
   const isInlinePreview = isInlinePreviewReport(report.key);
   const hasExcel = report.formats.includes('excel');
@@ -791,13 +794,25 @@ function ReportConfiguration({
         ...report.contents.slice(1),
       ];
     }
-    if (isComplementaryLandesweit && showAltersgruppe) {
-      return [
-        `Nur die ausgewählte Altersgruppe (${selectedAltersgruppeLabel}) wird dargestellt`,
-        ...report.contents.slice(1),
-      ];
+    if (isComplementaryLandesweit) {
+      const items = showAltersgruppe
+        ? [
+            `Nur die ausgewählte Altersgruppe (${selectedAltersgruppeLabel}) wird dargestellt`,
+            ...report.contents.slice(1),
+          ]
+        : [...report.contents];
+      if (isStandOnly) {
+        return [
+          `Aktueller Änderungsstand (Stand ${formatElisStand()}), nicht an ein Kalenderjahr gebunden`,
+          ...items,
+        ];
+      }
+      if (report.key === 'schulraeume-landesweit' || report.key === 'elis-ansprechpersonen') {
+        const lastChange = elisLastChangeLabel(getElisLastChange());
+        return lastChange ? [lastChange, ...items] : items;
+      }
+      return items;
     }
-    if (isComplementaryLandesweit) return report.contents;
     if (!isLandesweitReport) return report.contents;
 
     if (landesweitReportVariant === 'jahresbericht') {
@@ -819,8 +834,10 @@ function ReportConfiguration({
     isComplementaryJva,
     isComplementaryLandesweit,
     isLandesweitReport,
+    isStandOnly,
     landesweitReportVariant,
     report.contents,
+    report.key,
     selectedAltersgruppeLabel,
     showAltersgruppe,
   ]);
@@ -864,7 +881,9 @@ function ReportConfiguration({
         subline={
           isComplementaryJva
             ? 'Anstalt, Zeitraum und Altersgruppe'
-            : isComplementaryLandesweit && showAltersgruppe
+            : isStandOnly
+              ? 'Aktueller Stand'
+              : isComplementaryLandesweit && showAltersgruppe
               ? 'Zeitraum und Altersgruppe'
               : isComplementaryLandesweit
                 ? 'Zeitraum'
@@ -937,7 +956,7 @@ function ReportConfiguration({
           </>
         ) : null}
 
-        {isInlinePreview ? (
+        {isInlinePreview && !isStandOnly ? (
           <>
             <KernSelect
               id="berichtszeitpunkt"
@@ -956,6 +975,15 @@ function ReportConfiguration({
                 </option>
               ))}
             </KernSelect>
+            <KernSpace size="default" />
+          </>
+        ) : isStandOnly ? (
+          <>
+            <KernAlert title="Stand statt Berichtsjahr" variant="info">
+              {`Bericht 11 zeigt den aktuellen Änderungsstand (${
+                elisLastChangeLabel(getElisLastChange()) ?? `Stand ${formatElisStand()}`
+              }). Er kann nach jeder Anpassung durch den Fachbereich Pädagogik erneut abgerufen werden und ist nicht an ein Kalenderjahr gebunden.`}
+            </KernAlert>
             <KernSpace size="default" />
           </>
         ) : (

@@ -10,6 +10,9 @@ import {
   type WeberfassungView,
 } from '../data/weberfassungNav';
 import { getJvaById } from '../data/jvas';
+import { ElisFbPaedagogikForm } from './ElisFbPaedagogikForm';
+import { ElisSchulraeumeForm } from './ElisSchulraeumeForm';
+import { AngebotSchulischeMassnahmenForm } from './AngebotSchulischeMassnahmenForm';
 import { JustizSidebar } from '../ui/JustizSidebar';
 import { AppBreadcrumb, type AppBreadcrumbItem } from '../ui/AppBreadcrumb';
 import {
@@ -159,6 +162,22 @@ export function WeberfassungApp({ onBackToLanding, onLogout }: WeberfassungAppPr
               jvaName={jva?.name}
               openFormCount={openFormCount}
               onSelectForm={selectForm}
+            />
+          ) : view === 'strukturdaten-elis' ? (
+            isJvaRole ? (
+              <ElisSchulraeumeForm
+                userJvaId={jva?.id ?? null}
+                isJvaRole={isJvaRole}
+                onBack={() => setView('overview')}
+              />
+            ) : (
+              <ElisFbPaedagogikForm onBack={() => setView('overview')} />
+            )
+          ) : view === 'strukturdaten-schulische-bildung' ? (
+            <AngebotSchulischeMassnahmenForm
+              userJvaId={jva?.id ?? null}
+              isJvaRole={isJvaRole}
+              onBack={() => setView('overview')}
             />
           ) : (
             <WeberfassungFormPlaceholder formKey={view} onBack={() => setView('overview')} />

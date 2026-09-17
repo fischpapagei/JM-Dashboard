@@ -8,7 +8,7 @@
 ## UI-Struktur
 - **Auth:** `ministerium`/`jm2026` (Landesübersicht, Anzeigename **Ministerium der Justiz NRW**), `jva-<slug>`/`jva2026` (nur eigene JVA)
 - **Startseite:** drei App-Kacheln (Kennzahlensystem, Berichte, Web-Erfassung) plus zwei Portalkacheln darunter: **Beschäftigungsportal Justizvollzug** und **Bildungsangebote in den Justizvollzugsanstalten des Landes Nordrhein-Westfalen** (`data/landingPortals.ts`). Ohne hinterlegte URL öffnet `AppPortalView` („Portal folgt“). Über allen Bereichen außer Login liegt die **Hauptbereichsleiste** (`AppAreaBar` / `data/appAreas.ts`): Kennzahlensystem, Berichte, Web-Erfassung, Beschäftigungsportal; der aktive Bereich ist farblich hinterlegt. Bildungsangebote bleiben nur Startkachel, nicht in der Leiste. **Brotkrumen** (`AppBreadcrumb`) auf jeder Seite: Startseite → Hauptbereich → Abschnitt → aktuelle Ansicht; Zwischenstationen sind anwählbar.
-- **Berichte:** `BerichteApp` — **Sidebar-Layout** (`JustizSidebar`) unter der Hauptbereichsleiste mit Berichtsebenen (JVA vs. Ministerium) und Berichtstypen. JVA-Navigation: **Schulischer Kurzbericht JVA** und **Ergänzende Berichte JVA** (3b–6b im Dropdown). Ministeriums-Navigation: **Schulischer Kurzbericht landesweit** und **Ergänzende landesweite Berichte** (3a–12 im Dropdown). In der Konfiguration: Berichtstyp, JVA wo nötig, Berichtszeitpunkt (bei Schulabschlüssen, Kursangeboten, Schulräumen und eLis-Räumen nur abgeschlossene Jahre), Altersgruppe bei den ersten sechs ergänzenden Berichten, Ausgabeformat erst in der Vorschau. Konfiguration mit KERN-Formularen. Anstaltsrolle sieht nur Ebenen mit verfügbaren Berichten. Inline-Vorschauen bleiben im Hauptbereich. Startkachel „Berichte“: PDF und Excel.
+- **Berichte:** `BerichteApp` — **Sidebar-Layout** (`JustizSidebar`) unter der Hauptbereichsleiste mit Berichtsebenen (JVA vs. Ministerium) und Berichtstypen. JVA-Navigation: **Schulischer Kurzbericht JVA** und **Ergänzende Berichte JVA** (3b–6b im Dropdown). Ministeriums-Navigation: **Schulischer Kurzbericht landesweit** und **Ergänzende landesweite Berichte** (3a–12 im Dropdown). In der Konfiguration: Berichtstyp, JVA wo nötig, Berichtszeitpunkt (bei Schulabschlüssen, Kursangeboten und Schulräumen nur abgeschlossene Jahre; **Bericht 11** ohne Jahresauswahl, nur aktueller **Stand**), Altersgruppe bei den ersten sechs ergänzenden Berichten, Ausgabeformat erst in der Vorschau. Konfiguration mit KERN-Formularen. Anstaltsrolle sieht nur Ebenen mit verfügbaren Berichten. Inline-Vorschauen bleiben im Hauptbereich. Startkachel „Berichte“: PDF und Excel.
 - **Kennzahlensystem:** ProtectedApp + SidebarLayout (`JustizSidebar`) unter der Hauptbereichsleiste. Filter, KPI-Karten, Tabellen und Auswertungsflächen in KERN (Karten, Formulare, Tabellen, Badges); Charts mit NRW-Nachtblau (`ui/chartTheme.ts`). **Beendigungsgründe:** reguläre Gründe (RB) Petrolgrün, alle übrigen Grau. **JVA-Stammdatenblatt (Ministerium):** JVA-Auswahl direkt unter der Seitenüberschrift (`Layout.titleMeta`), nicht mehr unter den Filtern. **NRW gesamt:** KPI-Raster und Chart-Karten wie JVA-Stammdatenblatt (weiße `dashboard-kpi`, eine Reihe mit 6 Kacheln ab `lg`, ohne mintgrünes Inset-Panel). Aktiver Sidebar-Eintrag in Nachtblau 50 % mit weißem Randstreifen, Kartenflächen weiß. Diagramm-Vergrößerung füllt die Fensterfläche (`ChartExpandModal`); Kategorie-Achsen schräg (Dashboard, Modal und Kurzbericht-PDF), damit lange Bezeichnungen nicht überlappen.
 - **Tabellen in Berichten:** Spaltenbreite nach Inhalt (`table-auto`); Kennzahlen bleiben in der Zelle, breite Tabellen horizontal scrollbar. Die **ersten beiden Spalten** bleiben beim horizontalen Scrollen sichtbar (`ReportScrollTable`).
 - **PDF-Export:** `generateKurzberichtPdf` speichert KPI-Karten und Diagramme als PNG mit verlustfreier Flate-Kompression (kein JPEG auf Nachtblau). KPI-Text 2,5-fach, Diagramme 1,5-fach (höhere SVG-Skalierung leert Balken). Große Querformat-Tabellen weiter JPEG. Animation aus.
@@ -22,7 +22,11 @@
 - **Web-Erfassung:** `WeberfassungApp` — **Sidebar-Layout** (`JustizSidebar` in `src/ui/`): Nachtblau mit KERN-Buttons, -Icons und Fira-Sans-Typografie; aufklappbare Kategorien. Offizielles KERN native hat keine Sidebar; das Community-Kit bietet nur ein schlankes Addon (`KernSidebar`/`KernSidebarItem`). Zwei Überkategorien in `data/weberfassungNav.ts`:
   - **Strukturdaten:** Schulische Bildung, Berufliche Bildung, Betriebe, eLis
   - **Haushalt:** Anmeldungen Arbeit und berufliche Bildung, Anmeldungen schulische Bildung, Prüfung FB Pädagogik, Prüfung ZBI
-  - Formularseiten sind vorerst Platzhalter (KERN-Alert/Karte), ohne Speicherung
+  - Formularseiten sind vorerst Platzhalter (KERN-Alert/Karte), ohne Speicherung, außer:
+    - **Strukturdaten → Schulische Bildung:** Formular **Angebot schulische Maßnahmen**. Anstalten prüfen jährlich BASIS-Angebote (rot, gesperrt) und ergänzen grüne Web-Erfassungsfelder (Vorjahr vorausgefüllt). Studium und externe Schule ohne weitere grüne Fragen. Korrektur nur bei „Daten noch korrekt? = Nein“. Frist 15.11. für die kommende Bildungsbroschüre. ZBI/FB Pädagogik sehen eine Vorschau und können die Broschüre als Bericht 7 freigeben.
+    - **Strukturdaten → eLis**:
+      - **Anstaltsrolle:** zuerst **Schulräume und eLis** (Erstfassung oder jährliche Prüfung, neue Zeilen möglich), nach Bestätigung **eLis – Ebene JVAen** (Anstaltsname vorausgefüllt und gesperrt; Rektorin/Rektor, Sicherheitsrahmen, Ansprechpartner, Anmerkungen; bei der Folgeprüfung je Zeile „Sind die Daten noch korrekt?“). Jeweils **Weiter** zur Prüffseite; Nein zurück, Ja weiter. Abschluss speichert beide Teile in `sessionStorage`.
+      - **Ministerium / FB Pädagogik:** Formular **eLis – Ebene Fachbereich Pädagogik** (`ElisFbPaedagogikForm`): Anstalt wählen, Ansprechpersonen und Mandantschaften jederzeit ändern, Zeilen ergänzen, danach bestätigen. Änderungen gelten im Anstaltsformular für das kommende Jahr und erscheinen in den Berichten 9, 11 und 12 mit Datum der letzten Änderung (`utils/elisLastChange.ts`).
 
 ## Filter & Kennzahlen (funktional im Demo-Modus)
 - **FilterBar** (`components/FilterBar.tsx`) — drei Ebenen, immer sichtbar:
@@ -104,6 +108,7 @@
 - Jährliche Übersicht, eine Sektion je JVA; Tabellen nach Geschlecht und Altersgruppe, nur aktive Angebote
 - Spalten: Hauptkategorie, Maßnahmenkategorie, Name Kurs, SOLL-Plätze (BASIS), Dauer/Beginn/vorgesehener Abschluss (Web-Erfassung)
 - Spalte **Durchführung durch externe Kraft** nur für Ministeriumsrolle (JM, FB Päd., ZBI); Logik in `utils/kursangebote.ts`
+- Web-Erfassung unter Strukturdaten → Schulische Bildung; Overlay der gespeicherten Angaben erst nach Freigabe durch ZBI/FB Pädagogik (`overlayStoredKursangebote`, `requireRelease`)
 
 ## Bericht 8 — Veränderung der Schulkurse und deren Soll-Plätze
 - Kachel `sollplaetze-veraenderung`, nur Ministerium (FB Päd.), eigene Vorschau + PDF + Excel
@@ -114,7 +119,8 @@
 ## Bericht 9 — Schulräume
 - Kachel `schulraeume-landesweit`, nur Ministerium (inkl. FB Päd.), eigene Vorschau + PDF + Excel
 - Tabelle **Übersicht der Schulräume**: JVA, Raumbezeichnung, Anzahl Räume, Größe in qm, eLis (1/0), Schulplätze; Summe je JVA und Gesamtsumme
-- Daten jährlich von den Anstalten im Webformular zu prüfen; Demo aus `demoSchoolRooms`; Logik in `utils/schulraeume.ts`
+- Daten jährlich von den Anstalten im Webformular zu prüfen; gespeicherte Web-Erfassung überlagert Demo (`overlayStoredSchulraeume`); Datum der letzten Änderung sichtbar
+- Demo aus `demoSchoolRooms`; Logik in `utils/schulraeume.ts`
 
 ## Bericht 10 — Stellen
 - Kachel `stellen-landesweit`, nur Ministerium (inkl. FB Päd.), eigene Vorschau + PDF + Excel
@@ -123,12 +129,15 @@
 
 ## Bericht 11 — elis Räume und Mandantschaften
 - Kachel `elis-raeume-mandantschaften`, nur Ministerium (inkl. FB Päd.), eigene Vorschau + PDF
+- Kein jährlicher Berichtszeitpunkt, sondern aktueller **Stand** (`isStandOnlyBericht`); nach jeder Änderung durch FB Pädagogik erneut abrufbar
 - Tabelle mit Mandantschaften (Name, Kürzel, gemeldete Anzahl, rabattierte Zählung), Schulräumen, digitalen Sozialräumen, Rektorin/Rektor und Anmerkungen; Summe je JVA und Gesamtsumme
+- Gespeicherte Mandantschaften aus der Web-Erfassung überlagern Demo (`overlayStoredMandanten`); Datum der letzten Änderung sichtbar
 - Demo aus Operationaldaten (eLis-Kennzahlen), aufgeteilt auf Mandantschaften je Anstalt; Logik in `utils/elisRaume.ts`
 
 ## Bericht 12 — elis Ansprechpersonen
 - Kachel `elis-ansprechpersonen`, nur Ministerium (inkl. FB Päd.), eigene Vorschau + PDF + Excel
 - Tabelle **Elis (Stand …)**: JVA (elis-Verbünde, gV/oV), Rektorin/Rektor, Elis Sicherheitsrahmen (AL/VL, Päd. D., Technisch, Sonstige), Elis Sicherheitspartner (AL/VL, Päd. D., Päd. Vertreter, Technisch, Sonstige), Anmerkungen
+- Gespeicherte Kontakte aus Anstalts- oder FB-Pädagogik-Formular überlagern Demo (`overlayStoredAnsprechpersonen`); Datum der letzten Änderung sichtbar
 - Hinweis „Nur auf Ebene Ministerium (inkl. FB Päd.) abrufbar“; Demo-Namen je Anstalt/Vollzugsform; Logik in `utils/elisAnsprechpersonen.ts`
 
 ## Leerer Modus

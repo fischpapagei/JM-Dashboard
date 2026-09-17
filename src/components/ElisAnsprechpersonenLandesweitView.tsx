@@ -2,6 +2,8 @@ import { useMemo, type RefObject } from 'react';
 import { demoOperational } from '../data/demoData';
 import { generateKurzberichtPdf } from '../utils/generateKurzberichtPdf';
 import { formatReportingPeriodDisplay } from '../utils/periods';
+import { overlayStoredAnsprechpersonen } from '../utils/elisJvaForm';
+import { elisLastChangeLabel, getElisLastChange } from '../utils/elisLastChange';
 import { buildElisAnsprechpersonenTable } from '../utils/elisAnsprechpersonen';
 import { exportElisAnsprechpersonenExcel } from '../utils/exportBerichteExcel';
 import { EmptyState } from './EmptyState';
@@ -22,10 +24,12 @@ export function ElisAnsprechpersonenLandesweitView({
   exportRef,
   onBack,
 }: ElisAnsprechpersonenLandesweitViewProps) {
-  const table = useMemo(
-    () => (demoMode ? buildElisAnsprechpersonenTable(demoOperational, berichtszeitpunkt) : null),
-    [berichtszeitpunkt, demoMode],
-  );
+  const lastChange = elisLastChangeLabel(getElisLastChange());
+  const table = useMemo(() => {
+    if (!demoMode) return null;
+    const base = buildElisAnsprechpersonenTable(demoOperational, berichtszeitpunkt);
+    return base ? overlayStoredAnsprechpersonen(base) : null;
+  }, [berichtszeitpunkt, demoMode]);
 
   const handlePdf = async () => {
     if (!exportRef.current) {
@@ -46,7 +50,7 @@ export function ElisAnsprechpersonenLandesweitView({
         reportLabel: 'Bericht 12',
         title: 'elis Ansprechpersonen',
         berichtszeitpunkt,
-        extra: `Stand ${table.standLabel}`,
+        extra: `Stand ${table.standLabel}${lastChange ? ` · ${lastChange}` : ''}`,
         filenameBase: `Elis_Ansprechpersonen_${table.period}`,
       },
       table,
@@ -62,6 +66,7 @@ export function ElisAnsprechpersonenLandesweitView({
             Bericht 12
             {' · '}Berichtszeitpunkt {formatReportingPeriodDisplay(berichtszeitpunkt)}
             {table ? ` · Stand ${table.standLabel}` : ''}
+            {lastChange ? ` · ${lastChange}` : ''}
           </p>
           <p className="mt-1 text-sm font-medium text-nachtblau">
             Nur auf Ebene Ministerium (inkl. FB Päd.) abrufbar
@@ -95,7 +100,8 @@ export function ElisAnsprechpersonenLandesweitView({
           <div data-pdf-block className="rounded-xl border border-slate-200/80 bg-white px-4 py-3 text-xs text-slate-600 shadow-sm">
             <p>
               Übersicht der eLis-Ansprechpersonen je Anstalt: Rektorin/Rektor, Sicherheitsrahmen und
-              Sicherheitspartner.
+              Sicherheitspartner
+              {lastChange ? ` (${lastChange})` : ''}.
             </p>
           </div>
           <div data-pdf-block data-pdf-landscape data-pdf-multipage data-pdf-capture-width="2400">

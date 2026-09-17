@@ -258,6 +258,10 @@ function rowsFromSnapshots(snapshots: OfferingSnapshot[]): KursangebotRow[] {
   return withRowSpans(unsorted);
 }
 
+export function rebuildKursangebotRowSpans(rows: KursangebotRow[]): KursangebotRow[] {
+  return withRowSpans(rows);
+}
+
 function genderPhrase(geschlecht: SchulteilnehmendeGeschlecht): string {
   return geschlecht === 'männlich' ? 'männliche Gefangene' : 'weibliche Gefangene';
 }

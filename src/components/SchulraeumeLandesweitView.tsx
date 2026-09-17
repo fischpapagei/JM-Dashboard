@@ -2,6 +2,8 @@ import { useMemo, type RefObject } from 'react';
 import { demoSchoolRooms } from '../data/demoData';
 import { generateKurzberichtPdf } from '../utils/generateKurzberichtPdf';
 import { formatReportingPeriodDisplay, getCompletedYearAsOf, getYearFromPeriod } from '../utils/periods';
+import { overlayStoredSchulraeume, schulraeumeStandLabel } from '../utils/elisSchulraeumeForm';
+import { elisLastChangeLabel, getElisLastChange } from '../utils/elisLastChange';
 import { buildSchulraumTable } from '../utils/schulraeume';
 import { exportSchulraeumeExcel } from '../utils/exportBerichteExcel';
 import { EmptyState } from './EmptyState';
@@ -32,7 +34,12 @@ export function SchulraeumeLandesweitView({
   onBack,
 }: SchulraeumeLandesweitViewProps) {
   const year = standYear(berichtszeitpunkt);
-  const table = useMemo(() => (demoMode ? buildSchulraumTable(demoSchoolRooms) : null), [demoMode]);
+  const lastChange = elisLastChangeLabel(getElisLastChange());
+  const changeStand = schulraeumeStandLabel();
+  const table = useMemo(
+    () => (demoMode ? buildSchulraumTable(overlayStoredSchulraeume(demoSchoolRooms)) : null),
+    [demoMode],
+  );
 
   const handlePdf = async () => {
     if (!exportRef.current) {
@@ -53,7 +60,7 @@ export function SchulraeumeLandesweitView({
         reportLabel: 'Bericht 9',
         title: 'Schulräume',
         berichtszeitpunkt,
-        extra: `Stand ${year}`,
+        extra: `Stand ${year}${lastChange ? ` · ${lastChange}` : ''}`,
         filenameBase: `Schulraeume_landesweit_${year}`,
       },
       year,
@@ -67,8 +74,9 @@ export function SchulraeumeLandesweitView({
         <div>
           <h2 className="text-xl font-semibold text-(--color-ink)">Schulräume</h2>
           <p className="mt-1 text-sm text-slate-600">
-            Bericht 9 · Übersicht der Schulräume · Stand {year}
+            Bericht 9 · Übersicht der Schulräume · Stand {changeStand ?? year}
             {' · '}Berichtszeitpunkt {formatReportingPeriodDisplay(berichtszeitpunkt)}
+            {lastChange ? ` · ${lastChange}` : ''}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -99,7 +107,8 @@ export function SchulraeumeLandesweitView({
           <div data-pdf-block className="rounded-xl border border-slate-200/80 bg-white px-4 py-3 text-xs text-slate-600 shadow-sm">
             <p>
               Jährliche Übersicht der Schulräume je Anstalt. Die Daten werden von den Anstalten jährlich im
-              Webformular auf Aktualität geprüft und bei Bedarf geändert.
+              Webformular auf Aktualität geprüft und bei Bedarf geändert
+              {lastChange ? ` (${lastChange})` : ''}.
             </p>
             <p className="mt-1">
               Spalte eLis: 1 = ja, 0 = nein. Summenzeilen je JVA und Gesamtsumme über alle Anstalten.
