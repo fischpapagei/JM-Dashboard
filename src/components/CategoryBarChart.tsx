@@ -47,14 +47,19 @@ function wrapLabel(text: string, maxChars: number): string[] {
   return lines.length > 0 ? lines : [text];
 }
 
-function formatCategoryAxisLabel(text: string, pdfExportMode: boolean): string[] {
+function formatCategoryAxisLabel(
+  text: string,
+  pdfExportMode: boolean,
+  density: ReturnType<typeof chartDensity>,
+): string[] {
   if (pdfExportMode && text.includes("(")) {
     const openIndex = text.indexOf("(");
     const firstLine = text.slice(0, openIndex).trim();
     const secondLine = text.slice(openIndex).trim();
     return secondLine ? [firstLine, secondLine] : [firstLine];
   }
-  return wrapLabel(text, pdfExportMode ? 11 : 14);
+  const maxChars = density === "modal" ? 10 : pdfExportMode ? 11 : 14;
+  return wrapLabel(text, maxChars);
 }
 
 function CategoryAxisTick({
@@ -65,9 +70,9 @@ function CategoryAxisTick({
   density = "default",
 }: AxisTickProps & { pdfExportMode?: boolean; density?: ReturnType<typeof chartDensity> }) {
   const label = payload?.value ?? "";
-  const lines = formatCategoryAxisLabel(label, pdfExportMode);
+  const lines = formatCategoryAxisLabel(label, pdfExportMode, density);
   const font = CHART_FONT[density];
-  const lineHeight = pdfExportMode ? 12 : font.tick + 4;
+  const lineHeight = pdfExportMode ? 12 : Math.min(font.tick + 3, 16);
 
   return (
     <text x={x} y={y + 14} textAnchor="middle" fill={CHART_TICK} fontSize={pdfExportMode ? 10 : font.tick}>
@@ -133,11 +138,12 @@ export function CategoryBarChart({ data, height, width, pdfExportMode = false }:
   const font = CHART_FONT[density];
   const total = data.reduce((sum, item) => sum + item.value, 0);
   const labelKey = expanded ? "fullName" : "name";
-  const bottomMargin = pdfExportMode ? 108 : density === "modal" ? 110 : expanded ? 88 : 56;
+  const bottomMargin = pdfExportMode ? 108 : density === "modal" ? 132 : expanded ? 88 : 56;
   const topMargin = pdfExportMode ? 32 : density === "modal" ? 36 : expanded ? 20 : 16;
   const maxY = yAxisMax(data);
 
   const leftMargin = density === "modal" ? 36 : expanded ? 28 : 18;
+  const modalTicks = density === "modal";
 
   return (
     <ResponsiveContainer width={width && width > 0 ? width : "100%"} height={height} minWidth={1} minHeight={1}>
@@ -146,10 +152,16 @@ export function CategoryBarChart({ data, height, width, pdfExportMode = false }:
         <XAxis
           dataKey={labelKey}
           interval={0}
-          tick={expanded ? <CategoryAxisTick pdfExportMode={pdfExportMode} density={density} /> : { fontSize: 9, fill: CHART_TICK }}
-          angle={expanded ? 0 : -22}
-          textAnchor={expanded ? "middle" : "end"}
-          height={pdfExportMode ? 96 : density === "modal" ? 100 : expanded ? 84 : 52}
+          tick={
+            modalTicks
+              ? { fontSize: 13, fill: CHART_TICK }
+              : expanded
+                ? <CategoryAxisTick pdfExportMode={pdfExportMode} density={density} />
+                : { fontSize: 9, fill: CHART_TICK }
+          }
+          angle={modalTicks ? -28 : expanded ? 0 : -22}
+          textAnchor={modalTicks || !expanded ? "end" : "middle"}
+          height={pdfExportMode ? 96 : modalTicks ? 118 : expanded ? 84 : 52}
         />
         <YAxis
           tick={{ fontSize: font.tick, fill: CHART_TICK }}

@@ -9,7 +9,7 @@ import {
 
 const LABEL_CELL = `${REPORT_LABEL_CELL} border-slate-300 text-sm text-(--color-ink)`;
 const DATA_CELL = `${REPORT_DATA_CELL} border-slate-300 text-sm text-(--color-ink)`;
-const HEADER_CELL = `${REPORT_HEADER_CELL} border-slate-400 bg-slate-200 text-[11px] font-semibold uppercase tracking-wide text-slate-800`;
+const HEADER_CELL = `${REPORT_HEADER_CELL} border-nachtblau-30 bg-nachtblau-15 text-[11px] font-semibold uppercase tracking-wide text-nachtblau`;
 
 interface StellenTableProps {
   table: StellenTable;
@@ -32,13 +32,13 @@ export function StellenTableView({ table }: StellenTableProps) {
           </thead>
           <tbody>
             {table.rows.map((row, index) => (
-              <tr key={row.jvaId} className={index % 2 === 1 ? 'bg-slate-100' : 'bg-white'}>
+              <tr key={row.jvaId} className={index % 2 === 1 ? 'bg-nachtblau-15' : 'bg-white'}>
                 <td className={`${LABEL_CELL} font-medium`}>{row.jvaName}</td>
                 <td className={DATA_CELL}>{formatNumber(row.stellen)}</td>
                 <td className={DATA_CELL}>{formatNumber(row.besetzt)}</td>
               </tr>
             ))}
-            <tr className="bg-slate-200 font-semibold">
+            <tr className="bg-nachtblau-30 font-semibold">
               <td className={LABEL_CELL}>Summe</td>
               <td className={DATA_CELL}>{formatNumber(table.totals.stellen)}</td>
               <td className={DATA_CELL}>{formatNumber(table.totals.besetzt)}</td>

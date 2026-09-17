@@ -30,7 +30,7 @@ export function FreeCapacityTable({ rows }: FreeCapacityTableProps) {
             {rows.length === 0 ? (
               <tr className="kern-table__row">
                 <td className="kern-table__cell" colSpan={8}>
-                  <EmptyState description="Startzustand ohne Beispielzahlen — Daten aus BASIS-Web" />
+                  <EmptyState description="Startzustand ohne Beispielzahlen — Daten aus BASIS" />
                 </td>
               </tr>
             ) : (

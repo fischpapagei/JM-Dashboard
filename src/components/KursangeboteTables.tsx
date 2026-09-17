@@ -11,7 +11,7 @@ import {
 const LABEL_CELL = `${REPORT_LABEL_CELL} border-slate-300 text-[11px] text-(--color-ink)`;
 const NUMBER_CELL = `${REPORT_DATA_CELL} border-slate-300 text-center`;
 const TEXT_CELL = `${REPORT_TEXT_CELL} border-slate-300 text-[11px]`;
-const HEADER_CELL = `${REPORT_HEADER_CELL} border-slate-600 text-[10px] font-semibold uppercase tracking-wide text-white`;
+const HEADER_CELL = `${REPORT_HEADER_CELL} border-nachtblau-30 bg-nachtblau text-[10px] font-semibold uppercase tracking-wide text-white`;
 
 interface KursangeboteOfferTableProps {
   table: KursangebotTable;
@@ -25,14 +25,14 @@ export function KursangeboteOfferTable({ table, showExternalColumn }: Kursangebo
       <div className="border-b border-slate-200 bg-white px-4 py-3">
         <h3 className="text-sm font-semibold text-(--color-ink)">
           {table.titlePrefix}
-          <span className="text-emerald-700">{table.genderPhrase}</span>
+          <span className="text-grasgruen">{table.genderPhrase}</span>
           {` im ${table.agePhrase}`}
         </h3>
       </div>
       <div className="w-full overflow-x-auto">
         <table className={`${REPORT_TABLE_CLASS} text-[11px]`}>
           <thead>
-            <tr className="bg-slate-600">
+            <tr className="bg-nachtblau">
               <th className={HEADER_CELL}>Hauptkategorie</th>
               <th className={HEADER_CELL}>Maßnahmenkategorie</th>
               <th className={HEADER_CELL}>Name Kurs</th>
@@ -41,7 +41,7 @@ export function KursangeboteOfferTable({ table, showExternalColumn }: Kursangebo
               <th className={HEADER_CELL}>Beginn der Maßnahme</th>
               <th className={HEADER_CELL}>Vorgesehener Abschluss</th>
               {showExternalColumn ? (
-                <th className="border border-violet-400 bg-violet-200 px-2 py-1.5 align-middle text-[10px] font-semibold uppercase tracking-wide text-violet-950">
+                <th className="border border-nachtblau-50 bg-nachtblau-30 px-2 py-1.5 align-middle text-[10px] font-semibold uppercase tracking-wide text-nachtblau">
                   Durchführung durch externe Kraft
                 </th>
               ) : null}
@@ -63,15 +63,15 @@ export function KursangeboteOfferTable({ table, showExternalColumn }: Kursangebo
                       {row.typeLabel}
                     </td>
                   ) : null}
-                  <td className={`${TEXT_CELL} text-sky-700`}>{row.courseName}</td>
-                  <td className={`${NUMBER_CELL} text-sky-700`}>{formatNumber(row.targetPlaces)}</td>
-                  <td className={`${NUMBER_CELL} text-emerald-700`}>
+                  <td className={`${TEXT_CELL} text-nachtblau`}>{row.courseName}</td>
+                  <td className={`${NUMBER_CELL} text-nachtblau`}>{formatNumber(row.targetPlaces)}</td>
+                  <td className={`${NUMBER_CELL} text-grasgruen`}>
                     {row.durationMonths == null ? EMPTY_VALUE_LABEL : formatNumber(row.durationMonths)}
                   </td>
-                  <td className={`${TEXT_CELL} text-emerald-700`}>{row.startLabel}</td>
-                  <td className={`${TEXT_CELL} text-emerald-700`}>{row.intendedQualification}</td>
+                  <td className={`${TEXT_CELL} text-grasgruen`}>{row.startLabel}</td>
+                  <td className={`${TEXT_CELL} text-grasgruen`}>{row.intendedQualification}</td>
                   {showExternalColumn ? (
-                    <td className="border border-violet-200 bg-violet-50 px-2 py-1.5 text-center text-[11px] font-semibold text-violet-900">
+                    <td className="border border-nachtblau-30 bg-nachtblau-15 px-2 py-1.5 text-center text-[11px] font-semibold text-grasgruen">
                       {row.externalStaff ? 'X' : ''}
                     </td>
                   ) : null}

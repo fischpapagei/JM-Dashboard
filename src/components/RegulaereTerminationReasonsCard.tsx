@@ -40,7 +40,7 @@ export function RegulaereTerminationReasonsCard({
         ))}
       </ul>
 
-      <p className="mt-2 text-center text-[11px] font-medium text-(--color-muted)">Daten aus BASIS-Web</p>
+      <p className="mt-2 text-center text-[11px] font-medium text-(--color-muted)">Daten aus BASIS</p>
     </article>
   );
 }

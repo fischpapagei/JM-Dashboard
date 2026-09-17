@@ -3,7 +3,7 @@
 Du bist ein erfahrener React-/TypeScript-Engineer und UX-Designer. Entwickle ein funktionsfähiges, präsentationsfähiges Dashboard-Mock-up für ein Kennzahlensystem „Schulische Bildung im Justizvollzug NRW“.
 
 ## Zentrale fachliche Klarstellung
-Die in der Excel-Datei enthaltenen Dropdowns sind **keine Eingabefelder im Dashboard**. Sie sind als **Eingabefelder/Katalogwerte in BASIS-Web** bzw. in der künftigen Erfassungslogik vorgesehen.
+Die in der Excel-Datei enthaltenen Dropdowns sind **keine Eingabefelder im Dashboard**. Sie sind als **Eingabefelder/Katalogwerte in BASIS** bzw. in der künftigen Erfassungslogik vorgesehen.
 
 Das Dashboard soll diese aus BASIS stammenden Werte später **auswerten, gruppieren, zählen, filtern und visualisieren**. Es soll im Dashboard selbst zunächst **keine manuellen Dropdown-Eingaben für Kennzahlen** geben und **keine erfundenen Zahlenwerte hart vorbefüllen**.
 
@@ -14,7 +14,7 @@ Die Dropdown-/Katalogwerte erscheinen im Dashboard daher als:
 - Kennzahlen-Dimensionen, z. B. „Abbrüche nach Beendigungsgrund“ oder „Teilnehmende nach Kursgrundbezeichnung“.
 
 ## Ziel des Prototyps
-Erstelle einen klickbaren Frontend-Prototypen, der die fachliche Struktur, Navigation, Filterlogik und Dashboard-Anordnung zeigt. Die Ansicht darf mit leeren Platzhalterzuständen arbeiten, z. B. „—“, „Daten aus BASIS-Web“, „Noch keine Daten geladen“ oder Skeleton-/Empty-State-Komponenten.
+Erstelle einen klickbaren Frontend-Prototypen, der die fachliche Struktur, Navigation, Filterlogik und Dashboard-Anordnung zeigt. Die Ansicht darf mit leeren Platzhalterzuständen arbeiten, z. B. „—“, „Daten aus BASIS“, „Noch keine Daten geladen“ oder Skeleton-/Empty-State-Komponenten.
 
 Optional darf es einen **Demo-Daten-Modus** geben, der über einen deutlich sichtbaren Schalter aktiviert wird. Standardmäßig muss der Prototyp aber ohne vorbefüllte Kennzahlen starten.
 
@@ -65,7 +65,7 @@ Stattdessen bauen:
 Da zunächst keine Zahlen gefüllt werden sollen, muss der Startzustand des Dashboards bewusst als leerer Auswertungsrahmen gestaltet sein.
 
 Beispiele:
-- KPI-Karte „Beschäftigungsquote schulische Bildung“ zeigt „—“ und Unterzeile „Wird aus BASIS-Web berechnet“.
+- KPI-Karte „Beschäftigungsquote schulische Bildung“ zeigt „—“ und Unterzeile „Wird aus BASIS berechnet“.
 - Diagramm „Beendigungsgründe“ zeigt leeren Diagrammrahmen mit Hinweis „Keine Daten für aktuelle Filterauswahl“.
 - Tabelle „Kursangebote nach JVA“ zeigt Spaltenüberschriften, aber keine Beispielzahlen; stattdessen eine Empty-State-Zeile.
 - Tabellen- und Diagrammkomponenten müssen so gebaut sein, dass sie später echte Daten anzeigen können.
@@ -216,7 +216,7 @@ Baue folgende Bereiche:
 
 Jede Karte zeigt im Startzustand:
 - Wert: `—`
-- Unterzeile: „Daten aus BASIS-Web“ bzw. „Datenquelle offen“
+- Unterzeile: „Daten aus BASIS“ bzw. „Datenquelle offen“
 - optional kleines Badge: „nicht geladen“
 
 ### Visualisierungen mit Empty State
@@ -247,7 +247,7 @@ Baue folgende Bereiche:
 Baue einen reinen Anzeige-/Dokumentationsbereich, keine produktive Eingabemaske:
 - Kurskatalog anzeigen: Überkategorie → Grundbezeichnung → Mindest-Soll-Plätze → Dauer
 - Beendigungsgründe anzeigen: Ebene 1 → Grund → Klassifikation → Hinweise
-- Hinweistext: „Diese Werte sind als Erfassungs-/Dropdownwerte in BASIS-Web vorgesehen und werden im Dashboard nur zur Filterung und Auswertung verwendet.“
+- Hinweistext: „Diese Werte sind als Erfassungs-/Dropdownwerte in BASIS vorgesehen und werden im Dashboard nur zur Filterung und Auswertung verwendet.“
 
 ## Komponentenstruktur
 Lege mindestens folgende Struktur an:
@@ -297,7 +297,7 @@ Seriöser, ruhiger Verwaltungs-/Ministeriumslook:
 - Primärfarbe: dunkles Blau
 - Hintergrund: helles Grau / sehr helles Blau
 - Karten: weiß, klare Rahmen, dezente Schatten
-- Badges: „BASIS-Web“, „nicht geladen“, „Demo-Daten“, „Datenquelle offen“
+- Badges: „BASIS“, „nicht geladen“, „Demo-Daten“, „Datenquelle offen“
 - 16:9-tauglich für Präsentationen
 - Desktop-first
 
@@ -311,4 +311,4 @@ Seriöser, ruhiger Verwaltungs-/Ministeriumslook:
 - Die Ministeriumsansicht und die JVA-Ansicht sind klickbar erreichbar.
 - Tabellen und Diagramme haben saubere Empty States.
 - Optionaler Demo-Modus ist klar gekennzeichnet und standardmäßig deaktiviert.
-- Der Code ist so strukturiert, dass später echte BASIS-Web-Daten angebunden werden können.
+- Der Code ist so strukturiert, dass später echte BASIS-Daten angebunden werden können.

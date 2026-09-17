@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
   areaHasFreiePlaetze,
@@ -28,6 +28,7 @@ import { JvaDetail } from "./JvaDetail";
 import { LandesweitFreiePlaetze } from "./LandesweitFreiePlaetze";
 import { Layout } from "./Layout";
 import { SidebarLayout } from "./SidebarLayout";
+import { AppBreadcrumb, type AppBreadcrumbItem } from "../ui/AppBreadcrumb";
 import { KernAlert } from "../ui/kern";
 
 const DEFAULT_EXPANDED_AREAS: Record<DashboardAreaKey, boolean> = {
@@ -209,6 +210,11 @@ export function ProtectedApp({
     setFilters((f) => withOrganizationLevel(f, "jva", [nextJvaId]));
   }, []);
 
+  const jvaOptions = useMemo(
+    () => [...JVAS].sort((a, b) => a.name.localeCompare(b.name, "de-DE")),
+    [],
+  );
+
   if (!user) return null;
 
   const activeAreaKey = getActiveAreaKey(nav, jvaAreaContext);
@@ -231,6 +237,54 @@ export function ProtectedApp({
       : `Anstaltsbezogene Kennzahlen zu ${getDashboardArea(jvaAreaContext).sidebarLabel.toLowerCase()} mit NRW-Vergleich`;
   }
 
+  const jvaSelect =
+    isMinistry && nav === "jva" ? (
+      <div className="kern-form-input">
+        <label htmlFor="jva-stammdaten-select" className="kern-label">
+          JVA auswählen
+        </label>
+        <div className="kern-form-input__select-wrapper">
+          <select
+            id="jva-stammdaten-select"
+            value={jvaId}
+            onChange={(event) => handleJvaChange(event.target.value)}
+            className="kern-form-input__select font-semibold"
+          >
+            {jvaOptions.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+    ) : undefined;
+
+  const goToKennzahlenHome = isMinistry
+    ? () => handleNav(getHubKey(activeAreaKey ?? "schulische-bildung"))
+    : undefined;
+
+  const breadcrumbItems: AppBreadcrumbItem[] = [
+    { id: "start", label: "Startseite", onSelect: onBackToLanding },
+    { id: "kennzahlen", label: "Kennzahlensystem", onSelect: goToKennzahlenHome },
+  ];
+
+  if (activeArea) {
+    breadcrumbItems.push({
+      id: "area",
+      label: activeArea.sidebarLabel,
+      onSelect: isMinistry ? () => handleNav(getHubKey(activeArea.key)) : undefined,
+    });
+  }
+
+  if (isDashboardNav(nav)) {
+    breadcrumbItems.push({ id: "nrw", label: "NRW gesamt" });
+  } else if (isFreiePlaetzeNav(nav)) {
+    breadcrumbItems.push({ id: "freie-plaetze", label: "Landesweit freie Plätze" });
+  } else if (nav === "jva") {
+    breadcrumbItems.push({ id: "stammdatenblatt", label: "JVA-Stammdatenblatt" });
+  }
+
   return (
     <SidebarLayout
       user={user}
@@ -248,7 +302,14 @@ export function ProtectedApp({
       onLogout={onLogout}
       showDashboardNav={isMinistry}
     >
-      <Layout title={title} subtitle={subtitle} demoMode={demoMode} demoSlot={<DemoModeToggle enabled={demoMode} onChange={setDemoMode} />}>
+      <Layout
+        title={title}
+        breadcrumb={<AppBreadcrumb items={breadcrumbItems} />}
+        titleMeta={jvaSelect}
+        subtitle={subtitle}
+        demoMode={demoMode}
+        demoSlot={<DemoModeToggle enabled={demoMode} onChange={setDemoMode} />}
+      >
         {isDashboardHub(nav) && isMinistry && (
           <DashboardAreaHub
             areaKey={getAreaFromHub(nav)}
@@ -295,7 +356,6 @@ export function ProtectedApp({
             demoMode={demoMode}
             isJvaRole={isJvaRole}
             dashboardAreaContext={jvaAreaContext}
-            onJvaChange={isMinistry ? handleJvaChange : undefined}
           />
         )}
       </Layout>

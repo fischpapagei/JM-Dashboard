@@ -3,7 +3,7 @@ import { flushSync } from "react-dom";
 import type { DashboardAreaKey, DashboardFilters, Massnahmenbeginn } from "../types/domain";
 import { useDashboardData } from "../hooks/useDashboardData";
 import { generateKurzberichtPdf } from "../utils/generateKurzberichtPdf";
-import { getJvaById, JVAS } from "../data/jvas";
+import { getJvaById } from "../data/jvas";
 import { EMPTY_VALUE_LABEL, formatDate, formatNumber, formatPercent, formatKursleitung } from "../utils/format";
 import { ChartShell } from "./ChartShell";
 import { CourseUtilizationBarChart } from "./CourseUtilizationBarChart";
@@ -45,7 +45,6 @@ interface JvaDetailProps {
   demoMode: boolean;
   isJvaRole?: boolean;
   dashboardAreaContext?: DashboardAreaKey | null;
-  onJvaChange?: (jvaId: string) => void;
 }
 
 export function JvaDetail({
@@ -55,7 +54,6 @@ export function JvaDetail({
   demoMode,
   isJvaRole = false,
   dashboardAreaContext = null,
-  onJvaChange,
 }: JvaDetailProps) {
   const exportRef = useRef<HTMLDivElement>(null);
   const [pdfExportMode, setPdfExportMode] = useState(false);
@@ -74,10 +72,6 @@ export function JvaDetail({
   const completionsClick = demoMode ? () => setCompletionsOpen(true) : undefined;
   const personalClick = demoMode ? () => setPersonalOpen(true) : undefined;
   const schoolRoomModalRows = useMemo(() => schoolRoomSummaries, [schoolRoomSummaries]);
-  const jvaOptions = useMemo(
-    () => [...JVAS].sort((a, b) => a.name.localeCompare(b.name, "de-DE")),
-    [],
-  );
   const pdfBlockClass = pdfExportMode ? "dashboard-kpi p-4" : "";
 
   const handleKurzbericht = useCallback(async () => {
@@ -141,29 +135,7 @@ export function JvaDetail({
           <section className="kern-card kern-card--hug dashboard-panel p-4">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0 flex-1">
-                {pdfExportMode || isJvaRole ? (
-                  <h2 className="kern-heading-small text-(--color-ink)">{jva.name}</h2>
-                ) : (
-                  <div className="kern-form-input max-w-md">
-                    <label htmlFor="jva-stammdaten-select" className="kern-label">
-                      JVA auswählen
-                    </label>
-                    <div className="kern-form-input__select-wrapper">
-                      <select
-                        id="jva-stammdaten-select"
-                        value={jvaId}
-                        onChange={(event) => onJvaChange?.(event.target.value)}
-                        className="kern-form-input__select font-semibold"
-                      >
-                        {jvaOptions.map((option) => (
-                          <option key={option.id} value={option.id}>
-                            {option.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                )}
+                <h2 className="kern-heading-small text-(--color-ink)">{jva.name}</h2>
                 <p className="mt-2 text-sm text-(--color-muted)">
                   {jva.region ? `Region ${jva.region} · ` : ""}
                   Geschlecht: {jva.geschlecht} · Haftform: {jva.haftform} · Altersgruppe: {jva.altersgruppe}
@@ -413,7 +385,7 @@ export function JvaDetail({
                   ) : (
                     <tr className="kern-table__row">
                       <td className="kern-table__cell" colSpan={10}>
-                        <EmptyState description={demoMode ? "Keine Maßnahmen für aktuelle Filterauswahl." : "Kursangebote werden aus BASIS-Web geladen."} />
+                        <EmptyState description={demoMode ? "Keine Maßnahmen für aktuelle Filterauswahl." : "Kursangebote werden aus BASIS geladen."} />
                       </td>
                     </tr>
                   )}
@@ -437,7 +409,7 @@ export function JvaDetail({
             <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-(--color-muted)">
               <li>Soll-Plätze aus BASIS-Katalog (Mindest-Soll Erwachsene)</li>
               <li>Beendigungsgründe RB-01–VB-07 nach Excel-Katalog</li>
-              <li>Datenstand wird aus BASIS-Web übernommen</li>
+              <li>Datenstand wird aus BASIS übernommen</li>
             </ul>
           </section>
         </div>

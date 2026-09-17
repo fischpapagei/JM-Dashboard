@@ -116,7 +116,7 @@ export function exportFreiePlaetzeExcel(input: FreiePlaetzeExcelInput): void {
   const sheetData: (string | number)[][] = [
     ['Landesweit freie Plätze', input.areaTitle],
     ['Erstellt am', buildCreatedAtLabel()],
-    ['Datenquelle', 'BASIS-Web'],
+    ['Datenquelle', 'BASIS'],
     [],
     ['Angewendete Filter'],
   ];

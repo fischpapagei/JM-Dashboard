@@ -1,11 +1,14 @@
 import { useCallback, useState } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AppPortalView } from "./components/AppPortalView";
 import { BerichteApp } from "./components/BerichteApp";
 import { LandingPage } from "./components/LandingPage";
 import { LoginPage } from "./components/LoginPage";
 import { ProtectedApp } from "./components/ProtectedApp";
 import { WeberfassungApp } from "./components/WeberfassungApp";
+import type { MainAppArea } from "./data/appAreas";
 import type { AppModule, KennzahlenLaunchContext } from "./types/app";
+import { AppShellLayout } from "./ui/AppShellLayout";
 import { KernContextProvider } from "./ui/kern";
 
 function AppShell() {
@@ -24,6 +27,18 @@ function AppShell() {
     setModule("kennzahlen");
   }, []);
 
+  const handleSelectArea = useCallback((area: MainAppArea) => {
+    setModule(area);
+  }, []);
+
+  const handleSelectModule = useCallback((next: Exclude<AppModule, "landing">) => {
+    setModule(next);
+  }, []);
+
+  const handleBackToLanding = useCallback(() => {
+    setModule("landing");
+  }, []);
+
   if (!isAuthenticated || !user) {
     return <LoginPage />;
   }
@@ -32,34 +47,55 @@ function AppShell() {
     return (
       <LandingPage
         user={user}
-        onSelectModule={(next) => setModule(next)}
+        onSelectModule={handleSelectModule}
+        onSelectArea={handleSelectArea}
         onLogout={handleLogout}
+      />
+    );
+  }
+
+  if (module === "beschaeftigungsportal" || module === "bildungsangebote") {
+    return (
+      <AppPortalView
+        portalId={module}
+        userName={user.displayName}
+        onBackToLanding={handleBackToLanding}
+        onLogout={handleLogout}
+        onSelectArea={handleSelectArea}
       />
     );
   }
 
   if (module === "berichte") {
     return (
-      <BerichteApp
-        onBackToLanding={() => setModule("landing")}
-        onLogout={handleLogout}
-        onLaunchReport={handleLaunchReport}
-      />
+      <AppShellLayout active="berichte" onSelectArea={handleSelectArea}>
+        <BerichteApp
+          onBackToLanding={handleBackToLanding}
+          onLogout={handleLogout}
+          onLaunchReport={handleLaunchReport}
+        />
+      </AppShellLayout>
     );
   }
 
   if (module === "kennzahlen") {
     return (
-      <ProtectedApp
-        launchContext={kennzahlenLaunch}
-        onLaunchContextConsumed={() => setKennzahlenLaunch(null)}
-        onBackToLanding={() => setModule("landing")}
-        onLogout={handleLogout}
-      />
+      <AppShellLayout active="kennzahlen" onSelectArea={handleSelectArea}>
+        <ProtectedApp
+          launchContext={kennzahlenLaunch}
+          onLaunchContextConsumed={() => setKennzahlenLaunch(null)}
+          onBackToLanding={handleBackToLanding}
+          onLogout={handleLogout}
+        />
+      </AppShellLayout>
     );
   }
 
-  return <WeberfassungApp onBackToLanding={() => setModule("landing")} onLogout={handleLogout} />;
+  return (
+    <AppShellLayout active="weberfassung" onSelectArea={handleSelectArea}>
+      <WeberfassungApp onBackToLanding={handleBackToLanding} onLogout={handleLogout} />
+    </AppShellLayout>
+  );
 }
 
 export default function App() {

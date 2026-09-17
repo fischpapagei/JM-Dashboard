@@ -21,7 +21,7 @@ export const DASHBOARD_AREAS: DashboardArea[] = [
     sidebarLabel: "Schulische Bildung",
     title: "Ministeriumsübersicht · Schulische Bildung",
     subtitle:
-      "Landesweite Steuerung schulischer Bildung im Justizvollzug — Auswertung aus BASIS-Web",
+      "Landesweite Steuerung schulischer Bildung im Justizvollzug — Auswertung aus BASIS",
     icon: GraduationCap,
   },
   {
@@ -29,7 +29,7 @@ export const DASHBOARD_AREAS: DashboardArea[] = [
     sidebarLabel: "Berufliche Bildung",
     title: "Ministeriumsübersicht · Berufliche Bildung",
     subtitle:
-      "Landesweite Steuerung beruflicher Bildung im Justizvollzug — Auswertung aus BASIS-Web",
+      "Landesweite Steuerung beruflicher Bildung im Justizvollzug — Auswertung aus BASIS",
     icon: Briefcase,
   },
   {
@@ -37,7 +37,7 @@ export const DASHBOARD_AREAS: DashboardArea[] = [
     sidebarLabel: "Arbeit und Arbeitstherapie",
     title: "Ministeriumsübersicht · Arbeit und Arbeitstherapie",
     subtitle:
-      "Landesweite Steuerung von Arbeit und Arbeitstherapie im Justizvollzug — Auswertung aus BASIS-Web",
+      "Landesweite Steuerung von Arbeit und Arbeitstherapie im Justizvollzug — Auswertung aus BASIS",
     icon: Hammer,
   },
   {
@@ -45,7 +45,7 @@ export const DASHBOARD_AREAS: DashboardArea[] = [
     sidebarLabel: "Beschäftigungsquote",
     title: "Ministeriumsübersicht · Beschäftigungsquote",
     subtitle:
-      "Landesweite Beschäftigungsquoten im Justizvollzug — Auswertung aus BASIS-Web",
+      "Landesweite Beschäftigungsquoten im Justizvollzug — Auswertung aus BASIS",
     icon: Percent,
   },
 ];

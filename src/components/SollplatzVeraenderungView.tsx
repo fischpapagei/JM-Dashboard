@@ -83,7 +83,7 @@ export function SollplatzVeraenderungView({
       {!demoMode ? (
         <EmptyState
           title="Keine Daten geladen"
-          description="Aktivieren Sie Demo-Daten in der Konfiguration, um den Bericht anzuzeigen. Produktivdaten kommen später automatisiert aus BASIS-Web."
+          description="Aktivieren Sie Demo-Daten in der Konfiguration, um den Bericht anzuzeigen. Produktivdaten kommen später automatisiert aus BASIS."
         />
       ) : !table || table.rows.length === 0 ? (
         <EmptyState
@@ -98,9 +98,9 @@ export function SollplatzVeraenderungView({
               erkennbar sein.
             </p>
             <p className="mt-1">
-              <span className="font-medium text-red-600">Rot:</span> veränderte Soll-Plätze
+              <span className="font-medium text-landesrot">Rot:</span> veränderte Soll-Plätze
               {' · '}
-              <span className="font-medium text-emerald-700">Grün:</span> neu eingerichteter Kurs
+              <span className="font-medium text-grasgruen">Grün:</span> neu eingerichteter Kurs
               {' · '}
               <span className="font-medium text-(--color-ink)">Schwarz:</span> keine Veränderung
             </p>

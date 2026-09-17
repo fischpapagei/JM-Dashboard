@@ -9,7 +9,7 @@ import {
 
 const LABEL_CELL = `${REPORT_LABEL_CELL} border-slate-300 text-[11px] text-(--color-ink)`;
 const DATA_CELL = `${REPORT_DATA_CELL} border-slate-300 text-[11px] text-(--color-ink)`;
-const HEADER_CELL = `${REPORT_HEADER_CELL} border-slate-400 bg-slate-200 text-[10px] font-semibold uppercase tracking-wide text-slate-800`;
+const HEADER_CELL = `${REPORT_HEADER_CELL} border-nachtblau-30 bg-nachtblau-15 text-[10px] font-semibold uppercase tracking-wide text-nachtblau`;
 
 interface SchulraeumeTableProps {
   table: SchulraumTable;
@@ -18,7 +18,7 @@ interface SchulraeumeTableProps {
 export function SchulraeumeTable({ table }: SchulraeumeTableProps) {
   return (
     <section className="w-full overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
-      <div className="border-b border-slate-200 bg-slate-100 px-4 py-3 text-center">
+      <div className="border-b border-nachtblau-30 bg-nachtblau-15 px-4 py-3 text-center">
         <h3 className="text-sm font-semibold text-(--color-ink)">Übersicht der Schulräume</h3>
       </div>
       <div className="w-full overflow-x-auto">
@@ -37,7 +37,7 @@ export function SchulraeumeTable({ table }: SchulraeumeTableProps) {
             {table.rows.map((row) => {
               if (row.kind !== 'room') {
                 return (
-                  <tr key={row.key} className="bg-slate-100 font-semibold">
+                  <tr key={row.key} className="bg-nachtblau-15 font-semibold">
                     <td className={LABEL_CELL} colSpan={2}>
                       {row.designation}
                     </td>

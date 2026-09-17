@@ -79,7 +79,7 @@ export function ChartExpandModal({
 
   return createPortal(
     <div className="fixed inset-0 z-[80] p-2 sm:p-3">
-      <div className="absolute inset-0 bg-(--justiz-nachtblau)/55" onClick={onClose} aria-hidden />
+      <div className="absolute inset-0 bg-nachtblau/55" onClick={onClose} aria-hidden />
 
       <div
         className="relative z-10 flex h-full w-full min-h-0 min-w-0 flex-col overflow-hidden rounded border-2 border-(--color-border) bg-white"

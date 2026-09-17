@@ -15,19 +15,9 @@ import {
   type CategoryChartGroup,
   type CategoryTrendPoint,
 } from '../utils/schulteilnehmende';
+import { CHART_GRID, CHART_MUTED, CHART_SERIES, NRW } from '../ui/chartTheme';
 
-const SERIES_COLORS = [
-  '#C0504D',
-  '#9BBB59',
-  '#8064A2',
-  '#4BACC6',
-  '#F79646',
-  '#1F497D',
-  '#C3D69B',
-  '#948A54',
-  '#E46C0A',
-  '#4F81BD',
-];
+const SERIES_COLORS = CHART_SERIES;
 
 function renderCountLabel(props: LabelProps, color: string, valueIsPercent: boolean) {
   const { x, y, value } = props;
@@ -84,15 +74,15 @@ export function ParticipantCategoryTrendChart({
       <div className="mt-3" style={{ height }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 24, right: 16, left: 8, bottom: 8 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#475569' }} />
-            <YAxis tick={{ fontSize: 11, fill: '#475569' }} domain={[0, maxY]} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+            <XAxis dataKey="label" tick={{ fontSize: 11, fill: CHART_MUTED }} />
+            <YAxis tick={{ fontSize: 11, fill: CHART_MUTED }} domain={[0, maxY]} />
             <Tooltip formatter={(value, name) => [formatValue(value), String(name)]} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
             {group.series.map((series, index) => {
               const color = series.isSumme
-                ? '#4F81BD'
-                : SERIES_COLORS[hasLeadingSumme ? index - 1 : index] ?? '#64748b';
+                ? NRW.nachtblau
+                : SERIES_COLORS[hasLeadingSumme ? index - 1 : index] ?? NRW.schwarz50;
               return (
                 <Line
                   key={series.key}
@@ -109,8 +99,8 @@ export function ParticipantCategoryTrendChart({
             {showNrwComparison &&
               group.series.map((series, index) => {
                 const color = series.isSumme
-                  ? '#4F81BD'
-                  : SERIES_COLORS[hasLeadingSumme ? index - 1 : index] ?? '#64748b';
+                  ? NRW.nachtblau
+                  : SERIES_COLORS[hasLeadingSumme ? index - 1 : index] ?? NRW.schwarz50;
                 return (
                   <Line
                     key={`${series.key}${NRW_SERIES_SUFFIX}`}

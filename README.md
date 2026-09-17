@@ -1,6 +1,6 @@
 # Kennzahlensystem Schulische Bildung NRW
 
-Interaktiver Prototyp eines Dashboards für Bildungskennzahlen in der schulischen Bildung der Justizvollzugsanstalten (JVAs) in Nordrhein-Westfalen. Das System dient als fachliche und technische Vorlage für eine spätere Anbindung an **BASIS-Web** bzw. eine Umsetzung in **Power BI**.
+Interaktiver Prototyp eines Dashboards für Bildungskennzahlen in der schulischen Bildung der Justizvollzugsanstalten (JVAs) in Nordrhein-Westfalen. Das System dient als fachliche und technische Vorlage für eine spätere Anbindung an **BASIS** bzw. eine Umsetzung in **Power BI**.
 
 ## Funktionsumfang
 
@@ -87,7 +87,7 @@ python3 scripts/md_to_docx.py
 
 - [x] UI-Prototyp mit Demo-Daten
 - [x] Power-BI-Spezifikation
-- [ ] Anbindung BASIS-Web-API
+- [ ] Anbindung BASIS-API
 - [ ] Produktives Deployment
 
 ## Lizenz

@@ -11,6 +11,7 @@ import {
 } from '../data/weberfassungNav';
 import { getJvaById } from '../data/jvas';
 import { JustizSidebar } from '../ui/JustizSidebar';
+import { AppBreadcrumb, type AppBreadcrumbItem } from '../ui/AppBreadcrumb';
 import {
   KernAlert,
   KernBadge,
@@ -57,12 +58,29 @@ export function WeberfassungApp({ onBackToLanding, onLogout }: WeberfassungAppPr
     setView(formKey);
   };
 
+  const breadcrumbItems: AppBreadcrumbItem[] = [
+    { id: 'start', label: 'Startseite', onSelect: onBackToLanding },
+    {
+      id: 'weberfassung',
+      label: 'Web-Erfassung',
+      onSelect: view === 'overview' ? undefined : () => setView('overview'),
+    },
+  ];
+
+  if (isWeberfassungFormView(view)) {
+    const category = WEBERFASSUNG_CATEGORIES.find((entry) => entry.key === activeCategory);
+    if (category) {
+      breadcrumbItems.push({ id: 'category', label: category.label });
+    }
+    breadcrumbItems.push({ id: 'form', label: getWeberfassungFormLabel(view) });
+  }
+
   const toggleCategory = (categoryKey: WeberfassungCategoryKey) => {
     setExpandedCategories((prev) => ({ ...prev, [categoryKey]: !prev[categoryKey] }));
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-0 flex-1">
       <JustizSidebar
         title="Web-Erfassung"
         userName={user.displayName}
@@ -134,6 +152,7 @@ export function WeberfassungApp({ onBackToLanding, onLogout }: WeberfassungAppPr
 
       <main className="flex-1 overflow-auto bg-(--color-main-bg)">
         <div className="mx-auto max-w-[1200px] p-6">
+          <AppBreadcrumb items={breadcrumbItems} />
           {view === 'overview' ? (
             <WeberfassungOverview
               isJvaRole={isJvaRole}

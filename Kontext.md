@@ -7,11 +7,12 @@
 
 ## UI-Struktur
 - **Auth:** `ministerium`/`jm2026` (Landesübersicht), `jva-<slug>`/`jva2026` (nur eigene JVA)
-- **Berichte:** `BerichteApp` — **Sidebar-Layout** (`JustizSidebar`) mit Berichtsebenen (JVA vs. Ministerium) und Berichtstypen. Die ersten beiden Einträge heißen **Schulischer Kurzbericht JVA** bzw. **Schulischer Kurzbericht landesweit**. Konfiguration mit KERN-Formularen. Anstaltsrolle sieht nur Ebenen mit verfügbaren Berichten. Inline-Vorschauen bleiben im Hauptbereich, die Navigation in der Seitenleiste.
-- **Kennzahlensystem:** ProtectedApp + SidebarLayout (`JustizSidebar`). Filter, KPI-Karten, Tabellen und Auswertungsflächen in KERN (Karten, Formulare, Tabellen, Badges); Charts mit Justiz-Kontrastfarben (`ui/chartTheme.ts`). **NRW gesamt:** KPI-Raster und Chart-Karten wie JVA-Stammdatenblatt (weiße `dashboard-kpi`, eine Reihe mit 6 Kacheln ab `lg`, ohne mintgrünes Inset-Panel). Diagramm-Vergrößerung füllt die Fensterfläche (`ChartExpandModal` misst die verfügbare Fläche).
+- **Startseite:** drei App-Kacheln (Kennzahlensystem, Berichte, Web-Erfassung) plus zwei Portalkacheln darunter: **Beschäftigungsportal Justizvollzug** und **Bildungsangebote in den Justizvollzugsanstalten des Landes Nordrhein-Westfalen** (`data/landingPortals.ts`). Ohne hinterlegte URL öffnet `AppPortalView` („Portal folgt“). Über allen Bereichen außer Login liegt die **Hauptbereichsleiste** (`AppAreaBar` / `data/appAreas.ts`): Kennzahlensystem, Berichte, Web-Erfassung, Beschäftigungsportal; der aktive Bereich ist farblich hinterlegt. Bildungsangebote bleiben nur Startkachel, nicht in der Leiste. **Brotkrumen** (`AppBreadcrumb`) auf jeder Seite: Startseite → Hauptbereich → Abschnitt → aktuelle Ansicht; Zwischenstationen sind anwählbar.
+- **Berichte:** `BerichteApp` — **Sidebar-Layout** (`JustizSidebar`) unter der Hauptbereichsleiste mit Berichtsebenen (JVA vs. Ministerium) und Berichtstypen. Die ersten beiden Einträge heißen **Schulischer Kurzbericht JVA** bzw. **Schulischer Kurzbericht landesweit**. Konfiguration mit KERN-Formularen; Ausgabeformat zeigt PDF und bei den Berichten 3–10 sowie 12 zusätzlich Excel. Anstaltsrolle sieht nur Ebenen mit verfügbaren Berichten. Inline-Vorschauen bleiben im Hauptbereich, die Navigation in der Seitenleiste. Startkachel „Berichte“: PDF und Excel.
+- **Kennzahlensystem:** ProtectedApp + SidebarLayout (`JustizSidebar`) unter der Hauptbereichsleiste. Filter, KPI-Karten, Tabellen und Auswertungsflächen in KERN (Karten, Formulare, Tabellen, Badges); Charts mit NRW-Nachtblau (`ui/chartTheme.ts`). **JVA-Stammdatenblatt (Ministerium):** JVA-Auswahl direkt unter der Seitenüberschrift (`Layout.titleMeta`), nicht mehr unter den Filtern. **NRW gesamt:** KPI-Raster und Chart-Karten wie JVA-Stammdatenblatt (weiße `dashboard-kpi`, eine Reihe mit 6 Kacheln ab `lg`, ohne mintgrünes Inset-Panel). Aktiver Sidebar-Eintrag in Nachtblau 50 % mit weißem Randstreifen, Kartenflächen weiß. Diagramm-Vergrößerung füllt die Fensterfläche (`ChartExpandModal`); Kategorie-Achsen im Modal schräg, damit Labels nicht überlappen.
 - **Tabellen in Berichten:** Spaltenbreite nach Inhalt (`table-auto`); Kennzahlen bleiben in der Zelle, breite Tabellen horizontal scrollbar
 - **PDF-Export:** `generateKurzberichtPdf` speichert Abschnitte als JPEG (~120 dpi, Qualität 0,72) statt PNG, damit Dateien im Megabyte-Bereich bleiben
-- **Excel-Export Berichte 3–10:** Button „Excel erzeugen“ neben PDF (nur Demo-Modus); formatierte Workbooks via `utils/excelWorkbook.ts` + `utils/exportBerichteExcel.ts` (Justiz-Kopfzeilen, Summenzeilen, Prozentpunkte, negative Werte rot). **Native Excel-Diagramme** (OOXML, injiziert mit `fflate`, weil `xlsx-js-style` keine Charts kann): Berichte 3–6 dieselben Zeitreihen wie die Vorschau (Blätter „Diag …“), Berichte 7–10 Säulendiagramme aus den Tabellen (Blatt „Diagramme“). Bericht 11 ohne Excel.
+- **Excel-Export Berichte 3–10 und 12:** Button „Excel erzeugen“ neben PDF (nur Demo-Modus); formatierte Workbooks via `utils/excelWorkbook.ts` + `utils/exportBerichteExcel.ts` (Justiz-Kopfzeilen, Summenzeilen, Prozentpunkte, negative Werte rot). **Native Excel-Diagramme** (OOXML, injiziert mit `fflate`, weil `xlsx-js-style` keine Charts kann): Berichte 3–6 dieselben Zeitreihen wie die Vorschau (Blätter „Diag …“), Berichte 7–10 Säulendiagramme aus den Tabellen (Blatt „Diagramme“). Bericht 11 ohne Excel, Bericht 12 Kontaktliste ohne Diagrammblatt.
 - **Sidebar (Ministerium):** vier aufklappbare Bereiche in `data/dashboardAreas.ts`:
   1. **Schulische Bildung:** Hub → „NRW gesamt“, „Landesweit freie Plätze“, „JVA-Stammdatenblatt“
   2. **Berufliche Bildung:** Hub → „NRW gesamt“, „Landesweit freie Plätze“, „JVA-Stammdatenblatt“
@@ -59,7 +60,7 @@
 ## Bericht 4a — Auslastungsquote (landesweit)
 - Kachel `auslastungsquote-landesweit`, nur Ministerium, eigene Vorschau + PDF + Excel
 - Pro Altersgruppe: 3 Summen-Charts (5Q / 13M / 11J, Linien weiblich/männlich/Summe) + 2 Kategorie-Charts (weiblich/männlich, je 6 Linien: SF, VM, SA, ST, AB, SO)
-- **Tabellen** (`AuslastungsquoteTables.tsx`): Quartal (grün) und Jahr (blau), Querformat-PDF
+- **Tabellen** (`AuslastungsquoteTables.tsx`): Quartal (Nachtblau 15/30 %) und Jahr (Nachtblau 30/50 %), Querformat-PDF
   - Quartal: Auslastung beide Geschlechter (aktuelles Q.); je Geschlecht Auslastung (aktuell/letztes Q./Vorjahres-Q., % zum letzten Q., % zum Vorjahres-Q.) und Soll-Plätze (aktuell, Vorjahres-Q., absolute Veränderung)
   - Jahr: Auslastung beide Geschlechter im abgeschlossenen Jahr; je Geschlecht Auslastung (aktuell/Vorjahr/% ) und Soll-Plätze (aktuell/Vorjahr/absolute Veränderung)
   - Negative Veränderungen rot; Kategoriesummen und Gesamtsumme aus aggregierten Teilnehmenden/Soll-Plätzen
@@ -73,7 +74,7 @@
 ## Bericht 5a — Beendigungsgründe (landesweit)
 - Kachel `beendigungsgruende-landesweit`, nur Ministerium, eigene Vorschau + PDF + Excel
 - Pro Altersgruppe: 3 Übersichts-Charts (5Q / 13M / 11J, je 6 Linien: vorzeitig/regulär × weiblich/männlich/Summe) + 2 Charts reguläre Gründe (w/m, je 3 Linien) + 2 Charts vorzeitige Gründe (w/m, je VB-01–VB-08)
-- **Tabellen:** Quartal (grün, relative % ) und Jahr (blau, absolute Veränderung); negative Werte rot; Summenzeilen je Beendigungsart
+- **Tabellen:** Quartal (Nachtblau 15/30 %, relative %) und Jahr (Nachtblau 30/50 %, absolute Veränderung); negative Werte in Landesrot; Summenzeilen je Beendigungsart
 - Freitextliste für das abgeschlossene Jahr (Demo: VB-01 und VB-08); Logik in `utils/beendigungsgruende.ts`
 
 ## Bericht 5b — Beendigungsgründe einer JVA
@@ -119,6 +120,11 @@
 - Tabelle mit Mandantschaften (Name, Kürzel, gemeldete Anzahl, rabattierte Zählung), Schulräumen, digitalen Sozialräumen, Rektorin/Rektor und Anmerkungen; Summe je JVA und Gesamtsumme
 - Demo aus Operationaldaten (eLis-Kennzahlen), aufgeteilt auf Mandantschaften je Anstalt; Logik in `utils/elisRaume.ts`
 
+## Bericht 12 — elis Ansprechpersonen
+- Kachel `elis-ansprechpersonen`, nur Ministerium (inkl. FB Päd.), eigene Vorschau + PDF + Excel
+- Tabelle **Elis (Stand …)**: JVA (elis-Verbünde, gV/oV), Rektorin/Rektor, Elis Sicherheitsrahmen (AL/VL, Päd. D., Technisch, Sonstige), Elis Sicherheitspartner (AL/VL, Päd. D., Päd. Vertreter, Technisch, Sonstige), Anmerkungen
+- Hinweis „Nur auf Ebene Ministerium (inkl. FB Päd.) abrufbar“; Demo-Namen je Anstalt/Vollzugsform; Logik in `utils/elisAnsprechpersonen.ts`
+
 ## Leerer Modus
 - **NRW-Übersicht:** `OperationalSummaryPanels` (Personal/eLis landesweit summiert) unter den Charts; Tabellen „Personal & eLis nach Anstalt“, „Alle Anstalten“ und „Freie Plätze“ entfernt
 - **KPI-Karten:** Vorperioden-Vergleich; **Freie Plätze** → Detail-Modal; **Beschäftigungsquote gesamt** → Sidebar „Beschäftigungsquote“
@@ -127,9 +133,9 @@
 
 ## Design
 - **KERN UX-Standard** als Komponentenbasis ([OpenCoDE GitLab](https://gitlab.opencode.de/kern-ux))
-- **Farbklima Justiz NRW** ([justiz.nrw](https://www.justiz.nrw)): Nachtblau `#003064`, Petrol `#175E54`, Landesgrün `#007A2E` (kontraststärker), Signalrot `#C40016`; KERN-Action- und Rahmen-Tokens darauf gemappt (`src/index.css`)
+- **NRW-Landesdesign 09/2025** ([land.nrw/design-manual](https://www.land.nrw/design-manual), Orientierung [recht.nrw.de](https://recht.nrw.de/)): Basisfarben Nachtblau `#003064` (15 % `#D9E0E8`, 30 % `#B3C1D1`, 50 % `#8098B2`), Schwarz, Weiß. Landesgrün `#009036` und Landesrot `#E2001A` nur für Erfolg/Fehler. Grasgrün `#175E54`, Petrolgrün `#009B74`, Farngrün `#76B828` nur als Zusatz in Diagrammen, wenn Nachtblau nicht reicht. Tokens in `src/index.css`, Charts in `src/ui/chartTheme.ts`. Tabellen: Quartal 15/30 %, Jahr 30/50 % Nachtblau.
 
 ## Nächste Schritte (optional)
-- Echte BASIS-Web-API-Anbindung
+- Echte BASIS-API-Anbindung
 - Deployment via `.env` vom Desktop
 - **Power BI:** `PowerBI_Kennzahlen_Spezifikation.md` / `.docx` — Kennzahlenlogik, Datenmodell, DAX-Muster; Word via `python3 scripts/md_to_docx.py`

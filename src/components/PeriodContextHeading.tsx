@@ -22,7 +22,7 @@ export function PeriodContextHeading({
             key={item.label}
             className={`inline-flex max-w-full items-center gap-2 rounded-full border-2 px-3 py-1.5 text-sm ${
               item.isActive
-                ? "border-(--justiz-petrol) bg-[#dceae6] text-(--color-ink)"
+                ? "border-nachtblau bg-nachtblau-15 text-(--color-ink)"
                 : "border-(--color-border) bg-white text-(--color-ink)"
             }`}
           >

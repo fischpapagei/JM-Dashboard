@@ -21,7 +21,7 @@ export function createEmptyKpis(): KpiValue[] {
     value: null,
     nrwComparison: null,
     status: 'empty' as const,
-    subline: 'Daten aus BASIS-Web',
+    subline: 'Daten aus BASIS',
   }));
 }
 

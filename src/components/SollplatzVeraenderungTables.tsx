@@ -9,11 +9,11 @@ import {
 
 const LABEL_CELL = `${REPORT_LABEL_CELL} border-slate-300`;
 const DATA_CELL = `${REPORT_DATA_CELL} border-slate-300 text-[11px]`;
-const HEADER_CELL = `${REPORT_HEADER_CELL} border-slate-600 bg-slate-600 text-[10px] font-semibold uppercase tracking-wide text-white`;
+const HEADER_CELL = `${REPORT_HEADER_CELL} border-nachtblau bg-nachtblau text-[10px] font-semibold uppercase tracking-wide text-white`;
 
 function rowTone(kind: SollplatzChangeKind): string {
-  if (kind === 'new') return 'text-emerald-700';
-  if (kind === 'changed') return 'text-red-600';
+  if (kind === 'new') return 'text-grasgruen';
+  if (kind === 'changed') return 'text-landesrot';
   return 'text-(--color-ink)';
 }
 

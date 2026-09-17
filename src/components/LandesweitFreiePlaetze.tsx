@@ -78,7 +78,7 @@ export function LandesweitFreiePlaetze({
       <section className="kern-card kern-card--hug dashboard-panel p-4">
         <h2 className="kern-heading-small text-(--color-ink)">Landesweit freie Plätze</h2>
         <p className="mt-1 text-sm text-(--color-muted)">
-          Tagesaktuelle freie Plätze für {area.sidebarLabel.toLowerCase()} — Auswertung aus BASIS-Web.
+          Tagesaktuelle freie Plätze für {area.sidebarLabel.toLowerCase()} — Auswertung aus BASIS.
         </p>
       </section>
 

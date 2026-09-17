@@ -77,7 +77,7 @@ export function PaedPersonalDetailModal({
 
         <div className="max-h-[70vh] overflow-auto px-5 py-4">
           {sortedRows.length === 0 ? (
-            <EmptyState description="Noch keine Personal-Daten geladen — Daten aus BASIS-Web" />
+            <EmptyState description="Noch keine Personal-Daten geladen — Daten aus BASIS" />
           ) : (
             <table className="w-full text-sm">
               <thead>

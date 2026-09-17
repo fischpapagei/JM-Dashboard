@@ -139,8 +139,8 @@ export function UtilizationTrendChart({
               className={[
                 "rounded-md px-2 py-1 text-[11px] font-medium transition-colors",
                 active
-                  ? "bg-(--justiz-petrol) text-white"
-                  : "border border-(--color-border) bg-white text-(--color-ink) hover:bg-[#dceae6]",
+                  ? "bg-nachtblau text-white"
+                  : "border border-(--color-border) bg-white text-(--color-ink) hover:bg-nachtblau-15",
               ].join(" ")}
             >
               {TREND_GRANULARITY_LABELS[option]}
@@ -154,7 +154,7 @@ export function UtilizationTrendChart({
             "ml-1 rounded-md border px-2 py-1 text-[11px] font-medium transition-colors",
             showTrendLine
               ? "border-(--justiz-rot) bg-[#fde8ea] text-(--justiz-rot)"
-              : "border-(--color-border) bg-white text-(--color-ink) hover:bg-[#dceae6]",
+              : "border-(--color-border) bg-white text-(--color-ink) hover:bg-nachtblau-15",
           ].join(" ")}
           aria-pressed={showTrendLine}
         >

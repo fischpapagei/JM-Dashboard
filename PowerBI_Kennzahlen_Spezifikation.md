@@ -3,7 +3,7 @@
 **Stand:** Juni 2026  
 **Bezug:** Prototyp „Kennzahlensystem Schulische Bildung NRW“ (React/Vite)  
 **Zielgruppe:** Data Scientists / Power-BI-Entwickler  
-**Zweck:** Nachvollziehbare Umsetzung aller Kennzahlen, Filter und Visualisierungen in Power BI auf Basis von BASIS-Web-Daten
+**Zweck:** Nachvollziehbare Umsetzung aller Kennzahlen, Filter und Visualisierungen in Power BI auf Basis von BASIS-Daten
 
 ---
 
@@ -442,7 +442,7 @@ In Power BI alternativ: integrierte **Trendlinie** in einem Line-Chart oder `LIN
 
 ## Anhang C — Checkliste Umsetzung
 
-- [ ] Staging-Tabellen aus BASIS-Web anlegen
+- [ ] Staging-Tabellen aus BASIS anlegen
 - [ ] Sternschema in Power BI modellieren
 - [ ] Dim_Berichtszeitraum mit Hierarchie und Vorperioden-Spalte
 - [ ] Alle Maße aus Abschnitt 5 als DAX implementieren
@@ -450,8 +450,8 @@ In Power BI alternativ: integrierte **Trendlinie** in einem Line-Chart oder `LIN
 - [ ] NRW- vs. JVA-Ansicht als Lesezeichen oder separate Report-Seiten
 - [ ] RLS für JVA-Rollen testen
 - [ ] Plausibilität: Auslastung 0–100 %, freie Plätze ≥ 0
-- [ ] Abgleich Stichproben mit Prototyp (Demo-Modus) und BASIS-Web
+- [ ] Abgleich Stichproben mit Prototyp (Demo-Modus) und BASIS
 
 ---
 
-*Dokument erzeugt aus dem React-Prototyp „Dashboard Kennzahlen JM“. Bei Abweichungen zwischen Prototyp und fachlicher Vorgabe BASIS-Web gilt die Datenquelle BASIS.*
+*Dokument erzeugt aus dem React-Prototyp „Dashboard Kennzahlen JM“. Bei Abweichungen zwischen Prototyp und fachlicher Vorgabe BASIS gilt die Datenquelle BASIS.*

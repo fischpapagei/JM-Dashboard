@@ -91,7 +91,7 @@ export function NrwJahresberichtView({ kpis, jvaRows, demoMode }: NrwJahresberic
                       description={
                         demoMode
                           ? 'Keine Daten für aktuelle Filterauswahl.'
-                          : 'Noch keine Kennzahlendaten geladen — Daten aus BASIS-Web'
+                          : 'Noch keine Kennzahlendaten geladen — Daten aus BASIS'
                       }
                     />
                   </td>

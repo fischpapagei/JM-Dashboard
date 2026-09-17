@@ -14,12 +14,12 @@ import {
 
 function ChangeCell({ value }: { value: number | null }) {
   if (value == null) return <span className="text-slate-400">—</span>;
-  const className = value < 0 ? 'font-medium text-red-600' : 'text-slate-700';
+  const className = value < 0 ? 'font-medium text-landesrot' : 'text-slate-700';
   return <span className={className}>{formatPercent(value)}</span>;
 }
 
 function SignedNumberCell({ value }: { value: number }) {
-  const className = value < 0 ? 'font-medium text-red-600' : 'text-slate-700';
+  const className = value < 0 ? 'font-medium text-landesrot' : 'text-slate-700';
   return <span className={className}>{formatNumber(value)}</span>;
 }
 
@@ -52,62 +52,62 @@ export function BeendigungsgruendeQuarterTable({
   ];
   return (
     <section className="w-full overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
-      <div className="border-b border-emerald-200 bg-emerald-50 px-4 py-3">
+      <div className="border-b border-nachtblau-30 bg-nachtblau-15 px-4 py-3">
         <h3 className="text-sm font-semibold text-(--color-ink)">{title}</h3>
       </div>
       <div className="w-full overflow-x-auto">
         <table className={`${REPORT_TABLE_CLASS} text-[11px]`}>
           <thead>
-            <tr className="bg-emerald-100 text-[10px] uppercase tracking-wide text-emerald-900">
-              <th className={`${HEADER_CELL} border-emerald-200`} rowSpan={2}>
+            <tr className="bg-nachtblau-30 text-[10px] uppercase tracking-wide text-nachtblau">
+              <th className={`${HEADER_CELL} border-nachtblau-30`} rowSpan={2}>
                 Beendigung
               </th>
-              <th className={`${HEADER_CELL} border-emerald-200`} rowSpan={2}>
+              <th className={`${HEADER_CELL} border-nachtblau-30`} rowSpan={2}>
                 Beendigungsgrund
               </th>
               <th
-                className={`${HEADER_CELL} border-emerald-200 text-center`}
+                className={`${HEADER_CELL} border-nachtblau-30 text-center`}
                 colSpan={bothSpan}
                 rowSpan={showNrwComparison ? 1 : 2}
               >
                 Beendigungen beide Geschlechter im aktuellen Quartal ({labels.current})
               </th>
               {visibleGenders.map(([key, label]) => (
-                <th key={key} className={`${HEADER_CELL} border-emerald-200 text-center`} colSpan={genderSpan}>
+                <th key={key} className={`${HEADER_CELL} border-nachtblau-30 text-center`} colSpan={genderSpan}>
                   Beendigungen — {label} Gefangene
                 </th>
               ))}
             </tr>
-            <tr className="bg-emerald-50 text-[9px] leading-tight text-emerald-900">
+            <tr className="bg-nachtblau-15 text-[9px] leading-tight text-nachtblau">
               {showNrwComparison && (
                 <>
-                  <th className={`${HEADER_CELL} border-emerald-200`}>Aktuelles Quartal ({labels.current})</th>
-                  <th className={`${HEADER_CELL} border-emerald-200`}>NRW-Ø ({labels.current})</th>
-                  <th className={`${HEADER_CELL} border-emerald-200`}>% zu NRW-Ø</th>
+                  <th className={`${HEADER_CELL} border-nachtblau-30`}>Aktuelles Quartal ({labels.current})</th>
+                  <th className={`${HEADER_CELL} border-nachtblau-30`}>NRW-Ø ({labels.current})</th>
+                  <th className={`${HEADER_CELL} border-nachtblau-30`}>% zu NRW-Ø</th>
                 </>
               )}
               {visibleGenders.flatMap(([gender]) => [
-                <th key={`${gender}-c`} className={`${HEADER_CELL} border-emerald-200`}>
+                <th key={`${gender}-c`} className={`${HEADER_CELL} border-nachtblau-30`}>
                   Aktuelles Quartal ({labels.current})
                 </th>,
-                <th key={`${gender}-p`} className={`${HEADER_CELL} border-emerald-200`}>
+                <th key={`${gender}-p`} className={`${HEADER_CELL} border-nachtblau-30`}>
                   Letztes Quartal ({labels.previous})
                 </th>,
-                <th key={`${gender}-y`} className={`${HEADER_CELL} border-emerald-200`}>
+                <th key={`${gender}-y`} className={`${HEADER_CELL} border-nachtblau-30`}>
                   Vorjahresquartal ({labels.yearAgo})
                 </th>,
-                <th key={`${gender}-cp`} className={`${HEADER_CELL} border-emerald-200`}>
+                <th key={`${gender}-cp`} className={`${HEADER_CELL} border-nachtblau-30`}>
                   % zum letzten Q.
                 </th>,
-                <th key={`${gender}-cy`} className={`${HEADER_CELL} border-emerald-200`}>
+                <th key={`${gender}-cy`} className={`${HEADER_CELL} border-nachtblau-30`}>
                   % zum Vorjahres-Q.
                 </th>,
                 ...(showNrwComparison
                   ? [
-                      <th key={`${gender}-nrw`} className={`${HEADER_CELL} border-emerald-200`}>
+                      <th key={`${gender}-nrw`} className={`${HEADER_CELL} border-nachtblau-30`}>
                         NRW-Ø ({labels.current})
                       </th>,
-                      <th key={`${gender}-vs`} className={`${HEADER_CELL} border-emerald-200`}>
+                      <th key={`${gender}-vs`} className={`${HEADER_CELL} border-nachtblau-30`}>
                         % zu NRW-Ø
                       </th>,
                     ]
@@ -127,7 +127,7 @@ export function BeendigungsgruendeQuarterTable({
               return (
                 <tr
                   key={`${row.levelKey}-${row.reasonKey ?? 'sum'}`}
-                  className={row.isLevelSum ? 'bg-emerald-50/70 font-medium' : 'bg-white'}
+                  className={row.isLevelSum ? 'bg-nachtblau-15/80 font-medium' : 'bg-white'}
                 >
                   {showLevel && (
                     <td className={`${LABEL_CELL} border-slate-200 text-(--color-ink)`} rowSpan={span}>
@@ -206,56 +206,56 @@ export function BeendigungsgruendeYearTable({
   ];
   return (
     <section className="w-full overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
-      <div className="border-b border-sky-200 bg-sky-50 px-4 py-3">
+      <div className="border-b border-nachtblau-50 bg-nachtblau-30 px-4 py-3">
         <h3 className="text-sm font-semibold text-(--color-ink)">{title}</h3>
       </div>
       <div className="w-full overflow-x-auto">
         <table className={`${REPORT_TABLE_CLASS} text-[11px]`}>
           <thead>
-            <tr className="bg-sky-100 text-[10px] uppercase tracking-wide text-sky-900">
-              <th className={`${HEADER_CELL} border-sky-200`} rowSpan={2}>
+            <tr className="bg-nachtblau-50 text-[10px] uppercase tracking-wide text-nachtblau">
+              <th className={`${HEADER_CELL} border-nachtblau-50`} rowSpan={2}>
                 Beendigung
               </th>
-              <th className={`${HEADER_CELL} border-sky-200`} rowSpan={2}>
+              <th className={`${HEADER_CELL} border-nachtblau-50`} rowSpan={2}>
                 Beendigungsgrund
               </th>
               <th
-                className={`${HEADER_CELL} border-sky-200 text-center`}
+                className={`${HEADER_CELL} border-nachtblau-50 text-center`}
                 colSpan={bothSpan}
                 rowSpan={showNrwComparison ? 1 : 2}
               >
                 Beendigungen beide Geschlechter im aktuellen Jahr ({labels.current})
               </th>
               {visibleGenders.map(([key, label]) => (
-                <th key={key} className={`${HEADER_CELL} border-sky-200 text-center`} colSpan={genderSpan}>
+                <th key={key} className={`${HEADER_CELL} border-nachtblau-50 text-center`} colSpan={genderSpan}>
                   Beendigungen — {label} Gefangene
                 </th>
               ))}
             </tr>
-            <tr className="bg-sky-50 text-[9px] leading-tight text-sky-900">
+            <tr className="bg-nachtblau-30 text-[9px] leading-tight text-nachtblau">
               {showNrwComparison && (
                 <>
-                  <th className={`${HEADER_CELL} border-sky-200`}>Aktuelles Jahr ({labels.current})</th>
-                  <th className={`${HEADER_CELL} border-sky-200`}>NRW-Ø ({labels.current})</th>
-                  <th className={`${HEADER_CELL} border-sky-200`}>% zu NRW-Ø</th>
+                  <th className={`${HEADER_CELL} border-nachtblau-50`}>Aktuelles Jahr ({labels.current})</th>
+                  <th className={`${HEADER_CELL} border-nachtblau-50`}>NRW-Ø ({labels.current})</th>
+                  <th className={`${HEADER_CELL} border-nachtblau-50`}>% zu NRW-Ø</th>
                 </>
               )}
               {visibleGenders.flatMap(([gender]) => [
-                <th key={`${gender}-c`} className={`${HEADER_CELL} border-sky-200`}>
+                <th key={`${gender}-c`} className={`${HEADER_CELL} border-nachtblau-50`}>
                   Aktuelles Jahr ({labels.current})
                 </th>,
-                <th key={`${gender}-p`} className={`${HEADER_CELL} border-sky-200`}>
+                <th key={`${gender}-p`} className={`${HEADER_CELL} border-nachtblau-50`}>
                   Letztes Jahr ({labels.previous})
                 </th>,
-                <th key={`${gender}-d`} className={`${HEADER_CELL} border-sky-200`}>
+                <th key={`${gender}-d`} className={`${HEADER_CELL} border-nachtblau-50`}>
                   Veränderung zum letzten Jahr
                 </th>,
                 ...(showNrwComparison
                   ? [
-                      <th key={`${gender}-nrw`} className={`${HEADER_CELL} border-sky-200`}>
+                      <th key={`${gender}-nrw`} className={`${HEADER_CELL} border-nachtblau-50`}>
                         NRW-Ø ({labels.current})
                       </th>,
-                      <th key={`${gender}-vs`} className={`${HEADER_CELL} border-sky-200`}>
+                      <th key={`${gender}-vs`} className={`${HEADER_CELL} border-nachtblau-50`}>
                         % zu NRW-Ø
                       </th>,
                     ]
@@ -275,7 +275,7 @@ export function BeendigungsgruendeYearTable({
               return (
                 <tr
                   key={`${row.levelKey}-${row.reasonKey ?? 'sum'}`}
-                  className={row.isLevelSum ? 'bg-sky-50/70 font-medium' : 'bg-white'}
+                  className={row.isLevelSum ? 'bg-nachtblau-30/80 font-medium' : 'bg-white'}
                 >
                   {showLevel && (
                     <td className={`${LABEL_CELL} border-slate-200 text-(--color-ink)`} rowSpan={span}>

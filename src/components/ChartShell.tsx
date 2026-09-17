@@ -175,7 +175,7 @@ export function ChartShell({
             {subtitle && <p className="kern-body kern-body--small mt-1 text-(--color-muted)">{subtitle}</p>}
           </div>
           {canExpand && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded bg-(--justiz-petrol) px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded bg-nachtblau px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
               <Maximize2 className="h-3 w-3" aria-hidden />
               Vergrößern
             </span>

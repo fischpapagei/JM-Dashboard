@@ -11,12 +11,9 @@ import {
 } from 'recharts';
 import type { GenderTrendPoint } from '../utils/schulteilnehmende';
 import { formatNumber, formatPercent } from '../utils/format';
+import { CHART_GENDER, CHART_GRID, CHART_MUTED } from '../ui/chartTheme';
 
-const COLORS = {
-  weiblich: '#4F81BD',
-  maennlich: '#F79646',
-  summe: '#7F7F7F',
-} as const;
+const COLORS = CHART_GENDER;
 
 function renderCountLabel(props: LabelProps, color: string, valueIsPercent: boolean) {
   const { x, y, value } = props;
@@ -90,10 +87,10 @@ export function ParticipantGenderTrendChart({
       <div className="mt-3" style={{ height }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 24, right: 16, left: 8, bottom: 8 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#475569' }} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+            <XAxis dataKey="label" tick={{ fontSize: 11, fill: CHART_MUTED }} />
             <YAxis
-              tick={{ fontSize: 11, fill: '#475569' }}
+              tick={{ fontSize: 11, fill: CHART_MUTED }}
               domain={[0, maxY]}
               tickFormatter={(value) => (valueIsPercent ? `${value}` : String(value))}
             />

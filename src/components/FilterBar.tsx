@@ -338,8 +338,8 @@ function TerminationReasonSelect({
             role="option"
             aria-selected={!value}
             tabIndex={0}
-            className={`flex w-full cursor-pointer items-center rounded px-2 py-1.5 hover:bg-[#dceae6] ${
-              !value ? "bg-[#dceae6] font-semibold" : ""
+            className={`flex w-full cursor-pointer items-center rounded px-2 py-1.5 hover:bg-nachtblau-15 ${
+              !value ? "bg-nachtblau-15 font-semibold" : ""
             }`}
             onClick={() => {
               onChange(null);
@@ -361,8 +361,8 @@ function TerminationReasonSelect({
               role="option"
               aria-selected={value === reason.key}
               tabIndex={0}
-              className={`flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover:bg-[#dceae6] ${
-                value === reason.key ? "bg-[#dceae6] font-semibold" : ""
+              className={`flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover:bg-nachtblau-15 ${
+                value === reason.key ? "bg-nachtblau-15 font-semibold" : ""
               }`}
               onClick={() => {
                 onChange(reason.key);

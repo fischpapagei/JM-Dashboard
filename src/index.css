@@ -1,42 +1,74 @@
 @import "tailwindcss";
 
-/* Farbklima Justiz NRW / Landes-CD, angelegt an https://www.justiz.nrw */
+/* NRW-Landesdesign 09/2025: Basis Nachtblau/Schwarz/Weiß, Landesfarben nur für Feedback. */
+@theme {
+  --color-nachtblau: #003064;
+  --color-nachtblau-15: #d9e0e8;
+  --color-nachtblau-30: #b3c1d1;
+  --color-nachtblau-50: #8098b2;
+  --color-grasgruen: #175e54;
+  --color-petrolgruen: #009b74;
+  --color-farngruen: #76b828;
+  --color-landesgruen: #009036;
+  --color-landesrot: #e2001a;
+}
+
 :root,
 [data-kern-theme="light"],
 .kern-light {
-  --justiz-nachtblau: #003064;
-  --justiz-petrol: #175e54;
-  --justiz-gruen: #007a2e;
-  --justiz-rot: #c40016;
-  --justiz-bg: #e8eef2;
+  --nrw-nachtblau: #003064;
+  --nrw-nachtblau-15: #d9e0e8;
+  --nrw-nachtblau-30: #b3c1d1;
+  --nrw-nachtblau-50: #8098b2;
+  --nrw-schwarz: #000000;
+  --nrw-schwarz-15: #d9d9d9;
+  --nrw-schwarz-30: #b3b3b3;
+  --nrw-schwarz-50: #808080;
+  --nrw-weiss: #ffffff;
+  --nrw-gruen: #009036;
+  --nrw-rot: #e2001a;
+  --nrw-grasgruen: #175e54;
+  --nrw-petrolgruen: #009b74;
+  --nrw-farngruen: #76b828;
+  --nrw-bg: #f4f6f8;
+  --nrw-ink: #003064;
+  --nrw-muted: #4d5f70;
+  --nrw-border: #b3c1d1;
 
-  --color-sidebar: var(--justiz-nachtblau);
-  --color-sidebar-active: var(--justiz-petrol);
-  --color-ink: var(--justiz-nachtblau);
-  --color-accent: var(--justiz-petrol);
-  --color-main-bg: var(--justiz-bg);
-  --color-muted: #1f3b55;
-  --color-border: #5b7388;
-  --color-surface: #ffffff;
+  --justiz-nachtblau: var(--nrw-nachtblau);
+  --justiz-petrol: var(--nrw-grasgruen);
+  --justiz-gruen: var(--nrw-gruen);
+  --justiz-rot: var(--nrw-rot);
+  --justiz-bg: var(--nrw-bg);
 
-  --kern-color-action-default: var(--justiz-petrol);
-  --kern-color-action-default-contextual: var(--justiz-petrol);
+  --color-sidebar: var(--nrw-nachtblau);
+  --color-sidebar-active: var(--nrw-nachtblau-50);
+  --color-ink: var(--nrw-ink);
+  --color-accent: var(--nrw-nachtblau);
+  --color-main-bg: var(--nrw-bg);
+  --color-muted: var(--nrw-muted);
+  --color-border: var(--nrw-nachtblau-50);
+  --color-surface: var(--nrw-weiss);
+
+  --kern-color-action-default: var(--nrw-nachtblau);
+  --kern-color-action-default-contextual: var(--nrw-nachtblau);
   --kern-color-action-on-default: #ffffff;
   --kern-color-action-on-default-contextual: #ffffff;
-  --kern-color-decorative-brand-default: var(--justiz-nachtblau);
-  --kern-color-decorative-border-default: #5b7388;
-  --kern-color-layout-border: #5b7388;
-  --kern-color-layout-text-muted: #1f3b55;
-  --kern-color-feedback-success: var(--justiz-gruen);
-  --kern-color-feedback-danger: var(--justiz-rot);
-  --kern-color-layout-background-hued: var(--justiz-bg);
-  --kern-color-layout-background-default-surface: var(--justiz-bg);
+  --kern-color-decorative-brand-default: var(--nrw-nachtblau);
+  --kern-color-decorative-border-default: var(--nrw-border);
+  --kern-color-layout-border: var(--nrw-border);
+  --kern-color-layout-text-muted: var(--nrw-muted);
+  --kern-color-feedback-success: var(--nrw-gruen);
+  --kern-color-feedback-danger: var(--nrw-rot);
+  --kern-color-layout-background-hued: var(--nrw-bg);
+  --kern-color-layout-background-default-surface: var(--nrw-weiss);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   background-color: var(--color-main-bg);
+  color: var(--color-ink);
 }
 
 #root {
@@ -46,7 +78,7 @@ body {
 .justiz-brand-bar {
   background-color: var(--color-sidebar);
   color: #fff;
-  border-bottom: 4px solid var(--justiz-gruen);
+  border-bottom: 1px solid rgb(255 255 255 / 20%);
 }
 
 .justiz-brand-bar .kern-btn--tertiary .kern-label {
@@ -60,6 +92,86 @@ body {
 .justiz-brand-bar p,
 .justiz-brand-bar .kern-text {
   color: #fff;
+}
+
+.app-area-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  background-color: var(--color-sidebar);
+  color: #fff;
+  padding: 0 1rem;
+  border-bottom: 1px solid rgb(255 255 255 / 20%);
+}
+
+.app-area-bar__item {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.25;
+  padding: 0.75rem 1rem;
+}
+
+.app-area-bar__item:hover {
+  background-color: rgb(255 255 255 / 12%);
+}
+
+.app-area-bar__item--active {
+  background-color: var(--color-sidebar-active);
+  box-shadow: inset 0 -3px 0 #fff;
+}
+
+.app-breadcrumb {
+  margin-bottom: 0.75rem;
+}
+
+.app-breadcrumb__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.15rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--kern-typography-font-family-default, "Fira Sans");
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.app-breadcrumb__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.app-breadcrumb__sep {
+  color: var(--color-muted);
+}
+
+.app-breadcrumb__link {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--color-sidebar);
+  cursor: pointer;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.app-breadcrumb__link:hover,
+.app-breadcrumb__link:focus-visible {
+  color: var(--color-ink);
+}
+
+.app-breadcrumb__current {
+  color: var(--color-ink);
+  font-weight: 600;
 }
 
 /* Justiz-Seitenleiste: KERN-Buttons und -Typografie auf Nachtblau */
@@ -109,7 +221,13 @@ body {
 }
 
 .justiz-sidebar .kern-btn--primary {
-  background-color: var(--color-accent);
+  background-color: var(--color-sidebar-active);
+  box-shadow: inset 3px 0 0 #fff;
+}
+
+.justiz-sidebar .kern-btn--primary:not(:disabled):hover,
+.justiz-sidebar .kern-btn--primary:not([aria-disabled="true"]):hover {
+  background-color: var(--nrw-nachtblau-30);
 }
 
 .justiz-sidebar__nav .kern-btn--tertiary .kern-label {
@@ -144,7 +262,7 @@ body {
 
 /* Kennzahlensystem: KERN-Karten und Tabellen mit höherem Kontrast */
 .kern-card {
-  border-width: 2px;
+  border-width: 1px;
   border-color: var(--color-border);
   align-self: stretch;
   width: 100%;
@@ -159,28 +277,24 @@ body {
 }
 
 .dashboard-table.kern-table .kern-table__header {
-  background-color: var(--justiz-nachtblau);
-  color: #fff;
-  box-shadow: inset 0 -2px 0 var(--justiz-petrol);
-}
-
-.dashboard-table.kern-table .kern-table__header {
-  color: #fff;
+  background-color: var(--nrw-nachtblau-30);
+  color: var(--nrw-nachtblau);
+  box-shadow: inset 0 -2px 0 var(--nrw-nachtblau-50);
 }
 
 .dashboard-kpi {
-  border: 2px solid var(--color-border);
+  border: 1px solid var(--color-border);
   background: var(--color-surface);
 }
 
 .dashboard-kpi--inset {
-  border-color: var(--justiz-petrol);
-  background: #dceae6;
+  border-color: var(--nrw-nachtblau-30);
+  background: var(--nrw-nachtblau-15);
 }
 
 .dashboard-kpi--accent {
-  border-color: var(--justiz-nachtblau);
-  background: var(--justiz-nachtblau);
+  border-color: var(--nrw-nachtblau);
+  background: var(--nrw-nachtblau);
   color: #fff;
 }
 

@@ -1,5 +1,9 @@
 import type { AuthUser } from '../types/auth';
 import type { AppModule } from '../types/app';
+import type { MainAppArea } from '../data/appAreas';
+import { LANDING_PORTALS, type LandingPortal } from '../data/landingPortals';
+import { AppAreaBar } from '../ui/AppAreaBar';
+import { AppBreadcrumb } from '../ui/AppBreadcrumb';
 import { KernAppChrome } from '../ui/KernAppChrome';
 import {
   KernBadge,
@@ -16,10 +20,16 @@ import {
 interface LandingPageProps {
   user: AuthUser;
   onSelectModule: (module: Exclude<AppModule, 'landing'>) => void;
+  onSelectArea: (area: MainAppArea) => void;
   onLogout: () => void;
 }
 
-export function LandingPage({ user, onSelectModule, onLogout }: LandingPageProps) {
+function openPortal(portal: LandingPortal) {
+  if (!portal.href) return;
+  window.open(portal.href, '_blank', 'noopener,noreferrer');
+}
+
+export function LandingPage({ user, onSelectModule, onSelectArea, onLogout }: LandingPageProps) {
   const isJvaRole = user.role === 'jva';
 
   return (
@@ -30,12 +40,14 @@ export function LandingPage({ user, onSelectModule, onLogout }: LandingPageProps
           <KernButton type="button" variant="tertiary" label="Abmelden" onClick={onLogout} />
         </>
       }
+      nav={<AppAreaBar active={null} onSelect={onSelectArea} />}
     >
       <KernContainer>
         <KernSpace size="large" />
+        <AppBreadcrumb items={[{ id: 'start', label: 'Startseite' }]} />
         <KernHeading level={1}>Willkommen</KernHeading>
         <KernText>
-          Wählen Sie Kennzahlen, Berichte oder die Web-Erfassung für Ihre JVA.
+          Wählen Sie Kennzahlen, Berichte, die Web-Erfassung oder eines der Portale für Ihre JVA.
         </KernText>
         <KernSpace size="large" />
         <KernRow>
@@ -53,13 +65,13 @@ export function LandingPage({ user, onSelectModule, onLogout }: LandingPageProps
               }
             >
               Landes- und anstaltsbezogene Auswertungen, Dashboards und Vergleiche — Daten aus
-              BASIS-Web.
+              BASIS.
             </KernCard>
           </KernColumn>
           <KernColumn sizes={{ xs: 12, md: 4 }}>
             <KernCard
               title="Berichte"
-              subline="PDF-Konfiguration"
+              subline="PDF und Excel"
               footer={
                 <KernButton
                   type="button"
@@ -69,8 +81,8 @@ export function LandingPage({ user, onSelectModule, onLogout }: LandingPageProps
                 />
               }
             >
-              Berichte konfigurieren und als PDF erzeugen — Kurzberichte und weitere Auswertungen
-              nach Zeitraum und Anstalt.
+              Berichte konfigurieren und als PDF oder Excel erzeugen — Kurzberichte und weitere
+              Auswertungen nach Zeitraum und Anstalt.
             </KernCard>
           </KernColumn>
           <KernColumn sizes={{ xs: 12, md: 4 }}>
@@ -93,10 +105,37 @@ export function LandingPage({ user, onSelectModule, onLogout }: LandingPageProps
             </KernCard>
           </KernColumn>
         </KernRow>
+        <KernSpace size="large" />
+        <KernRow>
+          {LANDING_PORTALS.map((portal) => (
+            <KernColumn key={portal.id} sizes={{ xs: 12, md: 6 }}>
+              <KernCard
+                title={portal.title}
+                subline={portal.subline}
+                footer={
+                  <KernButton
+                    type="button"
+                    variant="primary"
+                    label={portal.buttonLabel}
+                    onClick={() => {
+                      if (portal.href) {
+                        openPortal(portal);
+                        return;
+                      }
+                      onSelectModule(portal.id);
+                    }}
+                  />
+                }
+              >
+                {portal.description}
+              </KernCard>
+            </KernColumn>
+          ))}
+        </KernRow>
         <KernSpace size="x-large" />
         <KernText muted size="small">
-          Mock-up v2 · Kennzahlensystem = Auswertung · Berichte = PDF-Konfiguration · Web-Erfassung
-          = Dateneingabe
+          Mock-up v2 · Kennzahlensystem = Auswertung · Berichte = PDF und Excel · Web-Erfassung
+          = Dateneingabe · Portale = Beschäftigungsportal und Bildungsangebote
         </KernText>
         <KernSpace size="large" />
       </KernContainer>

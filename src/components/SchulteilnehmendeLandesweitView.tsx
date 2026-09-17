@@ -198,7 +198,7 @@ export function SchulteilnehmendeLandesweitView({
       {!demoMode ? (
         <EmptyState
           title="Keine Daten geladen"
-          description="Aktivieren Sie Demo-Daten in der Konfiguration, um den Bericht anzuzeigen. Produktivdaten kommen später aus BASIS-Web."
+          description="Aktivieren Sie Demo-Daten in der Konfiguration, um den Bericht anzuzeigen. Produktivdaten kommen später aus BASIS."
         />
       ) : ageSections.length === 0 ? (
         <EmptyState

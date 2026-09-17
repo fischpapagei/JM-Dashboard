@@ -33,14 +33,14 @@ export function JvaComparisonTable({ rows, onSelectJva }: JvaComparisonTableProp
             {rows.length === 0 ? (
               <tr className="kern-table__row">
                 <td className="kern-table__cell" colSpan={9}>
-                  <EmptyState description="Noch keine Kennzahlendaten geladen — Daten aus BASIS-Web" />
+                  <EmptyState description="Noch keine Kennzahlendaten geladen — Daten aus BASIS" />
                 </td>
               </tr>
             ) : (
               rows.map((r) => (
                 <tr
                   key={r.jvaId}
-                  className={`kern-table__row ${onSelectJva ? "cursor-pointer hover:bg-[#dceae6]" : ""}`}
+                  className={`kern-table__row ${onSelectJva ? "cursor-pointer hover:bg-nachtblau-15" : ""}`}
                   onClick={() => onSelectJva?.(r.jvaId)}
                 >
                   <td className="kern-table__cell font-semibold text-(--color-ink)">{r.jvaName}</td>

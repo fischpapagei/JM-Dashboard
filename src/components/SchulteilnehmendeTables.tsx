@@ -14,7 +14,7 @@ import {
 
 function ChangeCell({ value }: { value: number | null }) {
   if (value == null) return <span className="text-slate-400">—</span>;
-  const className = value < 0 ? 'font-medium text-red-600' : 'text-slate-700';
+  const className = value < 0 ? 'font-medium text-landesrot' : 'text-slate-700';
   return <span className={className}>{formatPercent(value)}</span>;
 }
 
@@ -38,49 +38,49 @@ export function SchulteilnehmendeQuarterTable({
   const genderColSpan = showNrwComparison ? 7 : 5;
   return (
     <section className="w-full overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
-      <div className="border-b border-emerald-200 bg-emerald-50 px-4 py-3">
+      <div className="border-b border-nachtblau-30 bg-nachtblau-15 px-4 py-3">
         <h3 className="text-sm font-semibold text-(--color-ink)">{title}</h3>
       </div>
       <div className="w-full overflow-x-auto">
         <table className={`${REPORT_TABLE_CLASS} text-xs`}>
           <thead>
-            <tr className="bg-emerald-100 text-[11px] uppercase tracking-wide text-emerald-900">
-              <th className={`${HEADER_CELL} border-emerald-200`} rowSpan={2}>
+            <tr className="bg-nachtblau-30 text-[11px] uppercase tracking-wide text-nachtblau">
+              <th className={`${HEADER_CELL} border-nachtblau-30`} rowSpan={2}>
                 Hauptkategorie
               </th>
-              <th className={`${HEADER_CELL} border-emerald-200`} rowSpan={2}>
+              <th className={`${HEADER_CELL} border-nachtblau-30`} rowSpan={2}>
                 Maßnahmenkategorie
               </th>
-              <th className={`${HEADER_CELL} border-emerald-200 text-center`} colSpan={genderColSpan}>
+              <th className={`${HEADER_CELL} border-nachtblau-30 text-center`} colSpan={genderColSpan}>
                 Teilnehmende — Weibliche Gefangene
               </th>
-              <th className={`${HEADER_CELL} border-emerald-200 text-center`} colSpan={genderColSpan}>
+              <th className={`${HEADER_CELL} border-nachtblau-30 text-center`} colSpan={genderColSpan}>
                 Teilnehmende — Männliche Gefangene
               </th>
             </tr>
-            <tr className="bg-emerald-50 text-[10px] text-emerald-900">
+            <tr className="bg-nachtblau-15 text-[10px] text-nachtblau">
               {['weiblich', 'männlich'].flatMap((gender) => [
-                <th key={`${gender}-c`} className={`${HEADER_CELL} border-emerald-200`}>
+                <th key={`${gender}-c`} className={`${HEADER_CELL} border-nachtblau-30`}>
                   Aktuelles Quartal ({labels.current})
                 </th>,
-                <th key={`${gender}-p`} className={`${HEADER_CELL} border-emerald-200`}>
+                <th key={`${gender}-p`} className={`${HEADER_CELL} border-nachtblau-30`}>
                   Letztes Quartal ({labels.previous})
                 </th>,
-                <th key={`${gender}-y`} className={`${HEADER_CELL} border-emerald-200`}>
+                <th key={`${gender}-y`} className={`${HEADER_CELL} border-nachtblau-30`}>
                   Vorjahresquartal ({labels.yearAgo})
                 </th>,
-                <th key={`${gender}-cp`} className={`${HEADER_CELL} border-emerald-200`}>
+                <th key={`${gender}-cp`} className={`${HEADER_CELL} border-nachtblau-30`}>
                   % zum letzten Q.
                 </th>,
-                <th key={`${gender}-cy`} className={`${HEADER_CELL} border-emerald-200`}>
+                <th key={`${gender}-cy`} className={`${HEADER_CELL} border-nachtblau-30`}>
                   % zum Vorjahres-Q.
                 </th>,
                 ...(showNrwComparison
                   ? [
-                      <th key={`${gender}-nrw`} className={`${HEADER_CELL} border-emerald-200`}>
+                      <th key={`${gender}-nrw`} className={`${HEADER_CELL} border-nachtblau-30`}>
                         NRW-Ø ({labels.current})
                       </th>,
-                      <th key={`${gender}-vs`} className={`${HEADER_CELL} border-emerald-200`}>
+                      <th key={`${gender}-vs`} className={`${HEADER_CELL} border-nachtblau-30`}>
                         % zu NRW-Ø
                       </th>,
                     ]
@@ -97,7 +97,7 @@ export function SchulteilnehmendeQuarterTable({
               return (
                 <tr
                   key={`${row.categoryKey}-${row.courseTypeKey ?? 'sum'}`}
-                  className={row.isCategorySum ? 'bg-emerald-50/70 font-medium' : 'bg-white'}
+                  className={row.isCategorySum ? 'bg-nachtblau-15/80 font-medium' : 'bg-white'}
                 >
                   {showCategory && (
                     <td className={`${LABEL_CELL} border-slate-200 text-(--color-ink)`} rowSpan={span}>
@@ -158,46 +158,46 @@ export function SchulteilnehmendeYearTable({
   const genderColSpan = showNrwComparison ? 6 : 4;
   return (
     <section className="w-full overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
-      <div className="border-b border-sky-200 bg-sky-50 px-4 py-3">
+      <div className="border-b border-nachtblau-50 bg-nachtblau-30 px-4 py-3">
         <h3 className="text-sm font-semibold text-(--color-ink)">{title}</h3>
       </div>
       <div className="w-full overflow-x-auto">
         <table className={`${REPORT_TABLE_CLASS} text-xs`}>
           <thead>
-            <tr className="bg-sky-100 text-[11px] uppercase tracking-wide text-sky-900">
-              <th className={`${HEADER_CELL} border-sky-200`} rowSpan={2}>
+            <tr className="bg-nachtblau-50 text-[11px] uppercase tracking-wide text-nachtblau">
+              <th className={`${HEADER_CELL} border-nachtblau-50`} rowSpan={2}>
                 Hauptkategorie
               </th>
-              <th className={`${HEADER_CELL} border-sky-200`} rowSpan={2}>
+              <th className={`${HEADER_CELL} border-nachtblau-50`} rowSpan={2}>
                 Maßnahmenkategorie
               </th>
-              <th className={`${HEADER_CELL} border-sky-200 text-center`} colSpan={genderColSpan}>
+              <th className={`${HEADER_CELL} border-nachtblau-50 text-center`} colSpan={genderColSpan}>
                 Teilnehmende — Weibliche Gefangene
               </th>
-              <th className={`${HEADER_CELL} border-sky-200 text-center`} colSpan={genderColSpan}>
+              <th className={`${HEADER_CELL} border-nachtblau-50 text-center`} colSpan={genderColSpan}>
                 Teilnehmende — Männliche Gefangene
               </th>
             </tr>
-            <tr className="bg-sky-50 text-[10px] text-sky-900">
+            <tr className="bg-nachtblau-30 text-[10px] text-nachtblau">
               {['weiblich', 'männlich'].flatMap((gender) => [
-                <th key={`${gender}-c`} className={`${HEADER_CELL} border-sky-200`}>
+                <th key={`${gender}-c`} className={`${HEADER_CELL} border-nachtblau-50`}>
                   Aktuelles Jahr ({labels.current})
                 </th>,
-                <th key={`${gender}-p`} className={`${HEADER_CELL} border-sky-200`}>
+                <th key={`${gender}-p`} className={`${HEADER_CELL} border-nachtblau-50`}>
                   Vorjahr ({labels.previous})
                 </th>,
-                <th key={`${gender}-s`} className={`${HEADER_CELL} border-sky-200`}>
+                <th key={`${gender}-s`} className={`${HEADER_CELL} border-nachtblau-50`}>
                   %-Anteil {labels.current}
                 </th>,
-                <th key={`${gender}-d`} className={`${HEADER_CELL} border-sky-200`}>
+                <th key={`${gender}-d`} className={`${HEADER_CELL} border-nachtblau-50`}>
                   % zum Vorjahr
                 </th>,
                 ...(showNrwComparison
                   ? [
-                      <th key={`${gender}-nrw`} className={`${HEADER_CELL} border-sky-200`}>
+                      <th key={`${gender}-nrw`} className={`${HEADER_CELL} border-nachtblau-50`}>
                         NRW-Ø ({labels.current})
                       </th>,
-                      <th key={`${gender}-vs`} className={`${HEADER_CELL} border-sky-200`}>
+                      <th key={`${gender}-vs`} className={`${HEADER_CELL} border-nachtblau-50`}>
                         % zu NRW-Ø
                       </th>,
                     ]
@@ -214,7 +214,7 @@ export function SchulteilnehmendeYearTable({
               return (
                 <tr
                   key={`${row.categoryKey}-${row.courseTypeKey ?? 'sum'}`}
-                  className={row.isCategorySum ? 'bg-sky-50/70 font-medium' : 'bg-white'}
+                  className={row.isCategorySum ? 'bg-nachtblau-30/80 font-medium' : 'bg-white'}
                 >
                   {showCategory && (
                     <td className={`${LABEL_CELL} border-slate-200 text-(--color-ink)`} rowSpan={span}>

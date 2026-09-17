@@ -16,11 +16,17 @@ export type ReportKey =
   | 'sollplaetze-veraenderung'
   | 'schulraeume-landesweit'
   | 'stellen-landesweit'
-  | 'elis-raeume-mandantschaften';
+  | 'elis-raeume-mandantschaften'
+  | 'elis-ansprechpersonen';
 
 export type ReportStatus = 'available' | 'planned';
 
-export type ReportFormat = 'pdf';
+export type ReportFormat = 'pdf' | 'excel';
+
+export const REPORT_FORMAT_LABELS: Record<ReportFormat, string> = {
+  pdf: 'PDF',
+  excel: 'Excel',
+};
 
 export interface ReportDefinition {
   key: ReportKey;
@@ -80,7 +86,7 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
       'Quartals- und Jahrestabellen mit Veränderungen',
     ],
     status: 'available',
-    formats: ['pdf'],
+    formats: ['pdf', 'excel'],
     areaKey: 'schulische-bildung',
     scope: 'nrw',
     roles: ['ministry'],
@@ -96,7 +102,7 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
       'Quartals- und Jahrestabellen mit NRW-Ø und Abweichung',
     ],
     status: 'available',
-    formats: ['pdf'],
+    formats: ['pdf', 'excel'],
     areaKey: 'schulische-bildung',
     scope: 'jva',
     roles: ['ministry', 'jva'],
@@ -113,7 +119,7 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
       'Jahreswerte nur für abgeschlossene Kalenderjahre',
     ],
     status: 'available',
-    formats: ['pdf'],
+    formats: ['pdf', 'excel'],
     areaKey: 'schulische-bildung',
     scope: 'nrw',
     roles: ['ministry'],
@@ -129,7 +135,7 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
       'Quartals- und Jahrestabellen mit NRW-Ø und Abweichung',
     ],
     status: 'available',
-    formats: ['pdf'],
+    formats: ['pdf', 'excel'],
     areaKey: 'schulische-bildung',
     scope: 'jva',
     roles: ['ministry', 'jva'],
@@ -146,7 +152,7 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
       'Auflistung der Freitextgründe im abgeschlossenen Jahr',
     ],
     status: 'available',
-    formats: ['pdf'],
+    formats: ['pdf', 'excel'],
     areaKey: 'schulische-bildung',
     scope: 'nrw',
     roles: ['ministry'],
@@ -162,7 +168,7 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
       'Quartals- und Jahrestabellen mit NRW-Ø und Abweichung',
     ],
     status: 'available',
-    formats: ['pdf'],
+    formats: ['pdf', 'excel'],
     areaKey: 'schulische-bildung',
     scope: 'jva',
     roles: ['ministry', 'jva'],
@@ -178,7 +184,7 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
       'Jahrestabelle mit Anteilen und Veränderungen',
     ],
     status: 'available',
-    formats: ['pdf'],
+    formats: ['pdf', 'excel'],
     areaKey: 'schulische-bildung',
     scope: 'nrw',
     roles: ['ministry'],
@@ -194,7 +200,7 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
       'Jahrestabelle mit NRW-Ø und Abweichung',
     ],
     status: 'available',
-    formats: ['pdf'],
+    formats: ['pdf', 'excel'],
     areaKey: 'schulische-bildung',
     scope: 'jva',
     roles: ['ministry', 'jva'],
@@ -211,7 +217,7 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
       'Spalte „Durchführung durch externe Kraft“ nur für JM, FB Päd. und ZBI',
     ],
     status: 'available',
-    formats: ['pdf'],
+    formats: ['pdf', 'excel'],
     areaKey: 'schulische-bildung',
     scope: 'nrw',
     roles: ['ministry', 'jva'],
@@ -227,7 +233,7 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
       'Gesamtsumme der Soll-Plätze und der Veränderung',
     ],
     status: 'available',
-    formats: ['pdf'],
+    formats: ['pdf', 'excel'],
     areaKey: 'schulische-bildung',
     scope: 'nrw',
     roles: ['ministry'],
@@ -243,7 +249,7 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
       'Jährliche Prüfung der Daten durch die Anstalten im Webformular',
     ],
     status: 'available',
-    formats: ['pdf'],
+    formats: ['pdf', 'excel'],
     areaKey: 'schulische-bildung',
     scope: 'nrw',
     roles: ['ministry'],
@@ -259,7 +265,7 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
       'Summenzeile über alle Anstalten',
     ],
     status: 'available',
-    formats: ['pdf'],
+    formats: ['pdf', 'excel'],
     areaKey: 'schulische-bildung',
     scope: 'nrw',
     roles: ['ministry'],
@@ -276,6 +282,23 @@ export const REPORT_DEFINITIONS: ReportDefinition[] = [
     ],
     status: 'available',
     formats: ['pdf'],
+    areaKey: 'schulische-bildung',
+    scope: 'nrw',
+    roles: ['ministry'],
+  },
+  {
+    key: 'elis-ansprechpersonen',
+    title: 'elis Ansprechpersonen',
+    description:
+      'Bericht 12 für das Ministerium (inkl. FB Päd.): eLis-Ansprechpersonen je Anstalt, Sicherheitsrahmen und Sicherheitspartner.',
+    contents: [
+      'Name der JVA (elis-Verbünde) und Rektorin/Rektor',
+      'Elis Sicherheitsrahmen: AL/VL, Päd. D., Technisch, Sonstige',
+      'Elis Sicherheitspartner: AL/VL, Päd. D., Päd. Vertreter, Technisch, Sonstige',
+      'Anmerkungen je Anstalt',
+    ],
+    status: 'available',
+    formats: ['pdf', 'excel'],
     areaKey: 'schulische-bildung',
     scope: 'nrw',
     roles: ['ministry'],
@@ -317,6 +340,7 @@ export function isInlinePreviewReport(key: ReportKey): boolean {
     key === 'sollplaetze-veraenderung' ||
     key === 'schulraeume-landesweit' ||
     key === 'stellen-landesweit' ||
-    key === 'elis-raeume-mandantschaften'
+    key === 'elis-raeume-mandantschaften' ||
+    key === 'elis-ansprechpersonen'
   );
 }

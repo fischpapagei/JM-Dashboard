@@ -5,6 +5,7 @@ import {
   getReportByKey,
   getReportsForRoleAndAudience,
   isInlinePreviewReport,
+  REPORT_FORMAT_LABELS,
   type ReportAudience,
   type ReportDefinition,
   type ReportKey,
@@ -31,7 +32,9 @@ import { SollplatzVeraenderungView } from './SollplatzVeraenderungView';
 import { SchulraeumeLandesweitView } from './SchulraeumeLandesweitView';
 import { StellenLandesweitView } from './StellenLandesweitView';
 import { ElisRaumeLandesweitView } from './ElisRaumeLandesweitView';
+import { ElisAnsprechpersonenLandesweitView } from './ElisAnsprechpersonenLandesweitView';
 import { JustizSidebar } from '../ui/JustizSidebar';
+import { AppBreadcrumb, type AppBreadcrumbItem } from '../ui/AppBreadcrumb';
 import {
   KernAlert,
   KernBadge,
@@ -193,8 +196,40 @@ export function BerichteApp({ onBackToLanding, onLogout, onLaunchReport }: Beric
     ] satisfies { key: ReportAudience; reports: ReportDefinition[] }[]
   ).filter((group) => group.reports.length > 0);
 
+  const goToBerichteHub = () => {
+    setAudience(null);
+    setShowInlinePreview(false);
+  };
+
+  const breadcrumbItems: AppBreadcrumbItem[] = [
+    { id: 'start', label: 'Startseite', onSelect: onBackToLanding },
+    { id: 'berichte', label: 'Berichte', onSelect: audience ? goToBerichteHub : undefined },
+  ];
+
+  if (audience) {
+    breadcrumbItems.push({
+      id: 'audience',
+      label: AUDIENCE_COPY[audience].title,
+      onSelect: showInlinePreview
+        ? () => setShowInlinePreview(false)
+        : undefined,
+    });
+  }
+
+  if (audience && selectedReport) {
+    breadcrumbItems.push({
+      id: 'report',
+      label: selectedReport.title,
+      onSelect: showInlinePreview ? () => setShowInlinePreview(false) : undefined,
+    });
+  }
+
+  if (showInlinePreview) {
+    breadcrumbItems.push({ id: 'preview', label: 'Vorschau' });
+  }
+
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-0 flex-1">
       <JustizSidebar
         title="Berichte"
         userName={user.displayName}
@@ -202,7 +237,7 @@ export function BerichteApp({ onBackToLanding, onLogout, onLaunchReport }: Beric
         onLogout={onLogout}
         note={
           <KernText size="small">
-            Berichte = PDF-Konfiguration.
+            Berichte = PDF und Excel.
             <br />
             Auswertung im Kennzahlensystem.
           </KernText>
@@ -270,6 +305,7 @@ export function BerichteApp({ onBackToLanding, onLogout, onLaunchReport }: Beric
       <main className="flex-1 overflow-auto bg-(--color-main-bg)">
         {showInlinePreview && selectedKey && isInlinePreviewReport(selectedKey) ? (
           <div className="mx-auto max-w-[1600px] p-6">
+            <AppBreadcrumb items={breadcrumbItems} />
             <BerichteInlinePreview
               selectedKey={selectedKey}
               berichtszeitpunkt={berichtszeitpunkt}
@@ -282,6 +318,7 @@ export function BerichteApp({ onBackToLanding, onLogout, onLaunchReport }: Beric
           </div>
         ) : (
           <div className="mx-auto max-w-[1200px] p-6">
+            <AppBreadcrumb items={breadcrumbItems} />
             {!audience ? (
               <ReportAudienceHub
                 jvaCount={jvaReports.length}
@@ -346,6 +383,16 @@ function BerichteInlinePreview({
   showExternalColumn: boolean;
   onBack: () => void;
 }) {
+  if (selectedKey === 'elis-ansprechpersonen') {
+    return (
+      <ElisAnsprechpersonenLandesweitView
+        berichtszeitpunkt={berichtszeitpunkt}
+        demoMode={demoMode}
+        exportRef={exportRef}
+        onBack={onBack}
+      />
+    );
+  }
   if (selectedKey === 'elis-raeume-mandantschaften') {
     return (
       <ElisRaumeLandesweitView
@@ -544,6 +591,7 @@ function ReportConfiguration({
   const isAvailable = report.status === 'available';
   const isLandesweitReport = report.key === 'schulischer-bildungsbericht-landesweit';
   const isInlinePreview = isInlinePreviewReport(report.key);
+  const hasExcel = report.formats.includes('excel');
   const isEntwicklungReport = isLandesweitReport && landesweitReportVariant === 'entwicklung';
   const berichtszeitpunktOptions = useMemo(
     () =>
@@ -722,9 +770,14 @@ function ReportConfiguration({
           </>
         )}
 
-        <KernSelect id="ausgabeformat" label="Ausgabeformat" value="pdf" disabled>
-          <option value="pdf">PDF</option>
-        </KernSelect>
+        <div>
+          <p className="kern-label">Ausgabeformat</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {report.formats.map((format) => (
+              <KernBadge key={format} label={REPORT_FORMAT_LABELS[format]} variant="info" />
+            ))}
+          </div>
+        </div>
         <KernSpace size="default" />
 
         {showJvaSelect ? (
@@ -748,7 +801,11 @@ function ReportConfiguration({
         <KernCheckbox
           id="demo-mode"
           name="demo-mode"
-          label="Demo-Daten für Vorschau und PDF-Erzeugung verwenden"
+          label={
+            hasExcel
+              ? 'Demo-Daten für Vorschau, PDF- und Excel-Erzeugung verwenden'
+              : 'Demo-Daten für Vorschau und PDF-Erzeugung verwenden'
+          }
           checked={demoMode}
           onChange={(event) => onDemoModeChange(event.target.checked)}
         />
@@ -763,7 +820,9 @@ function ReportConfiguration({
       {isAvailable ? (
         <KernText muted size="small">
           {isInlinePreview
-            ? 'Öffnet die Berichtsvorschau mit Grafiken. Dort kann das PDF erzeugt werden.'
+            ? hasExcel
+              ? 'Öffnet die Berichtsvorschau mit Grafiken. Dort können PDF und Excel erzeugt werden.'
+              : 'Öffnet die Berichtsvorschau mit Grafiken. Dort kann das PDF erzeugt werden.'
             : 'Öffnet die passende Auswertung mit vorausgewähltem Zeitraum. Dort „Kurzbericht erzeugen“ klicken.'}
         </KernText>
       ) : (

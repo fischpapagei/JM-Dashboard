@@ -19,7 +19,7 @@ export function JustizSidebar({
   note,
 }: JustizSidebarProps) {
   return (
-    <aside className="justiz-sidebar flex w-72 shrink-0 flex-col overflow-y-auto p-4">
+    <aside className="justiz-sidebar flex h-full min-h-0 w-72 shrink-0 flex-col overflow-y-auto p-4">
       <div className="mb-2">
         <KernText type="preline">Justiz NRW</KernText>
         <KernHeading level={2} size="small">

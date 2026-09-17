@@ -4,6 +4,8 @@ import { KernAlert, KernBadge, KernHeading, KernSpace, KernText } from '../ui/ke
 interface LayoutProps {
   title: string;
   subtitle?: string;
+  breadcrumb?: ReactNode;
+  titleMeta?: ReactNode;
   demoSlot?: ReactNode;
   headerRight?: ReactNode;
   demoMode?: boolean;
@@ -14,6 +16,8 @@ interface LayoutProps {
 export function Layout({
   title,
   subtitle,
+  breadcrumb,
+  titleMeta,
   demoSlot,
   headerRight,
   demoMode,
@@ -33,11 +37,13 @@ export function Layout({
           <KernSpace size="default" />
         </>
       ) : null}
+      {breadcrumb}
       <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <KernHeading level={1} size="medium">
             {title}
           </KernHeading>
+          {titleMeta ? <div className="mt-3 max-w-md">{titleMeta}</div> : null}
           {showDemo ? (
             <>
               <KernSpace size="2x-small" />

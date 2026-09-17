@@ -1,7 +1,13 @@
 import type { DashboardAreaKey, DashboardFilters, NavView } from './domain';
 import type { EntwicklungZeitraum } from '../utils/periods';
 
-export type AppModule = 'landing' | 'kennzahlen' | 'weberfassung' | 'berichte';
+export type AppModule =
+  | 'landing'
+  | 'kennzahlen'
+  | 'weberfassung'
+  | 'berichte'
+  | 'beschaeftigungsportal'
+  | 'bildungsangebote';
 
 export type LandesweitReportVariant = 'entwicklung' | 'jahresbericht';
 

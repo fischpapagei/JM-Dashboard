@@ -101,7 +101,7 @@ export function SchoolRoomsDetailModal({
 
         <div className="max-h-[70vh] overflow-auto px-5 py-4">
           {summaries.length === 0 ? (
-            <EmptyState description="Noch keine Schulraumdaten geladen — Daten aus BASIS-Web" />
+            <EmptyState description="Noch keine Schulraumdaten geladen — Daten aus BASIS" />
           ) : (
             <div className="space-y-2">
               {summaries.map((summary) => {

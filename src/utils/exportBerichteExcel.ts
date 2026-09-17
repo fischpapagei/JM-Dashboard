@@ -27,6 +27,11 @@ import type {
 } from './schulteilnehmende';
 import { NRW_SERIES_SUFFIX } from './schulteilnehmende';
 import type { SollplatzVeraenderungTable } from './sollplatzVeraenderung';
+import type { ElisAnsprechpersonenTable } from './elisAnsprechpersonen';
+import {
+  ELIS_SICHERHEITSPARTNER_COLUMNS,
+  ELIS_SICHERHEITSRAHMEN_COLUMNS,
+} from './elisAnsprechpersonen';
 import type { StellenTable } from './stellen';
 import {
   buildCreatedAtLabel,
@@ -98,7 +103,7 @@ function overviewSheet(meta: ReportExcelMeta, notes: string[]): ExcelSheet {
   }
   rows.push(
     [C.metaLabel('Erstellt am'), C.metaValue(buildCreatedAtLabel())],
-    [C.metaLabel('Datenquelle'), C.metaValue('Demo-Daten / BASIS-Web')],
+    [C.metaLabel('Datenquelle'), C.metaValue('Demo-Daten / BASIS')],
     [C.empty()],
   );
   for (const note of notes) {
@@ -142,22 +147,20 @@ function finishSheet(
 }
 
 const GENDER_CHART_COLORS = {
-  weiblich: '4F81BD',
-  maennlich: 'F79646',
-  summe: '7F7F7F',
+  weiblich: '003064',
+  maennlich: '8098B2',
+  summe: '808080',
 } as const;
 
 const CATEGORY_CHART_COLORS = [
-  'C0504D',
-  '9BBB59',
-  '8064A2',
-  '4BACC6',
-  'F79646',
-  '1F497D',
-  'C3D69B',
-  '948A54',
-  'E46C0A',
-  '4F81BD',
+  '003064',
+  '8098B2',
+  '175E54',
+  '009B74',
+  '76B828',
+  '000000',
+  'B3C1D1',
+  '808080',
 ];
 
 function pushChartSheet(
@@ -359,7 +362,7 @@ export function exportSchulteilnehmendeExcel(input: {
 }): void {
   const sheets: ExcelSheet[] = [
     overviewSheet(input.meta, [
-      'Die Tabellen entsprechen der Berichtsvorschau (Quartal grün/Petrol, Jahr blau/Nachtblau).',
+      'Die Tabellen entsprechen der Berichtsvorschau (Quartal Nachtblau 15/30 %, Jahr Nachtblau 30/50 %).',
       'Prozentwerte sind Prozentpunkte (z. B. 12,5 %). Negative Veränderungen sind rot markiert.',
       'Native Excel-Diagramme stehen auf den Blättern „Diag …“ (gleiche Zeitreihen wie in der Vorschau).',
       input.showNrwComparison
@@ -1146,7 +1149,7 @@ export function exportKursangeboteExcel(input: {
             title: 'SOLL-Plätze je Hauptkategorie',
             type: 'col',
             categories: categories.map((item) => item.label),
-            series: [{ name: 'SOLL-Plätze', color: '175E54', values: categories.map((item) => item.value) }],
+            series: [{ name: 'SOLL-Plätze', color: '8098B2', values: categories.map((item) => item.value) }],
           },
         ]);
         return sheet ? [sheet] : [];
@@ -1244,7 +1247,7 @@ export function exportSollplatzVeraenderungExcel(input: {
             series: [
               {
                 name: `Vormonat (${input.table.previousMonthLabel})`,
-                color: '175E54',
+                color: '8098B2',
                 values: names.map((name) => byJva.get(name)?.previous ?? 0),
               },
               {
@@ -1261,7 +1264,7 @@ export function exportSollplatzVeraenderungExcel(input: {
             series: [
               {
                 name: 'Veränderung',
-                color: 'C40016',
+                color: 'E2001A',
                 values: names.map((name) => byJva.get(name)?.change ?? 0),
               },
             ],
@@ -1332,7 +1335,7 @@ export function exportSchulraeumeExcel(input: {
             title: 'Anzahl Räume je Anstalt',
             type: 'col',
             categories: sums.map((row) => row.jvaName),
-            series: [{ name: 'Räume', color: '175E54', values: sums.map((row) => row.roomCount) }],
+            series: [{ name: 'Räume', color: '8098B2', values: sums.map((row) => row.roomCount) }],
           },
         ]);
         return sheet ? [sheet] : [];
@@ -1388,7 +1391,7 @@ export function exportStellenExcel(input: {
             categories: input.table.rows.map((row) => row.jvaName),
             series: [
               { name: 'Anzahl Stellen', color: '003064', values: input.table.rows.map((row) => row.stellen) },
-              { name: 'davon besetzt', color: '007A2E', values: input.table.rows.map((row) => row.besetzt) },
+              { name: 'davon besetzt', color: '8098B2', values: input.table.rows.map((row) => row.besetzt) },
             ],
           },
         ]);
@@ -1403,6 +1406,69 @@ export function exportStellenExcel(input: {
         body,
         [],
         1,
+      ),
+    ],
+    buildExcelFilename(input.meta.filenameBase),
+  );
+}
+
+export function exportElisAnsprechpersonenExcel(input: {
+  meta: ReportExcelMeta;
+  table: ElisAnsprechpersonenTable;
+}): void {
+  const theme: ExcelTheme = 'neutral';
+  const grouped = buildGroupedHeader(
+    ['Name der JVA (elis Verbünde)', 'Name der Rektorin/ des Rektors'],
+    [
+      {
+        title: 'Elis Sicherheitsrahmen',
+        columns: ELIS_SICHERHEITSRAHMEN_COLUMNS.map((column) => column.label),
+      },
+      {
+        title: 'Elis Sicherheitspartner',
+        columns: ELIS_SICHERHEITSPARTNER_COLUMNS.map((column) => column.label),
+      },
+    ],
+    theme,
+    0,
+  );
+  const headerRow1 = grouped.rows[0];
+  const headerRow2 = grouped.rows[1];
+  if (!headerRow1 || !headerRow2) {
+    throw new Error('Excel-Kopfzeilen für Ansprechpersonen fehlen.');
+  }
+  const anmerkungenCol = headerRow1.length;
+  headerRow1.push(C.header('Anmerkungen', theme));
+  headerRow2.push(C.header('', theme));
+  grouped.merges.push(mergeCells(0, anmerkungenCol, 1, anmerkungenCol));
+
+  const body = input.table.rows.map((row) => [
+    C.label(row.jvaLabel, { theme }),
+    C.text(row.rektor, { theme }),
+    ...ELIS_SICHERHEITSRAHMEN_COLUMNS.map((column) => C.text(row.sicherheitsrahmen[column.key], { theme })),
+    ...ELIS_SICHERHEITSPARTNER_COLUMNS.map((column) =>
+      C.text(row.sicherheitspartner[column.key], { theme }),
+    ),
+    C.text(row.anmerkungen, { theme }),
+  ]);
+
+  writeStyledWorkbook(
+    [
+      overviewSheet(input.meta, [
+        'Übersicht der eLis-Ansprechpersonen je Anstalt, Sicherheitsrahmen und Sicherheitspartner.',
+        `Datenstand ${input.table.standLabel}.`,
+        'Nur auf Ebene Ministerium (inkl. FB Päd.) abrufbar.',
+        'Kontaktliste ohne Diagrammblatt.',
+      ]),
+      finishSheet(
+        'Ansprechpersonen',
+        input.meta,
+        `Elis (Stand ${input.table.standLabel})`,
+        grouped.rows,
+        grouped.merges,
+        body,
+        [],
+        2,
       ),
     ],
     buildExcelFilename(input.meta.filenameBase),

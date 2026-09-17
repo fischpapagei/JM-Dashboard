@@ -54,7 +54,7 @@ export function SidebarLayout({
   );
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-0 min-w-0 flex-1">
       <JustizSidebar
         title="Kennzahlensystem"
         userName={user.displayName}
@@ -64,7 +64,7 @@ export function SidebarLayout({
           <KernText size="small">
             Dashboard = Auswertung.
             <br />
-            Eingabe erfolgt in BASIS-Web.
+            Eingabe erfolgt in BASIS.
           </KernText>
         }
       >

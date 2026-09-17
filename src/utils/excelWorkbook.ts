@@ -3,21 +3,21 @@ import { injectNativeExcelCharts, type ExcelNativeChart } from './excelCharts';
 
 const FONT = 'Calibri';
 const NACHTBLAU = '003064';
-const PETROL = '175E54';
-const SLATE = '334155';
-const MUTED = '94A3B8';
+const NACHTBLAU_50 = '8098B2';
+const GRASGRUEN = '175E54';
+const PETROLGRUEN = '009B74';
+const SLATE = '4D5F70';
+const MUTED = '808080';
 const WHITE = 'FFFFFF';
-const INK = '0F172A';
+const INK = '003064';
 const RED = 'E2001A';
 const GREEN = '009036';
-const SKY = '0369A1';
-const VIOLET = '5B21B6';
-const QUARTER_SUM = 'ECFDF5';
-const YEAR_SUM = 'F0F9FF';
-const NEUTRAL_SUM = 'E2E8F0';
-const STRIPE = 'F8FAFC';
-const EXTERNAL_FILL = 'EDE9FE';
-const BORDER = 'CBD5E1';
+const QUARTER_SUM = 'D9E0E8';
+const YEAR_SUM = 'B3C1D1';
+const NEUTRAL_SUM = 'D9E0E8';
+const STRIPE = 'F4F6F8';
+const EXTERNAL_FILL = 'B3C1D1';
+const BORDER = 'B3C1D1';
 
 export type ExcelTheme = 'quarter' | 'year' | 'neutral';
 
@@ -81,8 +81,7 @@ const THIN_BORDER = {
 };
 
 function headerFill(theme: ExcelTheme): string {
-  if (theme === 'quarter') return PETROL;
-  if (theme === 'year') return NACHTBLAU;
+  if (theme === 'quarter') return NACHTBLAU_50;
   return NACHTBLAU;
 }
 
@@ -95,12 +94,14 @@ function sumFill(theme: ExcelTheme): string {
 function fontColor(cell: StyledCell): string {
   if (cell.role === 'title') return NACHTBLAU;
   if (cell.role === 'subtitle' || cell.role === 'note') return SLATE;
-  if (cell.role === 'header' || cell.role === 'headerGroup') return WHITE;
+  if (cell.role === 'header' || cell.role === 'headerGroup') {
+    return cell.theme === 'quarter' ? NACHTBLAU : WHITE;
+  }
   if (cell.color === 'negative' || cell.color === 'changed') return RED;
   if (cell.color === 'positive' || cell.color === 'new') return GREEN;
-  if (cell.color === 'basis') return SKY;
-  if (cell.color === 'web') return PETROL;
-  if (cell.color === 'external') return VIOLET;
+  if (cell.color === 'basis') return NACHTBLAU;
+  if (cell.color === 'web') return GRASGRUEN;
+  if (cell.color === 'external') return PETROLGRUEN;
   if (cell.color === 'muted') return MUTED;
   return INK;
 }

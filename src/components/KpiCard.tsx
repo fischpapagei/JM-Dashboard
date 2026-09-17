@@ -48,7 +48,7 @@ function formatSuffix(
 export function KpiCard({
   title,
   value,
-  subtitle = "Daten aus BASIS-Web",
+  subtitle = "Daten aus BASIS",
   unit = "",
   suffix = "",
   suffixValue,

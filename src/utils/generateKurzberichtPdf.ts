@@ -235,7 +235,7 @@ function addPageFooters(doc: jsPDF): void {
       MARGIN_MM,
       pageHeight - 5,
     );
-    doc.text('Datenquelle: BASIS-Web', pageWidth - MARGIN_MM, pageHeight - 5, { align: 'right' });
+    doc.text('Datenquelle: BASIS', pageWidth - MARGIN_MM, pageHeight - 5, { align: 'right' });
   }
 }
 

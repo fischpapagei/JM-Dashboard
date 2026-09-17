@@ -9,7 +9,7 @@ import {
 
 const LABEL_CELL = `${REPORT_LABEL_CELL} border-slate-300 text-[10px] text-(--color-ink)`;
 const DATA_CELL = `${REPORT_DATA_CELL} border-slate-300 text-[10px] text-(--color-ink)`;
-const HEADER_CELL = `${REPORT_HEADER_CELL} border-sky-300 bg-sky-100 text-[9px] font-semibold uppercase tracking-wide text-sky-950`;
+const HEADER_CELL = `${REPORT_HEADER_CELL} border-nachtblau-30 bg-nachtblau-15 text-[9px] font-semibold uppercase tracking-wide text-nachtblau`;
 
 function blank(value: string): string {
   return value.trim() === '' ? EMPTY_VALUE_LABEL : value;
@@ -47,7 +47,7 @@ interface ElisRaumeTableProps {
 export function ElisRaumeTableView({ table }: ElisRaumeTableProps) {
   return (
     <section className="w-full overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
-      <div className="border-b border-sky-200 bg-sky-100 px-4 py-3 text-center">
+      <div className="border-b border-nachtblau-30 bg-nachtblau-15 px-4 py-3 text-center">
         <h3 className="text-sm font-semibold text-(--color-ink)">
           Elis Räume und Mandantschaften (Stand {table.standLabel})
         </h3>

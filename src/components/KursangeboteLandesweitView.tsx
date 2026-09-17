@@ -87,7 +87,7 @@ export function KursangeboteLandesweitView({
       {!demoMode ? (
         <EmptyState
           title="Keine Daten geladen"
-          description="Aktivieren Sie Demo-Daten in der Konfiguration, um den Bericht anzuzeigen. Produktivdaten kommen später aus BASIS-Web und der jährlichen Web-Erfassung."
+          description="Aktivieren Sie Demo-Daten in der Konfiguration, um den Bericht anzuzeigen. Produktivdaten kommen später aus BASIS und der jährlichen Web-Erfassung."
         />
       ) : sections.length === 0 ? (
         <EmptyState
@@ -102,13 +102,13 @@ export function KursangeboteLandesweitView({
               Nur vorhandene Angebote werden angezeigt.
             </p>
             <p className="mt-1">
-              <span className="font-medium text-sky-700">Blau:</span> BASIS (Kursname, SOLL-Plätze)
+              <span className="font-medium text-nachtblau">Blau:</span> BASIS (Kursname, SOLL-Plätze)
               {' · '}
-              <span className="font-medium text-emerald-700">Grün:</span> jährliche Web-Erfassung
+              <span className="font-medium text-grasgruen">Grün:</span> jährliche Web-Erfassung
               {showExternalColumn ? (
                 <>
                   {' · '}
-                  <span className="font-medium text-violet-800">Violett:</span> nur JM, FB Päd. und ZBI
+                  <span className="font-medium text-petrolgruen">Petrolgrün:</span> nur JM, FB Päd. und ZBI
                 </>
               ) : null}
             </p>

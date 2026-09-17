@@ -5,12 +5,14 @@ interface KernAppChromeProps {
   children: ReactNode;
   actions?: ReactNode;
   title?: string;
+  nav?: ReactNode;
 }
 
 export function KernAppChrome({
   children,
   actions,
   title = 'Bildung & Beschäftigung',
+  nav,
 }: KernAppChromeProps) {
   return (
     <>
@@ -26,6 +28,7 @@ export function KernAppChrome({
           </div>
         </KernContainer>
       </div>
+      {nav}
       {children}
     </>
   );
